@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import Database from 'better-sqlite3';
+import type Database from 'better-sqlite3';
+import { isBetterSqlite3Available, loadBetterSqlite3 } from './sqlite-availability.js';
 import { SqliteDecisionLogRepository } from './sqlite-decision-log.repository.js';
 import { runMigrations } from './migrations.js';
 import type { TenantId } from '../../contracts/common.contracts.js';
@@ -29,12 +30,12 @@ function makeRecord(overrides?: Partial<DecisionRecord>): DecisionRecord {
   };
 }
 
-describe('SqliteDecisionLogRepository', () => {
+describe.skipIf(!isBetterSqlite3Available())('SqliteDecisionLogRepository', () => {
   let db: Database.Database;
   let repo: SqliteDecisionLogRepository;
 
   beforeEach(() => {
-    db = new Database(':memory:');
+    db = new (loadBetterSqlite3())(':memory:');
     runMigrations(db);
     repo = new SqliteDecisionLogRepository(db);
   });

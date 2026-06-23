@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { evaluateCommand } from './evaluate.js';
 import { historyCommand } from './history.js';
 import type { CliContext } from '../cli.js';
+import { isBetterSqlite3Available } from '../../../persistence/sqlite/sqlite-availability.js';
 
 function makeCtx(overrides: Partial<CliContext>): CliContext & { output: string[]; errors: string[] } {
   const output: string[] = [];
@@ -30,7 +31,7 @@ describe('history command', () => {
     }
   });
 
-  it('shows decisions written by CLI evaluate when SQLite is configured', async () => {
+  it.skipIf(!isBetterSqlite3Available())('shows decisions written by CLI evaluate when SQLite is configured', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'dc-history-'));
     dirs.push(dir);
     mkdirSync(join(dir, '.decision-core'), { recursive: true });

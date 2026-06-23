@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import Database from 'better-sqlite3';
+import type Database from 'better-sqlite3';
+import { isBetterSqlite3Available, loadBetterSqlite3 } from './sqlite-availability.js';
 import { SqliteApprovalRepository } from './sqlite-approval.repository.js';
 import { runMigrations } from './migrations.js';
 import type { TenantId } from '../../contracts/common.contracts.js';
@@ -27,12 +28,12 @@ function makeInput(overrides?: Partial<ApprovalCreateInput>): ApprovalCreateInpu
   };
 }
 
-describe('SqliteApprovalRepository', () => {
+describe.skipIf(!isBetterSqlite3Available())('SqliteApprovalRepository', () => {
   let db: Database.Database;
   let repo: SqliteApprovalRepository;
 
   beforeEach(() => {
-    db = new Database(':memory:');
+    db = new (loadBetterSqlite3())(':memory:');
     runMigrations(db);
     repo = new SqliteApprovalRepository(db);
   });

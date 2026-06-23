@@ -4,6 +4,7 @@ import { createDecisionCore } from './create-decision-core.js';
 import type { BaseDecision, DecisionQualityGateResult } from '../../decisions/base-decision.js';
 import type { TenantId } from '../../contracts/common.contracts.js';
 import type { EvaluationSpec } from '../../decisions/evaluation-spec.types.js';
+import { isBetterSqlite3Available } from '../../persistence/sqlite/sqlite-availability.js';
 
 interface TestInput { tool: string }
 interface TestOutput { result: string }
@@ -35,7 +36,7 @@ function makeTestDecision(actionType: string, surfaceId = 'test.surface'): BaseD
   };
 }
 
-describe('quickStart SQLite wiring', () => {
+describe.skipIf(!isBetterSqlite3Available())('quickStart SQLite wiring', () => {
   it('creates working instance with in-memory SQLite', async () => {
     const dc = await quickStart({ storage: 'sqlite', sqlitePath: ':memory:', tools: ['read_file'] });
     const decision = makeTestDecision('read_file');
@@ -60,7 +61,7 @@ describe('quickStart SQLite wiring', () => {
   });
 });
 
-describe('createDecisionCore SQLite wiring', () => {
+describe.skipIf(!isBetterSqlite3Available())('createDecisionCore SQLite wiring', () => {
   it('creates working instance with sqlite persistence', async () => {
     const dc = await createDecisionCore({ persistence: 'sqlite', sqlitePath: ':memory:' });
     expect(dc.tenantId).toBe('default');
@@ -83,7 +84,7 @@ describe('createDecisionCore SQLite wiring', () => {
   });
 });
 
-describe('SQLite defaultVerdict persistence', () => {
+describe.skipIf(!isBetterSqlite3Available())('SQLite defaultVerdict persistence', () => {
   it('persists and hydrates defaultVerdict through SQLite', async () => {
     const { createSqliteConnection } = await import('../../persistence/sqlite/sqlite-connection.js');
     const { SqlitePolicyRuleRepository } = await import('../../persistence/sqlite/sqlite-policy-rule.repository.js');

@@ -57,7 +57,25 @@ export async function createDecisionCore(config: Partial<DecisionCoreConfig> = {
     const { createSqliteConnection } = await import('../../persistence/sqlite/sqlite-connection.js');
     const { SqlitePolicyRuleRepository } = await import('../../persistence/sqlite/sqlite-policy-rule.repository.js');
     const { SqliteDecisionLogRepository } = await import('../../persistence/sqlite/sqlite-decision-log.repository.js');
-    const db = createSqliteConnection({ path: parsed.sqlitePath });
+    const { isBetterSqlite3LoadError } = await import('../../persistence/sqlite/sqlite-availability.js');
+    let db: ReturnType<typeof createSqliteConnection>;
+    try {
+      db = createSqliteConnection({ path: parsed.sqlitePath });
+    } catch (err) {
+      // Only turn the OPTIONAL native module failing to load into an actionable
+      // message — genuine SQLite errors (migrations, file permissions, …) surface
+      // as-is so real bugs are not masked.
+      if (isBetterSqlite3LoadError(err)) {
+        throw new Error(
+          "SQLite persistence needs the optional native module 'better-sqlite3', which could not be loaded here " +
+            '(e.g. a sandbox/CI without a compiler toolchain or a matching prebuilt binary). ' +
+            "Use in-memory persistence (omit `persistence`, or set persistence: 'memory'), " +
+            'or install C/C++ build tools and reinstall so better-sqlite3 can build.',
+          { cause: err instanceof Error ? err : new Error(String(err)) },
+        );
+      }
+      throw err;
+    }
     policyRuleRepo = new SqlitePolicyRuleRepository(db);
     decisionLogRepo = new SqliteDecisionLogRepository(db);
   } else {

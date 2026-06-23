@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import Database from 'better-sqlite3';
+import type Database from 'better-sqlite3';
+import { isBetterSqlite3Available, loadBetterSqlite3 } from './sqlite-availability.js';
 import { SqliteEventRepository } from './sqlite-event.repository.js';
 import { runMigrations } from './migrations.js';
 import type { TenantId } from '../../contracts/common.contracts.js';
@@ -22,12 +23,12 @@ function makeEvent(overrides?: Partial<DomainEvent>): DomainEvent {
   };
 }
 
-describe('SqliteEventRepository', () => {
+describe.skipIf(!isBetterSqlite3Available())('SqliteEventRepository', () => {
   let db: Database.Database;
   let repo: SqliteEventRepository;
 
   beforeEach(() => {
-    db = new Database(':memory:');
+    db = new (loadBetterSqlite3())(':memory:');
     runMigrations(db);
     repo = new SqliteEventRepository(db);
   });

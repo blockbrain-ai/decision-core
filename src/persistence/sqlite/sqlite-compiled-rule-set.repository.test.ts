@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import Database from 'better-sqlite3';
+import type Database from 'better-sqlite3';
+import { isBetterSqlite3Available, loadBetterSqlite3 } from './sqlite-availability.js';
 import { SqliteCompiledRuleSetRepository } from './sqlite-compiled-rule-set.repository.js';
 import { runMigrations } from './migrations.js';
 import type { TenantId } from '../../contracts/common.contracts.js';
@@ -21,12 +22,12 @@ function makeInput(overrides?: Partial<CompiledRuleSetCreateInput>): CompiledRul
   };
 }
 
-describe('SqliteCompiledRuleSetRepository', () => {
+describe.skipIf(!isBetterSqlite3Available())('SqliteCompiledRuleSetRepository', () => {
   let db: Database.Database;
   let repo: SqliteCompiledRuleSetRepository;
 
   beforeEach(() => {
-    db = new Database(':memory:');
+    db = new (loadBetterSqlite3())(':memory:');
     runMigrations(db);
     repo = new SqliteCompiledRuleSetRepository(db);
   });

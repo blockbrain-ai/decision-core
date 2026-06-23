@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import Database from 'better-sqlite3';
+import type Database from 'better-sqlite3';
+import { isBetterSqlite3Available, loadBetterSqlite3 } from './sqlite-availability.js';
 import { SqlitePolicyRuleRepository } from './sqlite-policy-rule.repository.js';
 import { runMigrations } from './migrations.js';
 import type { TenantId } from '../../contracts/common.contracts.js';
@@ -23,12 +24,12 @@ function makeInput(overrides?: Partial<PolicyRuleCreateInput>): PolicyRuleCreate
   };
 }
 
-describe('SqlitePolicyRuleRepository', () => {
+describe.skipIf(!isBetterSqlite3Available())('SqlitePolicyRuleRepository', () => {
   let db: Database.Database;
   let repo: SqlitePolicyRuleRepository;
 
   beforeEach(() => {
-    db = new Database(':memory:');
+    db = new (loadBetterSqlite3())(':memory:');
     runMigrations(db);
     repo = new SqlitePolicyRuleRepository(db);
   });

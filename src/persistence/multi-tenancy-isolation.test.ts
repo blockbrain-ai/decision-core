@@ -7,7 +7,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import Database from 'better-sqlite3';
+import type Database from 'better-sqlite3';
+import { isBetterSqlite3Available, loadBetterSqlite3 } from './sqlite/sqlite-availability.js';
 import type { TenantId } from '../contracts/common.contracts.js';
 import { DEFAULT_TENANT_ID } from '../contracts/common.contracts.js';
 import type { PolicyRuleCreateInput } from '../contracts/policy.contracts.js';
@@ -682,7 +683,7 @@ describe('Multi-Tenancy Isolation — In-Memory', () => {
 // SQLite Implementation Tests
 // ===========================================================================
 
-describe('Multi-Tenancy Isolation — SQLite', () => {
+describe.skipIf(!isBetterSqlite3Available())('Multi-Tenancy Isolation — SQLite', () => {
   let db: Database.Database;
   let policyRule: SqlitePolicyRuleRepository;
   let decisionLog: SqliteDecisionLogRepository;
@@ -693,7 +694,7 @@ describe('Multi-Tenancy Isolation — SQLite', () => {
   let compiledRuleSet: SqliteCompiledRuleSetRepository;
 
   beforeEach(() => {
-    db = new Database(':memory:');
+    db = new (loadBetterSqlite3())(':memory:');
     runMigrations(db);
     policyRule = new SqlitePolicyRuleRepository(db);
     decisionLog = new SqliteDecisionLogRepository(db);
