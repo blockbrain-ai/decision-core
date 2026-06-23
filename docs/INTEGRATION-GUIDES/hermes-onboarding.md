@@ -76,8 +76,8 @@ If you consent, setup reads:
 ## Active Memory Provider
 
 Hermes supports multiple memory providers. If one is active, setup can also query it:
-- **mem0** — see [mem0.md](../skills/agent-onboard/references/memory-systems/mem0.md)
-- **honcho** — see [honcho.md](../skills/agent-onboard/references/memory-systems/honcho.md)
+- **mem0** — see [mem0.md](../../skills/agent-onboard/references/memory-systems/mem0.md)
+- **honcho** — see [honcho.md](../../skills/agent-onboard/references/memory-systems/honcho.md)
 - **holographic, hindsight, byterover, openviking, retaindb, supermemory** — generic export via Hermes CLI
 
 ## Post-Setup

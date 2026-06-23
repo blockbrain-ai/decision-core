@@ -182,7 +182,7 @@ See [Organisation Deployment Security](./ORG-DEPLOYMENT-SECURITY.md) for the ful
 
 ## Memory Sources
 
-See [MEMORY-SOURCES.md](MEMORY-SOURCES.md) for the full list of supported sources, detection hints, and agent instructions.
+See [memory-sources.md](../skills/agent-onboard/references/memory-sources.md) for the full list of supported sources, detection hints, and agent instructions.
 
 ## Security
 

@@ -5,7 +5,7 @@
  * within a PolicyPack.
  */
 
-import type { PolicyPack, PolicyRuleDefinition, PackRuleAction } from '../../contracts/policy-pack.contracts.js';
+import type { PackRuleAction } from '../../contracts/policy-pack.contracts.js';
 
 export type ConflictType =
   | 'DirectConflict'

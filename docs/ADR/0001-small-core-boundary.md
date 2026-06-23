@@ -37,7 +37,7 @@ These are valuable but not required for the core decision contract:
 | Clause graph + compiler | New (from policy-KB plan) | Adds policy-as-data and compiled rules. Core works with manually defined policy rules. |
 | G-Brain adapter | New | Memory integration. Core stores decisions in its own persistence layer. |
 | SQLite persistence | New | Production single-tenant. In-memory covers dev/testing. |
-| Postgres persistence | New | Enterprise multi-tenant. Heavy dependency. |
+| Postgres persistence | Roadmapped (v0.2) | Not in v0.1 — memory (default) + SQLite are the shipped tiers. |
 | MCP server | New | Surface layer. Core is the SDK. |
 | HTTP API | New | Cross-language bridge (Hermes Python plugin). Core is TypeScript SDK. |
 | CLI | New | Convenience. Core is programmatic. |

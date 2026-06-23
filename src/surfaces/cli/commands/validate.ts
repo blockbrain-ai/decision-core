@@ -13,7 +13,6 @@ import { resolve, extname } from 'node:path';
 import type { CliContext } from '../cli.js';
 import { detectFrontmatter, parseStructuredDocument } from '../../../knowledge/authoring/frontmatter-parser.js';
 import { parseYamlPolicy } from '../../../knowledge/authoring/yaml-policy-parser.js';
-import type { ParsedStructuredClause } from '../../../knowledge/authoring/structured-clause.types.js';
 
 export async function validateCommand(ctx: CliContext): Promise<number> {
   const inputPath = ctx.args.positionals?.[0] || (ctx.args as any)._?.[0];

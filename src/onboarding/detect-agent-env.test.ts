@@ -19,13 +19,27 @@ function makeTmpDir(): string {
 
 describe('detect-agent-env', () => {
   let tmpDir: string;
+  let hostHome: string;
+  let origHome: string | undefined;
+  let origHermesHome: string | undefined;
 
   beforeEach(() => {
     tmpDir = makeTmpDir();
+    // Isolate the host home so detection never reads the developer's real
+    // ~/.hermes, ~/.gbrain, ~/.mempalace state (tests must be hermetic). The
+    // detectors take an injectable hostHome that defaults to process.env.HOME.
+    hostHome = makeTmpDir();
+    origHome = process.env['HOME'];
+    origHermesHome = process.env['HERMES_HOME'];
+    process.env['HOME'] = hostHome;
+    delete process.env['HERMES_HOME'];
   });
 
   afterEach(() => {
     rmSync(tmpDir, { recursive: true, force: true });
+    rmSync(hostHome, { recursive: true, force: true });
+    if (origHome === undefined) delete process.env['HOME']; else process.env['HOME'] = origHome;
+    if (origHermesHome === undefined) delete process.env['HERMES_HOME']; else process.env['HERMES_HOME'] = origHermesHome;
   });
 
   // =========================================================================

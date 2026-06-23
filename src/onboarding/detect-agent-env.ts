@@ -146,12 +146,15 @@ export function detectOpenClaw(scanRoot: string): HarnessDetection | null {
   };
 }
 
-export function detectHermes(scanRoot: string): HarnessDetection | null {
+// `hostHome` is injectable so detection is hermetic in tests and does not depend on
+// the developer's real `~/.hermes` (etc.) state. Production callers default to the
+// real HOME; tests pass an isolated directory.
+export function detectHermes(scanRoot: string, hostHome: string = process.env['HOME'] ?? ''): HarnessDetection | null {
   const signals: DetectionSignal[] = [];
   const configPaths: string[] = [];
 
   const hermesHome = process.env['HERMES_HOME'];
-  const defaultHermesDir = join(process.env['HOME'] ?? '', '.hermes');
+  const defaultHermesDir = join(hostHome, '.hermes');
   const hermesDir = hermesHome ?? defaultHermesDir;
 
   const configYaml = join(hermesDir, 'config.yaml');
@@ -317,13 +320,13 @@ function makeDetection(
   };
 }
 
-export function detectMemorySources(scanRoot: string): MemorySourceDetection[] {
+export function detectMemorySources(scanRoot: string, hostHome: string = process.env['HOME'] ?? ''): MemorySourceDetection[] {
   const sources: MemorySourceDetection[] = [];
 
   // G-Brain
   {
     const signals: string[] = [];
-    const gbrainDir = join(process.env['HOME'] ?? '', '.gbrain');
+    const gbrainDir = join(hostHome, '.gbrain');
     if (dirExists(gbrainDir)) signals.push('~/.gbrain/ directory found');
     if (envVarDefined('GBRAIN_DATABASE_URL')) signals.push('GBRAIN_DATABASE_URL env var defined');
 
@@ -338,7 +341,7 @@ export function detectMemorySources(scanRoot: string): MemorySourceDetection[] {
   // MemPalace
   {
     const signals: string[] = [];
-    const mpDir = join(process.env['HOME'] ?? '', '.mempalace');
+    const mpDir = join(hostHome, '.mempalace');
     if (dirExists(mpDir)) signals.push('~/.mempalace/ directory found');
 
     const mcpSettings = join(scanRoot, '.mcp.json');
@@ -373,7 +376,7 @@ export function detectMemorySources(scanRoot: string): MemorySourceDetection[] {
   // Hermes built-in
   {
     const signals: string[] = [];
-    const hermesDir = process.env['HERMES_HOME'] ?? join(process.env['HOME'] ?? '', '.hermes');
+    const hermesDir = process.env['HERMES_HOME'] ?? join(hostHome, '.hermes');
     const memoryMd = join(hermesDir, 'memories', 'MEMORY.md');
     const userMd = join(hermesDir, 'memories', 'USER.md');
     if (fileExists(memoryMd)) signals.push('~/.hermes/memories/MEMORY.md found');
@@ -384,7 +387,7 @@ export function detectMemorySources(scanRoot: string): MemorySourceDetection[] {
   // Hermes active provider
   {
     const signals: string[] = [];
-    const hermesDir = process.env['HERMES_HOME'] ?? join(process.env['HOME'] ?? '', '.hermes');
+    const hermesDir = process.env['HERMES_HOME'] ?? join(hostHome, '.hermes');
     const configPath = join(hermesDir, 'config.yaml');
     if (fileExists(configPath)) {
       const content = readTextSafe(configPath);
@@ -492,11 +495,11 @@ export function detectMemorySources(scanRoot: string): MemorySourceDetection[] {
 // Top-Level Detection
 // ===========================================================================
 
-export function detectAgentEnvironment(scanRoot: string): AgentEnvironment {
+export function detectAgentEnvironment(scanRoot: string, hostHome: string = process.env['HOME'] ?? ''): AgentEnvironment {
   const root = resolve(scanRoot);
 
   const ocDetection = detectOpenClaw(root);
-  const hermesDetection = detectHermes(root);
+  const hermesDetection = detectHermes(root, hostHome);
   const genericDetection = detectGenericNode(root);
 
   const candidates = [ocDetection, hermesDetection, genericDetection].filter(
@@ -508,7 +511,7 @@ export function detectAgentEnvironment(scanRoot: string): AgentEnvironment {
 
   const provider = detectProviderEnvVarNames();
   const tools = detectToolsFromManifests(root);
-  const memorySources = detectMemorySources(root);
+  const memorySources = detectMemorySources(root, hostHome);
 
   return {
     harness,

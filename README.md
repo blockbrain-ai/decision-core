@@ -7,9 +7,17 @@ Decision Core sits between your AI agent and its tools, enforcing policy rules b
 ```typescript
 import { evaluate } from '@decision-core/core';
 
-const result = await evaluate({ action: 'delete_file', surface: 'api' });
-console.log(result.decision); // → 'deny'
+// deny-unknown ON: any action without a matching allow rule is denied.
+const result = await evaluate(
+  { action: 'delete_file', surface: 'api' },
+  { denyUnknownDefault: true },
+);
+console.log(result.decision); // → 'deny'  (no allow rule matched → denied)
 ```
+
+> **Default posture:** with no policy loaded and `denyUnknownDefault` unset, an unmatched
+> action is **allowed** — deny-unknown is opt-in (shown above) or set by a policy pack.
+> Load a pack (or enable deny-unknown) before relying on deny-wins enforcement.
 
 For the full pipeline with `quickStart`:
 
@@ -240,7 +248,12 @@ Full setup with trust tiers, provider configuration, SQLite persistence, and aud
 
 ### 1. Configure persistence
 
-Switch from in-memory to SQLite for durable decision logs and evidence chains:
+Switch from in-memory to SQLite for durable decision logs and evidence chains.
+SQLite uses the optional native dependency `better-sqlite3` — install it first:
+
+```bash
+npm install better-sqlite3
+```
 
 ```typescript
 import { quickStart } from '@decision-core/core';
@@ -360,8 +373,8 @@ decision-core evaluate --surface api.public --action delete_user
 # Explain a past decision
 decision-core explain --id <correlation-id>
 
-# Ingest policy clauses
-decision-core ingest --path ./policies/
+# Ingest a policy document (a single Markdown file; positional path or --file)
+decision-core ingest ./policies/my-policy.md
 
 # Compile policy rules
 decision-core compile
@@ -372,8 +385,8 @@ decision-core validate config/templates/structured-clause-low-risk.md
 # Lint structured policy clauses against surface contracts
 decision-core lint config/templates/structured-clause-low-risk.md
 
-# Analyze a policy pack for conflicting rules (new in production hardening)
-decision-core policy analyze config/packs/fintech.yaml
+# Analyze a policy pack for conflicting rules
+decision-core analyze config/packs/fintech.yaml
 
 # Generate test cases from compiled rules
 decision-core generate-tests --rule-set ./compiled-rules.json --output ./policy-tests.json
@@ -481,7 +494,7 @@ programmatic setup, use `createMcpServer(deps, config)` from
 - **SDK** — `quickStart()`, `fromPolicyPack()`, `createDecisionCore()`, `createPolicyGuard()`
 - **MCP** — Model Context Protocol server with core policy tools plus bundled onboarding, setup, authoring, and audit tools
 - **CLI** — evaluate, explain, ingest, compile, audit, serve commands
-- **HTTP** — REST API (planned)
+- **HTTP** — REST API (shipped via `createHttpServer`)
 
 **Persistence Layer** (pluggable):
 - **In-Memory** — default, no setup, ideal for development and single-process agents

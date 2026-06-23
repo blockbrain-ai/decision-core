@@ -41,6 +41,16 @@ describe('README examples (verbatim happy path)', () => {
     expect(allowed.verdict).toBe('completed');
   });
 
+  it('top-of-README evaluate(): deny-unknown ON denies an unmatched action; default allows it', async () => {
+    const { evaluate } = await import('./evaluate.js');
+    // The hero example: with deny-unknown enabled, an unmatched action is denied.
+    const denied = await evaluate({ action: 'delete_file', surface: 'api' }, { denyUnknownDefault: true });
+    expect(denied.decision).toBe('deny');
+    // The documented default posture: no pack + deny-unknown unset → allowed.
+    const allowed = await evaluate({ action: 'delete_file', surface: 'api' });
+    expect(allowed.decision).toBe('allow');
+  });
+
   it('explain() works on a quickStart instance for a blocked decision', async () => {
     const dc = await quickStart({ tools: ['read_*'] });
     const blocked = await dc.evaluate(new ActionApprovalDecision('drop_table')

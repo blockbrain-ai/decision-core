@@ -7,7 +7,6 @@
 import { describe, it, expect } from 'vitest';
 import { analyzePolicyPack } from './conflict-detector.js';
 import { loadPackFromPath } from '../../packs/pack-loader.js';
-import { PolicyPackSchema } from '../../contracts/policy-pack.contracts.js';
 
 const createMinimalPack = (rules: any[]) => ({
   name: 'test-pack',

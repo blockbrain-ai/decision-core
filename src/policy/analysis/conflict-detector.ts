@@ -18,7 +18,6 @@ import type {
   PolicyConflict,
   ConflictAnalysisOptions,
 } from './types.js';
-import { globMatches } from '../glob-matcher.js';
 import { generateUuidV7 } from '../../utils/uuid-v7.js';
 
 /**
@@ -34,19 +33,15 @@ function surfacesOverlap(sa: string[] | undefined, sb: string[] | undefined): bo
   return a.some((s) => b.includes(s));
 }
 
-const DEFAULT_OPTIONS: Required<ConflictAnalysisOptions> = {
-  onConflict: 'warn',
-  includeDisabled: false,
-};
-
 /**
  * Main entry point: Analyze a policy pack for conflicts.
  */
 export function analyzePolicyPack(
   pack: PolicyPack,
-  options: ConflictAnalysisOptions = {}
+  // Reserved: per-call analysis options are accepted but not yet applied (v0.1
+  // uses DEFAULT_OPTIONS semantics). Threading these through is tracked separately.
+  _options: ConflictAnalysisOptions = {}
 ): ConflictReport {
-  const opts = { ...DEFAULT_OPTIONS, ...options };
   const enabledRules = pack.rules; // All rules considered enabled in current pack schema
 
   const conflicts: PolicyConflict[] = [];
