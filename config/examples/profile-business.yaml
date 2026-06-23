@@ -1,0 +1,69 @@
+# Decision Core Profile — Business
+# Business setup with approval gates on high-risk operations
+
+schemaVersion: 1
+profileId: "example-business-001"
+mode: "business"
+
+agent:
+  harness: "openclaw"
+  detectedTools:
+    - "file_read"
+    - "file_write"
+    - "shell_exec"
+    - "deploy"
+    - "send_email"
+
+autonomy:
+  posture: "guided"
+  defaultAction: "ask"
+  alwaysRequireApproval:
+    - "deploy"
+    - "send_email"
+    - "delete_data"
+
+provider:
+  mode: "host"
+
+memory:
+  primarySource: "openclaw-native"
+  evidenceImported: true
+
+data:
+  classes:
+    - "pii"
+    - "financial"
+    - "internal"
+  complianceFrameworks: []
+
+tools:
+  - name: "file_read"
+    riskTier: 1
+    defaultAction: "allow"
+  - name: "file_write"
+    riskTier: 2
+    defaultAction: "allow"
+  - name: "shell_exec"
+    riskTier: 3
+    defaultAction: "ask"
+  - name: "deploy"
+    riskTier: 4
+    canDeployCode: true
+    defaultAction: "block"
+  - name: "send_email"
+    riskTier: 3
+    canContactPeople: true
+    defaultAction: "ask"
+
+surfaces:
+  - name: "high-risk-operations"
+    tools:
+      - "deploy"
+  - name: "standard-operations"
+    tools:
+      - "shell_exec"
+      - "send_email"
+  - name: "low-risk-operations"
+    tools:
+      - "file_read"
+      - "file_write"

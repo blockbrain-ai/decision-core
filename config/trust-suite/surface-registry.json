@@ -1,0 +1,75 @@
+{
+  "version": "1.0.0",
+  "surfaces": [
+    {
+      "surfaceId": "finance.processing",
+      "category": "finance",
+      "description": "Financial transaction processing and payment decisions",
+      "riskTier": "critical",
+      "requiredCapabilities": ["financial_analysis", "compliance_check"]
+    },
+    {
+      "surfaceId": "finance.analysis",
+      "category": "finance",
+      "description": "Financial data analysis and reporting",
+      "riskTier": "intermediate",
+      "requiredCapabilities": ["financial_analysis"]
+    },
+    {
+      "surfaceId": "communication.email",
+      "category": "communication",
+      "description": "Email composition and delivery decisions",
+      "riskTier": "intermediate",
+      "requiredCapabilities": ["text_generation"]
+    },
+    {
+      "surfaceId": "communication.notification",
+      "category": "communication",
+      "description": "System notification routing and content",
+      "riskTier": "low",
+      "requiredCapabilities": ["text_generation"]
+    },
+    {
+      "surfaceId": "compliance.screening",
+      "category": "compliance",
+      "description": "Regulatory compliance screening and sanctions checks",
+      "riskTier": "critical",
+      "requiredCapabilities": ["compliance_check", "risk_assessment"]
+    },
+    {
+      "surfaceId": "compliance.review",
+      "category": "compliance",
+      "description": "Policy compliance review and assessment",
+      "riskTier": "critical",
+      "requiredCapabilities": ["compliance_check"]
+    },
+    {
+      "surfaceId": "data.classification",
+      "category": "data",
+      "description": "Data classification and categorization",
+      "riskTier": "intermediate",
+      "requiredCapabilities": ["classification"]
+    },
+    {
+      "surfaceId": "data.extraction",
+      "category": "data",
+      "description": "Structured data extraction from unstructured sources",
+      "riskTier": "low",
+      "requiredCapabilities": ["text_generation"]
+    },
+    {
+      "surfaceId": "workflow.routing",
+      "category": "workflow",
+      "description": "Workflow and task routing decisions",
+      "riskTier": "low",
+      "requiredCapabilities": ["classification"]
+    },
+    {
+      "surfaceId": "workflow.escalation",
+      "category": "workflow",
+      "description": "Escalation path determination and priority assessment",
+      "riskTier": "intermediate",
+      "requiredCapabilities": ["risk_assessment", "classification"]
+    }
+  ]
+}

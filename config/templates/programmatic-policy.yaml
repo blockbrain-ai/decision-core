@@ -1,0 +1,165 @@
+frontmatter:
+  schema_version: "1.0.0"
+  policy_id: dc.template.programmatic
+  title: Programmatic Policy Template
+  owner: platform@example.com
+  surfaces:
+    - finance.processing
+    - data.extraction
+  tags:
+    - template
+    - programmatic
+    - multi-surface
+
+clauses:
+  - clause_id: dc.prog.001
+    clause_type: threshold
+    condition:
+      type: threshold
+      field: amount
+      operator: gte
+      value: 50000
+    decision: approve_required
+    surface_id: finance.processing
+    route_class: deterministic_only
+    safe_to_execute_without_model: true
+    evidence_required: [amount, currency]
+    owner: finance@example.com
+    priority: 100
+
+  - clause_id: dc.prog.002
+    clause_type: prohibition
+    condition:
+      type: sanctions_match
+      field: recipient.country
+      sanctionsLists: [OFAC, EU_SANCTIONS]
+    decision: deny
+    surface_id: finance.processing
+    safe_to_execute_without_model: true
+    priority: 1000
+
+  - clause_id: dc.prog.003
+    clause_type: permission
+    condition:
+      type: enum_match
+      field: transaction_type
+      allowedValues: [wire, ach, card]
+    decision: allow
+    surface_id: finance.processing
+    safe_to_execute_without_model: true
+    priority: 50
+
+  - clause_id: dc.prog.004
+    clause_type: obligation
+    condition:
+      type: field_presence
+      fields: [amount, currency, recipient.country]
+      allRequired: true
+    decision: deny
+    surface_id: finance.processing
+    safe_to_execute_without_model: true
+    priority: 200
+
+  - clause_id: dc.prog.005
+    clause_type: evidence_requirement
+    condition:
+      type: boolean_required
+      field: has_kyc
+      requiredValue: true
+    decision: escalate
+    surface_id: finance.processing
+    evidence_required: [has_kyc]
+    priority: 150
+
+  - clause_id: dc.prog.006
+    clause_type: threshold
+    condition:
+      type: range
+      field: risk_score
+      min: 0
+      max: 0.3
+      inclusive: true
+    decision: allow
+    surface_id: finance.processing
+    safe_to_execute_without_model: true
+    priority: 80
+
+  - clause_id: dc.prog.007
+    clause_type: approval_requirement
+    condition:
+      type: role_required
+      field: approvers
+      requiredRoles: [compliance_officer, senior_manager]
+      anyOf: false
+    decision: approve_required
+    surface_id: finance.processing
+    priority: 300
+
+  - clause_id: dc.prog.008
+    clause_type: routing_constraint
+    condition:
+      type: jurisdiction_match
+      field: recipient.country
+      allowedJurisdictions: [US, CA, UK, AU, NZ, JP, SG, DE, FR]
+    decision: allow
+    surface_id: finance.processing
+    route_class: deterministic_only
+    safe_to_execute_without_model: true
+    priority: 90
+
+  - clause_id: dc.prog.009
+    clause_type: exception
+    condition:
+      type: string_match
+      field: override_code
+      pattern: EXEC_OVERRIDE
+      caseSensitive: true
+    decision: allow
+    surface_id: finance.processing
+    owner: cfo@example.com
+    approval_required: true
+    priority: 5000
+
+  - clause_id: dc.prog.010
+    clause_type: threshold
+    condition:
+      type: amount_limit
+      field: amount
+      maxAmount: 1000000
+      currency: USD
+    decision: deny
+    surface_id: finance.processing
+    safe_to_execute_without_model: true
+    priority: 110
+
+  - clause_id: dc.prog.011
+    clause_type: human_oversight_requirement
+    condition:
+      type: composite_and
+      rules:
+        - type: threshold
+          field: amount
+          operator: gte
+          value: 100000
+        - type: enum_match
+          field: transaction_type
+          allowedValues: [crypto]
+    decision: escalate
+    surface_id: finance.processing
+    route_class: frontier_or_human_required
+    safe_to_execute_without_model: false
+    evidence_required: [amount, transaction_type, recipient.country]
+    owner: compliance@example.com
+    protected_attribute_review: false
+    priority: 500
+
+  - clause_id: dc.prog.012
+    clause_type: permission
+    condition:
+      type: enum_match
+      field: format
+      allowedValues: [csv, json, xml, parquet]
+    decision: allow
+    surface_id: data.extraction
+    safe_to_execute_without_model: true
+    priority: 50

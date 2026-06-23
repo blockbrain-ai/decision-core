@@ -1,0 +1,238 @@
+##
+# Approval Routing & Separation of Duties Scenario Suite
+#
+# Covers approval lifecycle, self-approval rejection, break-glass controls,
+# and approverRole-driven routing through the HTTP API.
+#
+# Agents (from Meridian Systems fixtures):
+#   ceo-agent:    roles [executive, approver, audit_admin]
+#   cfo-agent:    roles [finance, approver]
+#   product-agent: roles [product]
+#   vp-eng-agent: roles [engineering, deployer]
+##
+
+tags: [approval]
+
+scenarios:
+  # =====================================================================
+  # 1. CFO high-value vendor payment requires approval
+  # =====================================================================
+  - name: "CFO high-value vendor payment — approve_required"
+    tags: [smoke, release-blocking]
+    releaseBlocking: true
+    description: "CFO initiating a high-value vendor payment triggers approval requirement"
+    steps:
+      - name: "CFO vendor payment requires approval"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-operations
+          action: vendor-payment-high
+        expect:
+          status: 200
+          verdict: approve_required
+
+  # =====================================================================
+  # 2. CEO can resolve approval (authorised approver)
+  # =====================================================================
+  - name: "CEO resolves approval — allow"
+    description: "CEO with executive+approver roles can approve requests"
+    steps:
+      - name: "CEO can approve requests"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: approval-queue
+          action: approve-request
+        expect:
+          status: 200
+          verdict: allow
+
+  # =====================================================================
+  # 3. Product agent cannot resolve finance approval
+  # =====================================================================
+  - name: "Product agent resolve finance approval — deny"
+    description: "Product agent lacks executive+approver roles to resolve approvals"
+    steps:
+      - name: "Product agent is denied approval resolution"
+        agentId: product-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: approval-queue
+          action: approve-request
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # 4. CFO cannot resolve approvals (has approver but not executive)
+  # =====================================================================
+  - name: "CFO resolve approval — deny (missing executive role)"
+    description: "CFO has approver role but lacks executive, denied by roleMatchMode:all"
+    steps:
+      - name: "CFO is denied approval resolution"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: approval-queue
+          action: approve-request
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # 5. VP Eng cannot resolve finance approvals
+  # =====================================================================
+  - name: "VP Eng resolve approval — deny"
+    description: "VP Eng has neither executive nor approver roles"
+    steps:
+      - name: "VP Eng is denied approval resolution"
+        agentId: vp-eng-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: approval-queue
+          action: approve-request
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # 6. CEO reject-request — allow
+  # =====================================================================
+  - name: "CEO reject request — allow"
+    description: "CEO can reject approval requests"
+    steps:
+      - name: "CEO can reject requests"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: approval-queue
+          action: reject-request
+        expect:
+          status: 200
+          verdict: allow
+
+  # =====================================================================
+  # 7. Product agent reject request — deny
+  # =====================================================================
+  - name: "Product agent reject request — deny"
+    description: "Product agent cannot reject approval requests"
+    steps:
+      - name: "Product agent is denied rejection"
+        agentId: product-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: approval-queue
+          action: reject-request
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # 8. Production deploy requires approval
+  # =====================================================================
+  - name: "VP Eng production deploy — approve_required"
+    description: "Production deployment by deployer role triggers approval requirement"
+    steps:
+      - name: "VP Eng production deploy requires approval"
+        agentId: vp-eng-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: deployment
+          action: deploy-production
+        expect:
+          status: 200
+          verdict: approve_required
+
+  # =====================================================================
+  # 9. Contractor cannot initiate vendor payment
+  # =====================================================================
+  - name: "Contractor vendor payment — deny"
+    description: "Contractor is explicitly denied finance operations"
+    steps:
+      - name: "Contractor is denied vendor payment"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-operations
+          action: vendor-payment-high
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # 10. CFO vendor payment triggers approval, not outright deny
+  # =====================================================================
+  - name: "CFO vendor payment is approve_required not deny"
+    description: "Finance role triggers approval requirement, not denial — proving the rule distinguishes between unauthorised (deny) and high-risk (approve_required)"
+    steps:
+      - name: "CFO vendor payment returns approve_required"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-operations
+          action: vendor-payment-high
+        expect:
+          status: 200
+          verdict: approve_required
+
+  # =====================================================================
+  # 11. Finance analyst cannot initiate high-value payment
+  # =====================================================================
+  - name: "Finance analyst vendor payment — deny"
+    description: "Finance analyst lacks finance role for high-value payments"
+    steps:
+      - name: "Finance analyst denied vendor payment"
+        agentId: finance-analyst-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-operations
+          action: vendor-payment-high
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # 12. CFO finance transfer with approval routing
+  # =====================================================================
+  - name: "CFO finance transfer — allow (under threshold)"
+    description: "CFO can perform standard finance transfers"
+    steps:
+      - name: "CFO finance transfer allowed"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-operations
+          action: finance-transfer
+        expect:
+          status: 200
+          verdict: allow
+
+  # =====================================================================
+  # 13. HR lead cannot resolve approvals
+  # =====================================================================
+  - name: "HR lead resolve approval — deny"
+    description: "HR lead has neither executive nor approver roles for approval queue"
+    steps:
+      - name: "HR lead is denied approval resolution"
+        agentId: hr-lead-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: approval-queue
+          action: approve-request
+        expect:
+          status: 200
+          verdict: deny

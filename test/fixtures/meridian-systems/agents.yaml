@@ -1,0 +1,83 @@
+tenantId: meridian-systems
+agents:
+  - agentId: ceo-agent
+    displayName: "CEO Agent"
+    humanOwner: "Alex Chen"
+    roles:
+      - executive
+      - approver
+      - audit_admin
+    surfaces:
+      - http
+      - cli
+    personalBrain: ceo-brain
+    authSubject: ceo-auth-subject
+    enabled: true
+
+  - agentId: cfo-agent
+    displayName: "CFO Agent"
+    humanOwner: "Jordan Rivera"
+    roles:
+      - finance
+      - approver
+    surfaces:
+      - http
+    personalBrain: cfo-brain
+    authSubject: cfo-auth-subject
+    enabled: true
+
+  - agentId: finance-analyst-agent
+    displayName: "Finance Analyst Agent"
+    humanOwner: "Sam Patel"
+    roles:
+      - finance_analyst
+    surfaces:
+      - http
+    personalBrain: finance-analyst-brain
+    authSubject: finance-analyst-auth-subject
+    enabled: true
+
+  - agentId: vp-eng-agent
+    displayName: "VP Engineering Agent"
+    humanOwner: "Morgan Lee"
+    roles:
+      - engineering
+      - deployer
+    surfaces:
+      - http
+      - cli
+    personalBrain: vp-eng-brain
+    authSubject: vp-eng-auth-subject
+    enabled: true
+
+  - agentId: hr-lead-agent
+    displayName: "HR Lead Agent"
+    humanOwner: "Casey Wright"
+    roles:
+      - hr
+      - people_ops
+    surfaces:
+      - http
+    personalBrain: hr-lead-brain
+    authSubject: hr-lead-auth-subject
+    enabled: true
+
+  - agentId: product-agent
+    displayName: "Product Agent"
+    humanOwner: "Taylor Kim"
+    roles:
+      - product
+    surfaces:
+      - http
+    personalBrain: product-brain
+    authSubject: product-auth-subject
+    enabled: true
+
+  - agentId: contractor-agent
+    displayName: "Contractor Agent"
+    humanOwner: "Jamie Fox"
+    roles:
+      - contractor
+    surfaces:
+      - http
+    enabled: true

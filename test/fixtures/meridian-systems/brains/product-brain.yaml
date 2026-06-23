@@ -1,0 +1,10 @@
+brainId: product-brain
+agentId: product-agent
+mounted: true
+data:
+  roadmap-items:
+    - "Feature A: user analytics dashboard"
+    - "Feature B: API rate limiting"
+  customer-feedback:
+    nps-score: 72
+    top-request: "better search functionality"

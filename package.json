@@ -1,0 +1,88 @@
+{
+  "name": "@decision-core/core",
+  "version": "0.1.0",
+  "description": "Portable, replayable policy decision governor for AI agents",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "postbuild": "chmod +x dist/src/surfaces/cli/bin.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepack": "npm run build",
+    "lint": "oxlint ."
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "pino": "^9.6.0",
+    "yaml": "^2.8.4",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.0.0",
+    "oxlint": "^0.16.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "license": "MIT",
+  "bin": {
+    "decision-core": "dist/src/surfaces/cli/bin.js"
+  },
+  "files": [
+    "dist",
+    "config",
+    "docs",
+    "integrations/gbrain/SKILL.md",
+    "integrations/hermes/__init__.py",
+    "integrations/hermes/decision_core_bridge.py",
+    "integrations/hermes/hooks.py",
+    "integrations/hermes/plugin.yaml",
+    "integrations/hermes/requirements.txt",
+    "integrations/openclaw/approval-bridge.ts",
+    "integrations/openclaw/before-tool-call.ts",
+    "integrations/openclaw/index.ts",
+    "integrations/openclaw/openclaw.plugin.json",
+    "skills",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    }
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^12.9.0"
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blockbrain-ai/decision-core.git"
+  },
+  "keywords": [
+    "ai-agents",
+    "policy",
+    "governance",
+    "decision-core",
+    "mcp"
+  ],
+  "bugs": {
+    "url": "https://github.com/blockbrain-ai/decision-core/issues"
+  },
+  "homepage": "https://github.com/blockbrain-ai/decision-core#readme",
+  "author": "Blockbrain Labs"
+}

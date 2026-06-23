@@ -1,0 +1,59 @@
+version: "1.0"
+lastReviewedBy: CEO
+lastReviewedAt: "2026-05-09"
+
+classifications:
+  - name: public
+    description: Company-wide information available to all roles
+    brain: company-public
+    accessibleBy: [ceo, finance_approver, ops_manager, compliance_officer, product_manager]
+    writeAccess: [ceo]
+    examples: ["OKRs", "company policies", "org chart", "brand guidelines"]
+
+  - name: financial-confidential
+    description: Financial records — budgets, P&L, invoices, forecasts
+    brain: company-financial
+    accessibleBy: [ceo, finance_approver, budget_viewer]
+    writeAccess: [finance_approver]
+    neverAccessibleBy: [ops_manager, compliance_officer, product_manager]
+    examples: ["quarterly P&L", "vendor invoices", "budget forecasts"]
+
+  - name: hr-restricted
+    description: Individual employment data — payroll, contracts, reviews
+    brain: company-hr
+    accessibleBy: [ceo]
+    writeAccess: [ceo]
+    neverAccessibleBy: [finance_approver, ops_manager, compliance_officer, product_manager]
+    examples: ["individual salaries", "performance reviews", "employment contracts"]
+
+  - name: compliance-internal
+    description: Audit logs, regulatory filings, legal documents
+    brain: company-compliance
+    accessibleBy: [ceo, compliance_officer, auditor]
+    writeAccess: [compliance_officer]
+    examples: ["audit findings", "regulatory filings", "incident reports"]
+
+  - name: operations-internal
+    description: Infrastructure, deployment, SLAs, vendor contracts
+    brain: company-ops
+    accessibleBy: [ceo, ops_manager, deployer]
+    writeAccess: [ops_manager]
+    examples: ["deployment logs", "SLA reports", "infrastructure runbooks"]
+
+  - name: command-center
+    description: Aggregated cross-functional source of truth
+    brain: command-center
+    accessibleBy: [ceo]
+    writeAccess: []
+    neverAccessibleBy: [finance_approver, ops_manager, compliance_officer, product_manager]
+    examples: ["cross-dept KPIs", "decision audit trail", "strategic alignment"]
+    rollupPolicy:
+      mode: redacted-aggregate-only
+      forbiddenFields: ["individual salaries", "raw customer secrets", "private staff notes"]
+
+  - name: personal
+    description: Each agent's private working brain
+    brain: "personal-{agentId}"
+    accessibleBy: ["{self}"]
+    writeAccess: ["{self}"]
+    examples: ["working notes", "drafts", "role-specific research"]

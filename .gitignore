@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.pipeline/
+*.tsbuildinfo
+*.db
+.env
+.env.*
+!.env.example
+coverage/
+.artifacts/
+*.tgz
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]

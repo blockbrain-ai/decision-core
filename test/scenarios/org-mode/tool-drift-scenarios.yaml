@@ -1,0 +1,145 @@
+# Tool Drift Scenarios — Verifies governance enforcement for known,
+# unknown, newly-classified, and decommissioned tools.
+#
+# These scenarios test the decision engine's handling of tool classification
+# states combined with denyUnknownDefault enforcement.
+
+tags: [tool-drift]
+
+scenarios:
+  # ── Known tools with matching policies ──────────────────────────────
+
+  - name: "Known tool with allow policy — allow"
+    tags: [smoke, release-blocking]
+    releaseBlocking: true
+    description: "A tool in the inventory with a matching allow rule is permitted"
+    steps:
+      - name: "finance-report-read allowed for finance role"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-report-read
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "Known tool with deny policy — deny"
+    description: "A tool with an explicit deny rule is blocked"
+    steps:
+      - name: "contractor denied finance-report-read via deny rule"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-report-read
+        expect:
+          status: 200
+          verdict: deny
+
+  - name: "Known tool requiring approval — approve_required"
+    description: "A tool with a requireApproval rule returns approve_required"
+    steps:
+      - name: "deploy-production requires approval"
+        agentId: vp-eng-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: deployment
+          action: deploy-production
+        expect:
+          status: 200
+          verdict: approve_required
+
+  # ── Unknown tool with denyUnknownDefault ────────────────────────────
+
+  - name: "Unknown tool with denyUnknownDefault — deny"
+    tags: [release-blocking]
+    releaseBlocking: true
+    description: "A tool not matching any policy rule is denied when denyUnknownDefault is active"
+    steps:
+      - name: "unknown-experimental-tool denied by default"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: test
+          action: unknown-experimental-tool
+        expect:
+          status: 200
+          verdict: deny
+
+  - name: "Completely novel tool with denyUnknownDefault — deny"
+    description: "A tool name that exists nowhere in the policy is denied"
+    steps:
+      - name: "novel-unregistered-gadget denied by default"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: test
+          action: novel-unregistered-gadget
+        expect:
+          status: 200
+          verdict: deny
+
+  # ── Newly classified tool ───────────────────────────────────────────
+
+  - name: "Newly classified tool with matching allow policy — allow"
+    description: "A tool that was unknown but now has a matching allow rule is permitted"
+    steps:
+      - name: "newly-classified-read-tool allowed after rule added"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: test
+          action: newly-classified-read-tool
+        expect:
+          status: 200
+          verdict: allow
+
+  # ── Decommissioned tool ─────────────────────────────────────────────
+
+  - name: "Decommissioned tool with explicit deny — deny"
+    description: "A tool that was once allowed but is now decommissioned and explicitly denied"
+    steps:
+      - name: "legacy-report-generator denied after decommission"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: legacy-report-generator
+        expect:
+          status: 200
+          verdict: deny
+
+  # ── Cross-role unknown tool enforcement ─────────────────────────────
+
+  - name: "Unknown tool denied regardless of privileged role"
+    description: "Even the CEO is denied an unknown tool when denyUnknownDefault is active"
+    steps:
+      - name: "CEO denied unclassified-admin-tool"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: test
+          action: unclassified-admin-tool
+        expect:
+          status: 200
+          verdict: deny
+
+      - name: "contractor denied unclassified-admin-tool"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: test
+          action: unclassified-admin-tool
+        expect:
+          status: 200
+          verdict: deny

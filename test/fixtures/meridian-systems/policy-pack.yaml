@@ -1,0 +1,199 @@
+name: meridian-systems-enterprise
+version: "1.0.0"
+description: "Enterprise policy pack for Meridian Systems with role-scoped governance"
+profile: enterprise
+
+rules:
+  - name: finance-read
+    description: "Allow finance roles to read financial data"
+    action: allow
+    surfaces:
+      - finance-reporting
+    tools:
+      - finance-report-read
+      - finance-summary-read
+    priority: 100
+
+  - name: finance-write
+    description: "Allow finance approvers to write financial data"
+    action: allow
+    surfaces:
+      - finance-operations
+    tools:
+      - finance-transfer
+      - finance-budget-update
+    conditions:
+      maxAmountUsd: 50000
+      requireAuditTrail: true
+    priority: 90
+
+  - name: finance-large-transfer
+    description: "Large financial transfers require dual authorization"
+    action: approve_required
+    surfaces:
+      - finance-operations
+    tools:
+      - finance-transfer
+    conditions:
+      minAmountUsd: 50000
+      requireDualAuthorization: true
+      requireAuditTrail: true
+    priority: 95
+
+  - name: hr-read
+    description: "Allow HR roles to read personnel data"
+    action: allow
+    surfaces:
+      - hr-portal
+    tools:
+      - hr-record-read
+      - hr-payroll-read
+    priority: 100
+
+  - name: hr-write
+    description: "Allow HR people_ops to modify personnel records"
+    action: allow
+    surfaces:
+      - hr-portal
+    tools:
+      - hr-record-update
+    conditions:
+      requireAuditTrail: true
+    priority: 90
+
+  - name: engineering-deploy
+    description: "Allow deployer role to trigger deployments"
+    action: allow
+    surfaces:
+      - deployment
+    tools:
+      - deploy-staging
+      - deploy-production
+    conditions:
+      requireAuditTrail: true
+    priority: 100
+
+  - name: engineering-deploy-prod-approval
+    description: "Production deployments require approval"
+    action: approve_required
+    surfaces:
+      - deployment
+    tools:
+      - deploy-production
+    conditions:
+      requireDualAuthorization: true
+    priority: 110
+
+  - name: executive-approve
+    description: "Executives can approve high-value operations"
+    action: allow
+    surfaces:
+      - approval-queue
+    tools:
+      - approve-request
+      - reject-request
+    priority: 100
+
+  - name: contractor-deny-confidential
+    description: "Contractors cannot access confidential surfaces"
+    action: deny
+    surfaces:
+      - finance-operations
+      - hr-portal
+      - deployment
+      - approval-queue
+    priority: 200
+
+  - name: public-read
+    description: "All roles can read public data"
+    action: allow
+    surfaces:
+      - public-dashboard
+    tools:
+      - public-report-read
+      - public-status-read
+    priority: 50
+
+  - name: memory-lookup
+    description: "Agents can look up their own brain data"
+    action: allow
+    surfaces:
+      - memory
+    tools:
+      - brain-lookup
+    priority: 80
+
+  - name: deny-unknown-default
+    description: "Deny any action not explicitly allowed"
+    action: deny
+    priority: 0
+
+surfaces:
+  - name: finance-reporting
+    description: "Financial reporting and analytics"
+    trustTier: standard
+    category: finance
+
+  - name: finance-operations
+    description: "Financial transactions and budget management"
+    trustTier: elevated
+    category: finance
+
+  - name: hr-portal
+    description: "Human resources data portal"
+    trustTier: elevated
+    category: hr
+
+  - name: deployment
+    description: "Application deployment pipeline"
+    trustTier: critical
+    category: engineering
+
+  - name: approval-queue
+    description: "Cross-functional approval workflow"
+    trustTier: elevated
+    category: governance
+
+  - name: public-dashboard
+    description: "Public-facing company dashboard"
+    trustTier: open
+    category: general
+
+  - name: memory
+    description: "Agent memory and brain data lookup"
+    trustTier: standard
+    category: agent
+
+trustTiers:
+  - name: open
+    description: "No restrictions"
+    requiresApproval: false
+    requiresAudit: false
+    riskLevel: low
+
+  - name: standard
+    description: "Standard business operations"
+    requiresApproval: false
+    requiresAudit: true
+    riskLevel: medium
+
+  - name: elevated
+    description: "Sensitive operations requiring audit"
+    requiresApproval: false
+    requiresAudit: true
+    riskLevel: high
+
+  - name: critical
+    description: "Critical operations requiring approval and audit"
+    requiresApproval: true
+    requiresAudit: true
+    riskLevel: critical
+
+exampleTools:
+  - finance-report-read
+  - finance-transfer
+  - hr-record-read
+  - deploy-staging
+  - deploy-production
+  - approve-request
+  - brain-lookup

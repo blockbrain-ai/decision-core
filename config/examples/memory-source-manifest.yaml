@@ -1,0 +1,154 @@
+# Memory Source Manifest
+#
+# Records which memory sources are available for Decision Core onboarding.
+# Detection populates this manifest; the user confirms before inference begins.
+
+schemaVersion: 1
+
+sources:
+  # Tier 0: First-class agent instructions
+  - id: gbrain
+    tier: 0
+    integrationMode: direct-and-mcp
+    detectionHints:
+      - "~/.gbrain/ directory"
+      - "gbrain package in node_modules"
+      - "GBRAIN_DATABASE_URL env var name"
+    supportedExportFormats:
+      - gbrain-search-results
+      - memory-evidence-export
+
+  - id: mempalace
+    tier: 0
+    integrationMode: mcp
+    detectionHints:
+      - "~/.mempalace/ directory"
+      - "mempalace MCP in claude settings"
+      - "mempalace package installed"
+    supportedExportFormats:
+      - mempalace-search-results
+      - mempalace-kg-query
+      - memory-evidence-export
+
+  - id: openclaw-native
+    tier: 0
+    integrationMode: filesystem-and-cli
+    detectionHints:
+      - "openclaw.config.ts or openclaw.config.json"
+      - ".openclaw/ directory"
+      - "MEMORY.md in workspace root"
+      - "memory/*.md daily notes"
+    supportedExportFormats:
+      - openclaw-memory-search
+      - openclaw-public-artifacts
+      - memory-evidence-export
+
+  - id: hermes-built-in
+    tier: 0
+    integrationMode: config-and-cli
+    detectionHints:
+      - "HERMES_HOME env var name"
+      - "~/.hermes/config.yaml"
+      - "~/.hermes/memories/MEMORY.md"
+      - "~/.hermes/memories/USER.md"
+    supportedExportFormats:
+      - hermes-memory-files
+      - hermes-provider-status
+      - memory-evidence-export
+
+  - id: hermes-active-provider
+    tier: 0
+    integrationMode: config-and-cli
+    detectionHints:
+      - "memory.provider in ~/.hermes/config.yaml"
+      - "honcho.json or mem0.json in HERMES_HOME"
+    supportedExportFormats:
+      - hermes-provider-export
+      - memory-evidence-export
+
+  - id: markdown-vault
+    tier: 0
+    integrationMode: filesystem
+    detectionHints:
+      - "user-specified vault path"
+      - ".obsidian/ directory"
+      - "OBSIDIAN_VAULT_PATH env var name"
+      - "PALACE_VAULTS env var name"
+    supportedExportFormats:
+      - markdown-files
+      - frontmatter-yaml
+      - memory-evidence-export
+
+  # Tier 1: Agent-mediated provider instructions
+  - id: mem0
+    tier: 1
+    integrationMode: api-or-agent-export
+    detectionHints:
+      - "mem0 in pip/npm dependencies"
+      - "MEM0_API_KEY env var name"
+      - "mem0.json config file"
+      - "Hermes mem0 provider active"
+    supportedExportFormats:
+      - mem0-search-results
+      - memory-evidence-export
+
+  - id: honcho
+    tier: 1
+    integrationMode: api-or-agent-export
+    detectionHints:
+      - "honcho-ai in pip dependencies"
+      - "HONCHO_API_KEY env var name"
+      - "honcho.json config file"
+      - "Hermes honcho provider active"
+    supportedExportFormats:
+      - honcho-peer-search
+      - honcho-peer-chat
+      - memory-evidence-export
+
+  - id: zep-graphiti
+    tier: 1
+    integrationMode: api-or-agent-export
+    detectionHints:
+      - "ZEP_API_KEY env var name"
+      - "zep-cloud or zep-python in pip dependencies"
+      - "Graphiti config.yaml"
+      - "NEO4J_URI env var name"
+    supportedExportFormats:
+      - zep-graph-search
+      - graphiti-search-results
+      - memory-evidence-export
+
+  # Tier 2: Generic export support
+  - id: supermemory
+    tier: 2
+    integrationMode: generic-mcp-export
+    detectionHints:
+      - "supermemory MCP config"
+    supportedExportFormats:
+      - memory-evidence-export
+
+  - id: cognee
+    tier: 2
+    integrationMode: generic-mcp-export
+    detectionHints:
+      - "cognee in pip dependencies"
+    supportedExportFormats:
+      - memory-evidence-export
+
+  - id: letta
+    tier: 2
+    integrationMode: generic-export
+    detectionHints:
+      - "letta-client in pip dependencies"
+      - "LETTA_API_KEY env var name"
+    supportedExportFormats:
+      - memory-evidence-export
+
+  - id: hermes-bundled-providers
+    tier: 2
+    integrationMode: hermes-active-provider
+    detectionHints:
+      - "memory.provider set to holographic, hindsight, byterover, openviking, retaindb, or supermemory in Hermes config"
+    supportedExportFormats:
+      - hermes-provider-export
+      - memory-evidence-export

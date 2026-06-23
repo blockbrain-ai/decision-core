@@ -1,0 +1,12 @@
+export { importPolicySource } from './policy-source-importer.js';
+export type { ImportedSource, ImporterOptions, ImportResult } from './policy-source-importer.js';
+export { parseSections } from './policy-section-parser.js';
+export type { ParsedSection } from './policy-section-parser.js';
+export { extractClauses } from './policy-clause-extractor.js';
+export type { ExtractedClause } from './policy-clause-extractor.js';
+export { normalizeClauses, normalizeText, computeClauseKey } from './policy-clause-normalizer.js';
+export type { NormalizedClause } from './policy-clause-normalizer.js';
+export { detectChanges } from './policy-change-detector.js';
+export type { ChangeReport, ModifiedClause } from './policy-change-detector.js';
+export { createIngestionOrchestrator } from './policy-ingestion-orchestrator.js';
+export type { IngestionOptions, IngestionResult, PolicyIngestionOrchestrator } from './policy-ingestion-orchestrator.js';

@@ -1,0 +1,165 @@
+name: saas
+version: 1.0.0
+description: Multi-tenant SaaS platform governance — tenant isolation, API access controls, rate-aware rules
+profile: enterprise
+
+rules:
+  - name: allow-public-api-read
+    description: Allow public API read operations
+    action: allow
+    surfaces: ["public-api"]
+    tools: ["read_*", "get_*", "list_*", "search_*"]
+    priority: 10
+
+  - name: deny-cross-tenant
+    description: Deny all cross-tenant data access
+    action: deny
+    surfaces: ["*"]
+    tools: ["*"]
+    conditions:
+      crossTenantAccess: false
+    priority: 100
+
+  - name: allow-tenant-read
+    description: Allow tenant to read their own data
+    action: allow
+    surfaces: ["tenant-data"]
+    tools: ["read_*", "get_*", "list_*", "search_*"]
+    priority: 15
+
+  - name: approve-tenant-write
+    description: Require approval for tenant data modifications
+    action: approve_required
+    surfaces: ["tenant-data"]
+    tools: ["write_*", "update_*", "create_*", "modify_*"]
+    conditions:
+      requireAuditTrail: true
+    priority: 25
+
+  - name: rate-limit-api
+    description: Rate limit API operations to prevent abuse
+    action: deny
+    surfaces: ["public-api", "tenant-data"]
+    tools: ["*"]
+    conditions:
+      maxCountPerDay: 10000
+    priority: 80
+
+  - name: approve-user-data-modify
+    description: User data modifications require approval
+    action: approve_required
+    surfaces: ["user-data"]
+    tools: ["update_*", "modify_*", "write_*"]
+    conditions:
+      requireAuditTrail: true
+    priority: 30
+
+  - name: deny-user-data-delete
+    description: User data deletion requires admin approval
+    action: deny
+    surfaces: ["user-data"]
+    tools: ["delete_*", "purge_*", "remove_*"]
+    priority: 90
+
+  - name: approve-admin-operations
+    description: Admin operations require elevated trust
+    action: approve_required
+    surfaces: ["admin"]
+    tools: ["*"]
+    conditions:
+      requireAuditTrail: true
+    priority: 50
+
+  - name: approve-billing
+    description: Billing operations at restricted tier
+    action: approve_required
+    surfaces: ["billing"]
+    tools: ["charge_*", "refund_*", "invoice_*", "subscription_*"]
+    conditions:
+      requireAuditTrail: true
+      requireDualAuthorization: true
+    priority: 60
+
+  - name: block-billing-destructive
+    description: Block destructive billing operations
+    action: deny
+    surfaces: ["billing"]
+    tools: ["delete_*", "purge_*", "void_*"]
+    priority: 95
+
+  - name: allow-webhook-send
+    description: Allow outbound webhook delivery
+    action: allow
+    surfaces: ["integrations"]
+    tools: ["webhook_*", "notify_*"]
+    conditions:
+      maxCountPerDay: 1000
+    priority: 20
+
+  - name: cooldown-bulk-operations
+    description: Enforce cooldown between bulk operations
+    action: deny
+    surfaces: ["*"]
+    tools: ["bulk_*", "batch_*", "mass_*"]
+    conditions:
+      cooldownMinutes: 15
+    priority: 70
+
+surfaces:
+  - name: public-api
+    description: Public API endpoints — rate-limited, read-mostly
+    trustTier: standard
+    category: api
+
+  - name: tenant-data
+    description: Tenant-scoped data — isolated per tenant
+    trustTier: elevated
+    category: data
+
+  - name: user-data
+    description: End-user personal data — PII, preferences, activity
+    trustTier: elevated
+    category: user
+
+  - name: admin
+    description: Platform administration — settings, permissions, configuration
+    trustTier: restricted
+    category: administration
+
+  - name: billing
+    description: Billing and subscription operations
+    trustTier: restricted
+    category: finance
+
+  - name: integrations
+    description: Third-party integrations — webhooks, OAuth, connectors
+    trustTier: standard
+    category: integrations
+
+trustTiers:
+  - name: standard
+    description: Public access — rate-limited, no approval required
+    requiresApproval: false
+    requiresAudit: false
+    riskLevel: low
+
+  - name: elevated
+    description: Tenant access — audit trail, approval for writes
+    requiresApproval: true
+    requiresAudit: true
+    riskLevel: medium
+
+  - name: restricted
+    description: Admin/billing — dual authorization for sensitive operations
+    requiresApproval: true
+    requiresAudit: true
+    riskLevel: high
+
+exampleTools:
+  - read_tenant_config
+  - get_user_profile
+  - update_subscription
+  - charge_payment
+  - webhook_deliver
+  - admin_update_settings
+  - bulk_export_data

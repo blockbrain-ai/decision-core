@@ -1,0 +1,89 @@
+{
+  "version": "1.0.0",
+  "policies": [
+    {
+      "surfaceId": "finance.processing",
+      "riskTier": "critical",
+      "modelPolicy": "high-quality",
+      "reviewMode": "always",
+      "hardFailOnMiss": true,
+      "primaryModelPolicy": "high-quality",
+      "reviewerModelPolicy": "reviewer-critical"
+    },
+    {
+      "surfaceId": "finance.analysis",
+      "riskTier": "intermediate",
+      "modelPolicy": "balanced",
+      "reviewMode": "borderline",
+      "hardFailOnMiss": false,
+      "primaryModelPolicy": "balanced",
+      "reviewerModelPolicy": "reviewer-standard"
+    },
+    {
+      "surfaceId": "communication.email",
+      "riskTier": "intermediate",
+      "modelPolicy": "balanced",
+      "reviewMode": "borderline",
+      "hardFailOnMiss": false,
+      "primaryModelPolicy": "balanced",
+      "reviewerModelPolicy": "reviewer-standard"
+    },
+    {
+      "surfaceId": "communication.notification",
+      "riskTier": "low",
+      "modelPolicy": "fast",
+      "reviewMode": "none",
+      "hardFailOnMiss": false
+    },
+    {
+      "surfaceId": "compliance.screening",
+      "riskTier": "critical",
+      "modelPolicy": "high-quality",
+      "reviewMode": "tribunal",
+      "hardFailOnMiss": true,
+      "primaryModelPolicy": "high-quality",
+      "reviewerModelPolicy": "reviewer-critical"
+    },
+    {
+      "surfaceId": "compliance.review",
+      "riskTier": "critical",
+      "modelPolicy": "high-quality",
+      "reviewMode": "always",
+      "hardFailOnMiss": true,
+      "primaryModelPolicy": "high-quality",
+      "reviewerModelPolicy": "reviewer-critical"
+    },
+    {
+      "surfaceId": "data.classification",
+      "riskTier": "intermediate",
+      "modelPolicy": "balanced",
+      "reviewMode": "borderline",
+      "hardFailOnMiss": false,
+      "primaryModelPolicy": "balanced",
+      "reviewerModelPolicy": "reviewer-standard"
+    },
+    {
+      "surfaceId": "data.extraction",
+      "riskTier": "low",
+      "modelPolicy": "fast",
+      "reviewMode": "autonomous",
+      "hardFailOnMiss": false
+    },
+    {
+      "surfaceId": "workflow.routing",
+      "riskTier": "low",
+      "modelPolicy": "fast",
+      "reviewMode": "none",
+      "hardFailOnMiss": false
+    },
+    {
+      "surfaceId": "workflow.escalation",
+      "riskTier": "intermediate",
+      "modelPolicy": "balanced",
+      "reviewMode": "borderline",
+      "hardFailOnMiss": true,
+      "primaryModelPolicy": "balanced",
+      "reviewerModelPolicy": "reviewer-standard"
+    }
+  ]
+}

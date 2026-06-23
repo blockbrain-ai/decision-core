@@ -1,0 +1,28 @@
+name: hermes-e2e-policy
+version: 1.0.0
+description: E2E policy for real Hermes dispatch test
+profile: team
+
+rules:
+  - name: allow-read-tools
+    description: Allow read-style tools
+    action: allow
+    tools: ["read_*", "list_*", "search_*", "dc_e2e_*", "web_search*"]
+    priority: 10
+
+  - name: block-payments
+    description: Block payment tools outright
+    action: deny
+    tools: ["payment_*", "transfer_*", "delete_*"]
+    priority: 100
+
+surfaces:
+  - name: hermes
+    trustTier: standard
+    category: agent
+
+trustTiers:
+  - name: standard
+    requiresApproval: false
+    requiresAudit: true
+    riskLevel: low

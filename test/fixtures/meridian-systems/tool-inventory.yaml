@@ -1,0 +1,153 @@
+version: "1.0"
+tools:
+  - name: finance-report-read
+    surface: finance-reporting
+    riskTier: 2
+    allowedRoles:
+      - executive
+      - finance
+      - finance_analyst
+      - approver
+    description: "Read financial reports and summaries"
+
+  - name: finance-summary-read
+    surface: finance-reporting
+    riskTier: 1
+    allowedRoles:
+      - executive
+      - finance
+      - finance_analyst
+      - approver
+    description: "Read high-level financial summaries"
+
+  - name: finance-transfer
+    surface: finance-operations
+    riskTier: 5
+    allowedRoles:
+      - finance
+      - approver
+    approvalRole: executive
+    description: "Execute financial transfers"
+
+  - name: finance-budget-update
+    surface: finance-operations
+    riskTier: 4
+    allowedRoles:
+      - finance
+      - approver
+    description: "Update budget allocations"
+
+  - name: hr-record-read
+    surface: hr-portal
+    riskTier: 3
+    allowedRoles:
+      - executive
+      - hr
+      - people_ops
+    description: "Read HR personnel records"
+
+  - name: hr-payroll-read
+    surface: hr-portal
+    riskTier: 4
+    allowedRoles:
+      - hr
+      - people_ops
+    description: "Read payroll data"
+
+  - name: hr-record-update
+    surface: hr-portal
+    riskTier: 4
+    allowedRoles:
+      - hr
+      - people_ops
+    approvalRole: executive
+    description: "Update HR personnel records"
+
+  - name: deploy-staging
+    surface: deployment
+    riskTier: 3
+    allowedRoles:
+      - engineering
+      - deployer
+    description: "Deploy to staging environment"
+
+  - name: deploy-production
+    surface: deployment
+    riskTier: 5
+    allowedRoles:
+      - deployer
+    approvalRole: executive
+    description: "Deploy to production environment"
+
+  - name: approve-request
+    surface: approval-queue
+    riskTier: 4
+    allowedRoles:
+      - executive
+      - approver
+    description: "Approve a pending request"
+
+  - name: reject-request
+    surface: approval-queue
+    riskTier: 3
+    allowedRoles:
+      - executive
+      - approver
+    description: "Reject a pending request"
+
+  - name: public-report-read
+    surface: public-dashboard
+    riskTier: 1
+    allowedRoles:
+      - executive
+      - finance
+      - finance_analyst
+      - engineering
+      - deployer
+      - hr
+      - people_ops
+      - product
+      - contractor
+    description: "Read public reports"
+
+  - name: public-status-read
+    surface: public-dashboard
+    riskTier: 1
+    allowedRoles:
+      - executive
+      - finance
+      - finance_analyst
+      - engineering
+      - deployer
+      - hr
+      - people_ops
+      - product
+      - contractor
+    description: "Read system status"
+
+  - name: brain-lookup
+    surface: memory
+    riskTier: 2
+    allowedRoles:
+      - executive
+      - finance
+      - finance_analyst
+      - engineering
+      - deployer
+      - hr
+      - people_ops
+      - product
+    description: "Look up data from agent personal brain"
+
+  - name: unknown-experimental-tool
+    surface: "*"
+    riskTier: 5
+    allowedRoles: []
+    description: "Intentionally unknown tool for deny-unknown tests"
+
+  - name: legacy-report-generator
+    surface: finance-reporting
+    riskTier: 3
+    allowedRoles:
+      - finance
+    description: "Decommissioned legacy report tool for drift tests"

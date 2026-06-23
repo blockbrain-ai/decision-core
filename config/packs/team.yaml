@@ -1,0 +1,97 @@
+name: team
+version: 1.0.0
+description: Moderate governance for shared team agents — approval required for writes to shared resources
+profile: team
+
+rules:
+  - name: allow-read-tools
+    description: Allow all read operations without approval
+    action: allow
+    surfaces: ["*"]
+    tools: ["read_*", "search_*", "list_*", "get_*", "fetch_*"]
+    priority: 10
+
+  - name: approve-shared-writes
+    description: Require approval for write operations on shared resources
+    action: approve_required
+    surfaces: ["shared"]
+    tools: ["write_*", "create_*", "update_*", "edit_*", "modify_*"]
+    priority: 20
+
+  - name: allow-personal-writes
+    description: Allow write operations on personal resources without approval
+    action: allow
+    surfaces: ["personal"]
+    tools: ["write_*", "create_*", "update_*", "edit_*"]
+    priority: 15
+
+  - name: approve-publish
+    description: Require approval for publishing or deploying
+    action: approve_required
+    surfaces: ["*"]
+    tools: ["publish_*", "deploy_*", "release_*", "send_*"]
+    priority: 25
+
+  - name: block-destructive
+    description: Block destructive operations on shared resources
+    action: deny
+    surfaces: ["shared", "admin"]
+    tools: ["delete_*", "drop_*", "rm_*", "destroy_*", "purge_*"]
+    priority: 100
+
+  - name: deny-admin-default
+    description: Deny admin operations by default — requires elevated access
+    action: deny
+    surfaces: ["admin"]
+    tools: ["*"]
+    priority: 90
+
+  - name: approve-admin-read
+    description: Admin read operations require approval
+    action: approve_required
+    surfaces: ["admin"]
+    tools: ["read_*", "list_*", "get_*"]
+    priority: 95
+
+surfaces:
+  - name: shared
+    description: Shared team resources — documents, code, configurations
+    trustTier: elevated
+    category: collaboration
+
+  - name: personal
+    description: Personal workspace — drafts, notes, individual tasks
+    trustTier: standard
+    category: workspace
+
+  - name: admin
+    description: Administrative operations — settings, permissions, integrations
+    trustTier: restricted
+    category: administration
+
+trustTiers:
+  - name: standard
+    description: Standard trust — no approval needed
+    requiresApproval: false
+    requiresAudit: false
+    riskLevel: low
+
+  - name: elevated
+    description: Elevated trust — requires approval for modifications
+    requiresApproval: true
+    requiresAudit: true
+    riskLevel: medium
+
+  - name: restricted
+    description: Restricted trust — denied by default, explicit approval required
+    requiresApproval: true
+    requiresAudit: true
+    riskLevel: high
+
+exampleTools:
+  - read_document
+  - search_codebase
+  - write_shared_doc
+  - create_ticket
+  - deploy_staging
+  - update_config

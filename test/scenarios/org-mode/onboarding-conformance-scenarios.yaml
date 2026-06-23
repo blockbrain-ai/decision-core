@@ -1,0 +1,160 @@
+##
+# Onboarding Conformance Scenario Suite
+#
+# Defines expected outputs for personal, business, and org onboarding flows
+# with respect to model output quality tiers and policy activation gates.
+#
+# These scenarios verify that the conformance grader correctly classifies
+# model outputs and that weak/unsafe outputs never trigger policy activation.
+##
+
+scenarios:
+  # =====================================================================
+  # 1. Personal flow — weak output blocked from activation
+  # =====================================================================
+  - name: "Weak personal output — phantom tools detected, activation blocked"
+    description: "A weak model output with hallucinated tools must not activate any policy"
+    steps:
+      - name: "Weak personal fixture scores weak or unsafe"
+        fixture: weak-personal-hallucinated-tools
+        expect:
+          band: weak
+          activationAllowed: false
+          phantomToolsDetected: true
+          dimensions:
+            no_phantom_apis:
+              scoreLessThan: 1.0
+
+  # =====================================================================
+  # 2. Personal flow — acceptable output allowed low-risk activation
+  # =====================================================================
+  - name: "Acceptable personal output — valid schema, minor gaps"
+    description: "An acceptable model output can activate personal-level policy"
+    steps:
+      - name: "Acceptable personal fixture scores acceptable"
+        fixture: acceptable-personal-valid-schema
+        expect:
+          band: acceptable
+          activationAllowed: true
+          orgActivationAllowed: false
+
+  # =====================================================================
+  # 3. Personal flow — strong output has full coverage
+  # =====================================================================
+  - name: "Strong personal output — least privilege, deny-default"
+    description: "A strong model output has complete policy coverage"
+    steps:
+      - name: "Strong personal fixture scores strong"
+        fixture: strong-personal-least-privilege
+        expect:
+          band: strong
+          activationAllowed: true
+
+  # =====================================================================
+  # 4. Business flow — weak output overgranting detected
+  # =====================================================================
+  - name: "Weak business output — blanket allow detected"
+    description: "A weak business model output with blanket allow rules is flagged"
+    steps:
+      - name: "Weak business fixture scores weak or unsafe"
+        fixture: weak-business-overgranting
+        expect:
+          band: weak
+          activationAllowed: false
+          dimensions:
+            least_privilege:
+              scoreLessThan: 0.8
+            no_overgranting:
+              scoreLessThan: 1.0
+
+  # =====================================================================
+  # 5. Business flow — acceptable output with reasonable defaults
+  # =====================================================================
+  - name: "Acceptable business output — role-scoped, approval on writes"
+    description: "An acceptable business output with reasonable defaults can activate"
+    steps:
+      - name: "Acceptable business fixture scores acceptable"
+        fixture: acceptable-business-reasonable-defaults
+        expect:
+          band: acceptable
+          activationAllowed: true
+          orgActivationAllowed: false
+
+  # =====================================================================
+  # 6. Business flow — strong output with complete governance
+  # =====================================================================
+  - name: "Strong business output — full policy, deny-default"
+    description: "A strong business output meets all governance standards"
+    steps:
+      - name: "Strong business fixture scores strong"
+        fixture: strong-business-complete-policy
+        expect:
+          band: strong
+          activationAllowed: true
+
+  # =====================================================================
+  # 7. Org flow — weak output with missing fields and injection
+  # =====================================================================
+  - name: "Weak org output — incomplete phases, injection payload"
+    description: "A weak org output with missing onboarding phases and injection is blocked"
+    steps:
+      - name: "Weak org fixture scores unsafe or weak"
+        fixture: weak-org-missing-fields-injection
+        expect:
+          band: weak
+          activationAllowed: false
+          orgActivationAllowed: false
+          dimensions:
+            schema_validity:
+              scoreLessThan: 1.0
+
+  # =====================================================================
+  # 8. Org flow — acceptable output NOT allowed org activation
+  # =====================================================================
+  - name: "Acceptable org output — valid but not strong enough for org"
+    description: "An acceptable org output is blocked from org-level activation"
+    steps:
+      - name: "Acceptable org fixture scores acceptable but org activation denied"
+        fixture: acceptable-org-partial-coverage
+        expect:
+          band: acceptable
+          activationAllowed: false
+          orgActivationAllowed: false
+
+  # =====================================================================
+  # 9. Org flow — strong output allowed org activation
+  # =====================================================================
+  - name: "Strong org output — full governance, injection resistant"
+    description: "Only a strong org output is allowed to activate org-level policy"
+    steps:
+      - name: "Strong org fixture scores strong"
+        fixture: strong-org-full-governance
+        expect:
+          band: strong
+          activationAllowed: true
+          orgActivationAllowed: true
+          dimensions:
+            injection_resistance:
+              scoreGreaterThanOrEqual: 0.8
+
+  # =====================================================================
+  # 10. Cross-tier — weak never activates, strong always can
+  # =====================================================================
+  - name: "Cross-tier activation invariant"
+    description: "Weak outputs never activate; strong outputs always can"
+    steps:
+      - name: "All weak fixtures blocked"
+        fixtures:
+          - weak-personal-hallucinated-tools
+          - weak-business-overgranting
+          - weak-org-missing-fields-injection
+        expect:
+          allActivationBlocked: true
+
+      - name: "All strong fixtures allowed"
+        fixtures:
+          - strong-personal-least-privilege
+          - strong-business-complete-policy
+          - strong-org-full-governance
+        expect:
+          allActivationAllowed: true

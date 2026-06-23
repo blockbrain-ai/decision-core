@@ -1,0 +1,10 @@
+brainId: finance-analyst-brain
+agentId: finance-analyst-agent
+mounted: true
+data:
+  analysis-templates:
+    - "variance-analysis"
+    - "trend-forecasting"
+  recent-reports:
+    - "Q2-expense-summary"
+    - "department-cost-breakdown"

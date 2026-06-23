@@ -1,0 +1,245 @@
+##
+# Identity Spoofing Scenario Suite — Authentication boundary attack vectors.
+#
+# Each scenario represents an adversarial attempt to bypass token-bound
+# identity. Valid-token baselines prove the server works before the
+# spoofing variants prove it resists.
+#
+# Scenarios that require custom tokens (missing, invalid, hash-of-token,
+# cross-tenant) are documented here and exercised in
+# test/e2e/org-identity-auth.test.ts using the agent HTTP client's
+# spoofing helpers (getWithToken, postWithToken, getUnauthenticated).
+##
+
+tags: [security, spoofing]
+
+scenarios:
+  # =====================================================================
+  # 1. Baseline — valid token resolves to correct identity
+  # =====================================================================
+  - name: "Valid CEO token — baseline"
+    tags: [smoke, release-blocking]
+    releaseBlocking: true
+    description: "Proves a valid bearer token resolves to the correct agent identity and returns a policy verdict."
+    steps:
+      - name: "CEO token resolves to ceo-agent and returns a verdict"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: public-dashboard
+          action: public-status-read
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "Valid product token — baseline"
+    tags: [smoke]
+    description: "Proves product-agent token resolves correctly."
+    steps:
+      - name: "Product token resolves to product-agent"
+        agentId: product-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: public-dashboard
+          action: public-status-read
+        expect:
+          status: 200
+          verdict: allow
+
+  # =====================================================================
+  # 2. Missing bearer token — 401
+  # =====================================================================
+  - name: "Missing bearer token"
+    conformanceSkip: true
+    description: "No Authorization header returns 401 AUTH_REQUIRED."
+    steps:
+      - name: "Request with no token returns 401"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        # Token: NONE (exercised via getUnauthenticated in e2e test)
+        expect:
+          status: 401
+          code: AUTH_REQUIRED
+
+  # =====================================================================
+  # 3. Unknown / random token — 403
+  # =====================================================================
+  - name: "Unknown random token"
+    conformanceSkip: true
+    description: "A token not present in the auth store returns 403 unknown_token."
+    steps:
+      - name: "Random token is rejected"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        # Token: 'totally-random-garbage-token-12345' (exercised via postWithToken)
+        expect:
+          status: 403
+          code: unknown_token
+
+  # =====================================================================
+  # 4. Invalid format token — 403
+  # =====================================================================
+  - name: "Invalid format token"
+    conformanceSkip: true
+    description: "A malformed token (empty, whitespace, special chars) returns 403."
+    steps:
+      - name: "Empty string token is rejected"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        # Token: '' (exercised via postWithToken)
+        expect:
+          status: 403
+          code: unknown_token
+
+  # =====================================================================
+  # 5. Disabled auth binding — 403
+  # =====================================================================
+  - name: "Disabled auth binding"
+    conformanceSkip: true
+    description: "A valid token whose binding is disabled returns 403 disabled_binding."
+    steps:
+      - name: "Disabled binding token is rejected"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        # Binding disabled at runtime in e2e test
+        expect:
+          status: 403
+          code: disabled_binding
+
+  # =====================================================================
+  # 6. Disabled agent — 403
+  # =====================================================================
+  - name: "Disabled agent"
+    conformanceSkip: true
+    description: "A valid token for a disabled agent returns 403 agent_disabled."
+    steps:
+      - name: "Disabled agent token is rejected"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        # Agent disabled at runtime in e2e test
+        expect:
+          status: 403
+          code: agent_disabled
+
+  # =====================================================================
+  # 7. Hash confusion — sending token hash as bearer
+  # =====================================================================
+  - name: "Token hash sent as bearer"
+    conformanceSkip: true
+    description: "Sending the stored SHA-256 hash instead of the plaintext token must fail."
+    steps:
+      - name: "Token hash is rejected as unknown_token"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        # Token: the SHA-256 subject hash from tokens.yaml (exercised via postWithToken)
+        expect:
+          status: 403
+          code: unknown_token
+
+  # =====================================================================
+  # 8. Identity mismatch — product token + CEO agentId
+  # =====================================================================
+  - name: "Product token with CEO agentId in body"
+    tags: [release-blocking]
+    releaseBlocking: true
+    description: "Using product-agent's valid token but claiming to be ceo-agent in the body returns 403 agent_mismatch."
+    steps:
+      - name: "Product token + CEO agentId is rejected"
+        agentId: product-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-report-read
+          agentId: ceo-agent
+        expect:
+          status: 403
+          code: agent_mismatch
+
+  # =====================================================================
+  # 9. callerRoles escalation — ignored in HTTP mode
+  # =====================================================================
+  - name: "Caller-supplied callerRoles ignored"
+    tags: [release-blocking]
+    releaseBlocking: true
+    description: "A product-agent sending escalated callerRoles in the body is still denied finance access."
+    steps:
+      - name: "Body callerRoles are ignored — product-agent still denied"
+        agentId: product-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-report-read
+          context:
+            callerRoles:
+              - finance
+              - executive
+              - approver
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # 10. Cross-tenant token — foreign tenant rejected
+  # =====================================================================
+  - name: "Cross-tenant token rejected"
+    conformanceSkip: true
+    description: "A token bound to a different tenantId cannot access this tenant's evaluation endpoint."
+    steps:
+      - name: "Cross-tenant token returns unknown_token or is isolated"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        # Token: valid token for 'rival-corp' tenant (injected in e2e test)
+        expect:
+          status: 403
+
+  # =====================================================================
+  # 11. Context agentId mismatch — agentId in context object
+  # =====================================================================
+  - name: "Context agentId mismatch"
+    description: "Placing a different agentId in context.agentId (rather than body root) is also caught."
+    steps:
+      - name: "Contractor token with CEO agentId in context is rejected"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: public-dashboard
+          action: public-status-read
+          context:
+            agentId: ceo-agent
+        expect:
+          status: 403
+          code: agent_mismatch
+
+  # =====================================================================
+  # 12. Multiple escalation in one request
+  # =====================================================================
+  - name: "Combined escalation — wrong agentId + callerRoles"
+    description: "Sending both a mismatched agentId and escalated callerRoles is rejected before roles are even evaluated."
+    steps:
+      - name: "Combined mismatch returns agent_mismatch"
+        agentId: product-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-report-read
+          agentId: ceo-agent
+          context:
+            callerRoles:
+              - executive
+              - approver
+        expect:
+          status: 403
+          code: agent_mismatch

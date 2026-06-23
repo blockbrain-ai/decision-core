@@ -1,0 +1,672 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-05-09T07:24:28.584Z",
+  "fixtureVersion": "1.0.0",
+  "entries": [
+    {
+      "scenarioId": "approval-scenarios.yaml::CFO high-value vendor payment — approve_required",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "approval-scenarios.yaml::CEO resolves approval — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "approval-scenarios.yaml::Product agent resolve finance approval — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "approval-scenarios.yaml::CFO resolve approval — deny (missing executive role)",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "approval-scenarios.yaml::VP Eng resolve approval — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "approval-scenarios.yaml::CEO reject request — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "approval-scenarios.yaml::Product agent reject request — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "approval-scenarios.yaml::VP Eng production deploy — approve_required",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "approval-scenarios.yaml::Contractor vendor payment — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "approval-scenarios.yaml::CFO vendor payment is approve_required not deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "approval-scenarios.yaml::Finance analyst vendor payment — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "approval-scenarios.yaml::CFO finance transfer — allow (under threshold)",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "approval-scenarios.yaml::HR lead resolve approval — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::CFO accesses confidential finance data — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::CFO accesses HR-restricted data — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::HR lead accesses HR-restricted data — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::HR lead accesses confidential finance — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::Product accesses public data — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::Product accesses confidential finance — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::Contractor accesses public data — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::Contractor accesses confidential finance — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::Contractor accesses HR-restricted — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::CEO accesses command-center — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::CEO accesses public data — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::VP Eng accesses engineering data — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::VP Eng accesses HR-restricted — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::Finance analyst accesses finance summary — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::Finance analyst accesses confidential finance write — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::Contractor accesses deployment — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::Product accesses HR-restricted — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "isolation-scenarios.yaml::CEO accesses finance action — deny (RBAC action boundary)",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::CFO finance report access — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::Product agent finance report access — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::CFO finance transfer — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::Product agent finance transfer — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::CFO finance summary — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::CFO budget update — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::Finance analyst report read — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::Finance analyst summary read — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::Finance analyst transfer — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::Finance analyst budget update — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::HR lead record read — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::Product agent HR record read — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::HR lead record update — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::VP Eng HR record update — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::VP Eng staging deploy — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::Product agent staging deploy — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::VP Eng production deploy — approve_required",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::Contractor finance access — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::Contractor HR access — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::Contractor deploy access — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::Contractor public read — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::Product agent public read — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::Contractor brain lookup — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::CEO approve request — allow (executive+approver)",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::CFO approve request — deny (lacks executive)",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "rbac-scenarios.yaml::CEO audit review — allow (executive+audit_admin)",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Prompt injection: memory note claiming admin access",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Prompt injection: memory note requesting data dump",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Prompt injection: embedded system prompt override",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Contractor requests finance summary via indirect wording",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Contractor requests HR data via indirect wording",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Product requests finance data through business overview wording",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Product requests confidential engineering via technical overview",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Finance requests HR payroll records",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Finance requests HR performance reviews",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Non-audit agent queries audit endpoint",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Non-audit agent queries record endpoint",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Error response probing — denied finance read has no content fragments",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Error response probing — denied HR read has no content fragments",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Brain slug guessing — contractor guesses CEO brain slug",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Brain prefix enumeration — contractor enumerates brain prefixes",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Cross-tenant exfiltration — forged tenantId in context",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Summary aggregation — finance analyst requests HR aggregate",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Approval metadata exfiltration — contractor queries approval queue",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Audit trail exfiltration — finance analyst queries audit trail",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Tool parameter injection — action contains injection payload",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Role escalation — contractor supplies callerRoles in body",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Policy endpoint exfiltration — contractor queries /policy",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Chained injection — memory override plus role escalation",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "redteam-exfiltration-scenarios.yaml::Finance analyst attempts command-center access",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "spoofing-scenarios.yaml::Valid CEO token — baseline",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "spoofing-scenarios.yaml::Valid product token — baseline",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "spoofing-scenarios.yaml::Product token with CEO agentId in body",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "spoofing-scenarios.yaml::Caller-supplied callerRoles ignored",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "spoofing-scenarios.yaml::Context agentId mismatch",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "spoofing-scenarios.yaml::Combined escalation — wrong agentId + callerRoles",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "tool-drift-scenarios.yaml::Known tool with allow policy — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "tool-drift-scenarios.yaml::Known tool with deny policy — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "tool-drift-scenarios.yaml::Known tool requiring approval — approve_required",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "tool-drift-scenarios.yaml::Unknown tool with denyUnknownDefault — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "tool-drift-scenarios.yaml::Completely novel tool with denyUnknownDefault — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "tool-drift-scenarios.yaml::Newly classified tool with matching allow policy — allow",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "tool-drift-scenarios.yaml::Decommissioned tool with explicit deny — deny",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    },
+    {
+      "scenarioId": "tool-drift-scenarios.yaml::Unknown tool denied regardless of privileged role",
+      "fixtureVersion": "1.0.0",
+      "expectedResult": "pass",
+      "actualResult": "pass",
+      "timestamp": "2026-05-09T07:24:28.584Z"
+    }
+  ]
+}

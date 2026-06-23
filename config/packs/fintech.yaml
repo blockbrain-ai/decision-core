@@ -1,0 +1,151 @@
+name: fintech
+version: 1.0.0
+description: Financial compliance governance — strict thresholds, mandatory audit, dual authorization for high-value operations
+profile: enterprise
+
+rules:
+  - name: allow-read-public
+    description: Allow reading public financial data without restriction
+    action: allow
+    surfaces: ["public"]
+    tools: ["read_*", "search_*", "list_*", "get_*"]
+    priority: 10
+
+  - name: approve-internal-read
+    description: Internal financial data requires audit trail
+    action: allow
+    surfaces: ["internal"]
+    tools: ["read_*", "get_*", "list_*"]
+    conditions:
+      requireAuditTrail: true
+    priority: 15
+
+  - name: auto-approve-low-value
+    description: Auto-approve transactions under $1,000
+    action: allow
+    surfaces: ["*"]
+    tools: ["transfer_*", "payment_*", "transaction_*"]
+    conditions:
+      maxAmountUsd: 1000
+      requireAuditTrail: true
+    priority: 30
+
+  - name: approve-medium-value
+    description: Require approval for transactions $1,000-$50,000
+    action: approve_required
+    surfaces: ["*"]
+    tools: ["transfer_*", "payment_*", "transaction_*"]
+    conditions:
+      minAmountUsd: 1000
+      maxAmountUsd: 50000
+      requireAuditTrail: true
+    priority: 40
+
+  - name: deny-high-value
+    description: Deny transactions over $50,000 — requires manual processing
+    action: deny
+    surfaces: ["*"]
+    tools: ["transfer_*", "payment_*", "transaction_*"]
+    conditions:
+      minAmountUsd: 50000
+    priority: 50
+
+  - name: require-sanctions-check
+    description: All counterparty operations require sanctions screening
+    action: approve_required
+    surfaces: ["*"]
+    tools: ["counterparty_*", "onboard_*", "kyc_*"]
+    conditions:
+      requireAuditTrail: true
+    priority: 60
+
+  - name: dual-auth-high-risk
+    description: High-risk financial operations require dual authorization
+    action: approve_required
+    surfaces: ["confidential", "restricted"]
+    tools: ["approve_*", "override_*", "escalate_*", "reverse_*"]
+    conditions:
+      requireDualAuthorization: true
+      requireAuditTrail: true
+    priority: 70
+
+  - name: block-destructive
+    description: Block all destructive financial operations
+    action: deny
+    surfaces: ["*"]
+    tools: ["delete_*", "drop_*", "purge_*", "destroy_*"]
+    priority: 100
+
+  - name: rate-limit-transactions
+    description: Limit transaction volume to prevent abuse
+    action: deny
+    surfaces: ["*"]
+    tools: ["transfer_*", "payment_*"]
+    conditions:
+      maxCountPerDay: 100
+    priority: 80
+
+  - name: block-off-hours
+    description: Block high-value operations outside business hours
+    action: deny
+    surfaces: ["restricted"]
+    tools: ["transfer_*", "payment_*", "approve_*"]
+    conditions:
+      timeWindowStart: "06:00"
+      timeWindowEnd: "22:00"
+    priority: 85
+
+surfaces:
+  - name: public
+    description: Public market data and non-sensitive financial information
+    trustTier: standard
+    category: data
+
+  - name: internal
+    description: Internal financial data — accounts, balances, positions
+    trustTier: elevated
+    category: finance
+
+  - name: confidential
+    description: Confidential data — customer PII, transaction details
+    trustTier: restricted
+    category: compliance
+
+  - name: restricted
+    description: Restricted operations — high-value transfers, regulatory submissions
+    trustTier: critical
+    category: regulatory
+
+trustTiers:
+  - name: standard
+    description: Public data access — no approval required
+    requiresApproval: false
+    requiresAudit: false
+    riskLevel: low
+
+  - name: elevated
+    description: Internal access — audit trail required
+    requiresApproval: false
+    requiresAudit: true
+    riskLevel: medium
+
+  - name: restricted
+    description: Confidential access — approval and audit required
+    requiresApproval: true
+    requiresAudit: true
+    riskLevel: high
+
+  - name: critical
+    description: Regulatory operations — dual authorization, full audit
+    requiresApproval: true
+    requiresAudit: true
+    riskLevel: critical
+
+exampleTools:
+  - read_market_data
+  - get_account_balance
+  - transfer_funds
+  - payment_send
+  - counterparty_screen
+  - kyc_verify
+  - approve_transaction

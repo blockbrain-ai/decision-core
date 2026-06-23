@@ -1,0 +1,92 @@
+# Decision Core Profile — Enterprise
+# Locked-down setup with compliance frameworks and strict approval gates
+
+schemaVersion: 1
+profileId: "example-enterprise-001"
+mode: "enterprise"
+
+agent:
+  harness: "hermes"
+  detectedTools:
+    - "database_query"
+    - "database_write"
+    - "deploy_staging"
+    - "deploy_production"
+    - "send_notification"
+    - "generate_report"
+    - "payment_process"
+
+autonomy:
+  posture: "locked_down"
+  defaultAction: "block"
+  alwaysRequireApproval:
+    - "deploy_production"
+    - "payment_process"
+    - "database_write"
+    - "send_notification"
+
+provider:
+  mode: "host"
+
+memory:
+  primarySource: "gbrain"
+  evidenceImported: true
+
+data:
+  classes:
+    - "pii"
+    - "financial"
+    - "credentials"
+    - "health"
+    - "restricted"
+    - "internal"
+  complianceFrameworks:
+    - "SOC2"
+    - "GDPR"
+    - "HIPAA"
+
+tools:
+  - name: "database_query"
+    riskTier: 2
+    accessesSensitiveData: true
+    defaultAction: "ask"
+  - name: "database_write"
+    riskTier: 4
+    canDeleteData: true
+    accessesSensitiveData: true
+    defaultAction: "block"
+  - name: "deploy_staging"
+    riskTier: 3
+    canDeployCode: true
+    defaultAction: "ask"
+  - name: "deploy_production"
+    riskTier: 4
+    canDeployCode: true
+    defaultAction: "block"
+  - name: "send_notification"
+    riskTier: 3
+    canContactPeople: true
+    defaultAction: "ask"
+  - name: "generate_report"
+    riskTier: 1
+    defaultAction: "allow"
+  - name: "payment_process"
+    riskTier: 4
+    canSpendMoney: true
+    accessesSensitiveData: true
+    defaultAction: "block"
+
+surfaces:
+  - name: "high-risk-operations"
+    tools:
+      - "database_write"
+      - "deploy_production"
+      - "payment_process"
+  - name: "standard-operations"
+    tools:
+      - "database_query"
+      - "deploy_staging"
+      - "send_notification"
+  - name: "low-risk-operations"
+    tools:
+      - "generate_report"

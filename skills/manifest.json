@@ -1,0 +1,102 @@
+{
+  "version": "1.0.0",
+  "skills": [
+    {
+      "name": "onboard",
+      "description": "Guide user through Decision Core setup via 5-phase interview",
+      "path": "skills/onboard/SKILL.md",
+      "triggers": [
+        "set up decision core",
+        "onboard my agent",
+        "configure governance",
+        "new policy setup"
+      ],
+      "requiredTools": [
+        "dc_onboard_start",
+        "dc_onboard_answer",
+        "dc_onboard_generate",
+        "dc_onboard_validate"
+      ],
+      "compatibleAgents": [
+        "hermes",
+        "openclaw",
+        "claude-desktop",
+        "cli"
+      ]
+    },
+    {
+      "name": "policy-author",
+      "description": "Generate YAML policy rules from plain English descriptions or documents",
+      "path": "skills/policy-author/SKILL.md",
+      "triggers": [
+        "write a policy",
+        "create a policy",
+        "add a rule",
+        "author policy",
+        "convert policy document",
+        "policy from document"
+      ],
+      "requiredTools": [
+        "dc_author_from_text",
+        "dc_author_from_document",
+        "dc_author_review",
+        "dc_author_commit"
+      ],
+      "compatibleAgents": [
+        "hermes",
+        "openclaw",
+        "claude-desktop",
+        "cli"
+      ]
+    },
+    {
+      "name": "compliance-audit",
+      "description": "Review decisions, detect governance gaps, and generate compliance reports",
+      "path": "skills/audit/SKILL.md",
+      "triggers": [
+        "run audit",
+        "audit my agent",
+        "check compliance",
+        "find policy gaps",
+        "governance gaps",
+        "evidence integrity"
+      ],
+      "requiredTools": [
+        "dc_audit_run",
+        "dc_audit_gaps",
+        "dc_audit_evidence"
+      ],
+      "compatibleAgents": [
+        "hermes",
+        "openclaw",
+        "claude-desktop",
+        "cli"
+      ]
+    },
+    {
+      "name": "agent-onboard",
+      "description": "Agent-led setup with memory evidence, adaptive interview, and artifact generation",
+      "path": "skills/agent-onboard/SKILL.md",
+      "triggers": [
+        "set up decision core",
+        "agent setup",
+        "configure governance",
+        "run setup",
+        "decision core setup"
+      ],
+      "requiredTools": [
+        "dc_setup_detect",
+        "dc_setup_infer",
+        "dc_setup_generate",
+        "dc_setup_validate",
+        "dc_setup_activate"
+      ],
+      "compatibleAgents": [
+        "hermes",
+        "openclaw",
+        "claude-desktop",
+        "cli"
+      ]
+    }
+  ]
+}

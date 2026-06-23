@@ -1,0 +1,54 @@
+name: decision-core
+version: "0.1.0"
+description: >
+  Decision Core policy enforcement plugin for Hermes Agent.
+  Evaluates tool calls against policies via HTTP bridge,
+  blocks denied or approval-required actions, and records
+  outcomes for audit.
+
+author: Decision Core
+license: MIT
+
+# Hermes manifest fields (see hermes_cli/plugins.py PluginManifest).
+# `kind: standalone` plugins must be opted in via `plugins.enabled` in
+# the Hermes config.yaml.
+kind: standalone
+provides_hooks:
+  - pre_tool_call
+  - post_tool_call
+
+# NOTE: The block below is documentation for operators. Hermes does NOT
+# read plugin settings from this manifest — configure these keys in the
+# Hermes config.yaml under `plugins.settings.decision-core`.
+# Tested against Hermes 0.12.x (hook contract stable since 0.2.x).
+config:
+  dc_base_url:
+    type: string
+    default: "http://127.0.0.1:3100"
+    description: Decision Core HTTP bridge URL (localhost only)
+  dc_api_key:
+    type: string
+    required: true
+    description: Bearer token for Decision Core API authentication
+  dc_surface_id:
+    type: string
+    default: "hermes"
+    description: Surface identifier sent in evaluation requests
+  dc_fail_mode:
+    type: string
+    default: "closed"
+    description: >
+      Failure mode when HTTP bridge is unreachable.
+      "closed" blocks all tool calls (safe default).
+      "open" logs a warning and allows tool calls.
+  dc_timeout_seconds:
+    type: number
+    default: 5
+    description: HTTP request timeout in seconds
+  dc_agent_id:
+    type: string
+    required: false
+    description: >
+      Agent identity sent in evaluation requests for org-mode.
+      In org mode, the DC server verifies this matches the
+      token-bound identity. Must match agents.yaml agentId.

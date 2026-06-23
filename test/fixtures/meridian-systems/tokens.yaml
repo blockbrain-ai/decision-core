@@ -1,0 +1,42 @@
+bindings:
+  - subject: ce488983ffa5e5732dda2cd99663c4371db3711d4dbd4e2e78681c0468f62caa
+    salt: meridian-test-salt-2024
+    agentId: ceo-agent
+    tenantId: meridian-systems
+    enabled: true
+
+  - subject: b488e11f5f8f50e44bf6b531e250dd6bf6075cd626ec0551472f3cb686e63141
+    salt: meridian-test-salt-2024
+    agentId: cfo-agent
+    tenantId: meridian-systems
+    enabled: true
+
+  - subject: e61384f2e1bf17ee493ebbd2546aff34c37310d37ebe1669c92d8ad4fd6fb084
+    salt: meridian-test-salt-2024
+    agentId: finance-analyst-agent
+    tenantId: meridian-systems
+    enabled: true
+
+  - subject: b2d438d3a1d5a93e2a515d72e9ffa9b9a8420a3120aaccf59e26925a87671182
+    salt: meridian-test-salt-2024
+    agentId: vp-eng-agent
+    tenantId: meridian-systems
+    enabled: true
+
+  - subject: 06655e757eca9db5ee7235e787fce44c740de5c6b607ff09459404eef8a0f898
+    salt: meridian-test-salt-2024
+    agentId: hr-lead-agent
+    tenantId: meridian-systems
+    enabled: true
+
+  - subject: 533885320bdddd354c946ab1f26290a3b3df45d1298fedf9c54879afe56df704
+    salt: meridian-test-salt-2024
+    agentId: product-agent
+    tenantId: meridian-systems
+    enabled: true
+
+  - subject: 228f28937d5227d4c9d98d546d6458ae5d9381d39a7c5eda4e37cd8a83e9ea23
+    salt: meridian-test-salt-2024
+    agentId: contractor-agent
+    tenantId: meridian-systems
+    enabled: true

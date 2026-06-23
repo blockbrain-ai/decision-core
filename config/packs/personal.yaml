@@ -1,0 +1,65 @@
+name: personal
+version: 1.0.0
+description: Sensible defaults for personal agent use — permissive read access, blocks destructive operations
+profile: personal
+
+rules:
+  - name: allow-read-tools
+    description: Allow all read, search, and list operations without approval
+    action: allow
+    surfaces: ["*"]
+    tools: ["read_*", "search_*", "list_*", "get_*", "fetch_*"]
+    priority: 10
+
+  - name: allow-write-tools
+    description: Allow write and create operations for personal use
+    action: allow
+    surfaces: ["*"]
+    tools: ["write_*", "create_*", "update_*", "edit_*"]
+    priority: 5
+
+  - name: block-destructive
+    description: Block destructive operations to prevent accidental data loss
+    action: deny
+    surfaces: ["*"]
+    tools: ["delete_*", "drop_*", "rm_*", "destroy_*", "purge_*"]
+    priority: 100
+
+  - name: block-admin
+    description: Block administrative operations that could affect system state
+    action: deny
+    surfaces: ["*"]
+    tools: ["admin_*", "sudo_*", "escalate_*"]
+    priority: 100
+
+  - name: allow-general
+    description: Default allow for all other operations in personal mode
+    action: allow
+    surfaces: ["*"]
+    tools: ["*"]
+    priority: 0
+
+surfaces:
+  - name: default
+    description: Default surface for all personal agent operations
+    trustTier: standard
+    category: general
+
+  - name: personal-workspace
+    description: Personal workspace with full access
+    trustTier: standard
+    category: workspace
+
+trustTiers:
+  - name: standard
+    description: Standard trust level for personal use — no approval required
+    requiresApproval: false
+    requiresAudit: false
+    riskLevel: low
+
+exampleTools:
+  - read_file
+  - search_documents
+  - list_tasks
+  - write_note
+  - create_reminder

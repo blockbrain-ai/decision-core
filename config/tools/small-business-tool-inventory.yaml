@@ -1,0 +1,75 @@
+version: "1.0"
+tools:
+  - name: read_*
+    surface: "*"
+    riskTier: 1
+    allowedRoles: []
+    description: Read-only data access tools.
+  - name: search_*
+    surface: "*"
+    riskTier: 1
+    allowedRoles: []
+    description: Search-only tools.
+  - name: list_*
+    surface: "*"
+    riskTier: 1
+    allowedRoles: []
+    description: List-only tools.
+  - name: approve_purchase
+    surface: "*"
+    riskTier: 3
+    allowedRoles: [finance_approver]
+    description: Purchase approval workflow.
+  - name: process_payment
+    surface: "*"
+    riskTier: 5
+    allowedRoles: [finance_approver]
+    approvalRole: ceo
+    description: Payment processing requires CEO approval.
+  - name: view_budget*
+    surface: "*"
+    riskTier: 2
+    allowedRoles: [finance_approver, budget_viewer, ceo]
+    description: Budget data views.
+  - name: run_audit
+    surface: "*"
+    riskTier: 2
+    allowedRoles: [compliance_officer, auditor]
+    description: Compliance audit execution.
+  - name: submit_filing
+    surface: "*"
+    riskTier: 4
+    allowedRoles: [compliance_officer]
+    approvalRole: ceo
+    description: Regulatory filing submission.
+  - name: deploy_production
+    surface: "*"
+    riskTier: 5
+    allowedRoles: [ops_manager, deployer]
+    approvalRole: product_manager
+    description: Production deployment action.
+  - name: infra_*
+    surface: "*"
+    riskTier: 3
+    allowedRoles: [ops_manager]
+    description: Infrastructure management tools.
+  - name: roadmap_*
+    surface: "*"
+    riskTier: 2
+    allowedRoles: [product_manager, analyst]
+    description: Product roadmap management.
+  - name: approve_feature
+    surface: "*"
+    riskTier: 3
+    allowedRoles: [product_manager]
+    description: Feature approval.
+  - name: strategic_*
+    surface: "*"
+    riskTier: 4
+    allowedRoles: [ceo, strategic_planner]
+    description: Strategic business actions.
+  - name: view_hr_*
+    surface: "*"
+    riskTier: 4
+    allowedRoles: [ceo]
+    description: HR data views.

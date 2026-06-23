@@ -1,0 +1,13 @@
+brainId: cfo-brain
+agentId: cfo-agent
+mounted: true
+data:
+  budget-overview:
+    total: 12500000
+    engineering: 5000000
+    marketing: 2500000
+    operations: 3000000
+    hr: 2000000
+  quarterly-revenue:
+    Q1: 3200000
+    Q2: 3800000

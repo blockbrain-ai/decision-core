@@ -1,0 +1,226 @@
+version: "1.0.0"
+
+surfaces:
+  - surfaceId: finance.processing
+    displayName: Finance Processing
+    category: finance
+    description: High-value financial transaction processing
+    validDecisions: [allow, deny, approve_required, escalate]
+    inputFields:
+      - name: amount
+        type: number
+        required: true
+      - name: currency
+        type: string
+        required: true
+      - name: recipient.country
+        type: string
+        required: false
+      - name: transaction_type
+        type: enum
+        enumValues: [wire, ach, card, crypto]
+        required: false
+      - name: risk_score
+        type: number
+        required: false
+    forbiddenOutputs: [auto_approve_high_risk]
+    safeFallback: deny
+    maxAutonomyTier: 2
+    protectedAttributeHazard: false
+    riskTier: critical
+
+  - surfaceId: finance.analysis
+    displayName: Finance Analysis
+    category: finance
+    description: Financial data analysis and reporting
+    validDecisions: [allow, deny, approve_required]
+    inputFields:
+      - name: report_type
+        type: string
+        required: true
+      - name: date_range
+        type: string
+        required: false
+      - name: include_pii
+        type: boolean
+        required: false
+    forbiddenOutputs: []
+    safeFallback: deny
+    maxAutonomyTier: 3
+    protectedAttributeHazard: false
+    riskTier: intermediate
+
+  - surfaceId: communication.email
+    displayName: Email Communication
+    category: communication
+    description: Outbound email generation and sending
+    validDecisions: [allow, deny, approve_required]
+    inputFields:
+      - name: recipient
+        type: string
+        required: true
+      - name: subject
+        type: string
+        required: false
+      - name: is_external
+        type: boolean
+        required: false
+    forbiddenOutputs: []
+    safeFallback: deny
+    maxAutonomyTier: 3
+    protectedAttributeHazard: false
+    riskTier: intermediate
+
+  - surfaceId: communication.notification
+    displayName: Notification
+    category: communication
+    description: Internal notification dispatch
+    validDecisions: [allow, deny]
+    inputFields:
+      - name: channel
+        type: enum
+        enumValues: [slack, sms, push, webhook]
+        required: true
+      - name: priority
+        type: enum
+        enumValues: [low, medium, high, critical]
+        required: false
+    forbiddenOutputs: []
+    safeFallback: allow
+    maxAutonomyTier: 5
+    protectedAttributeHazard: false
+    riskTier: low
+
+  - surfaceId: compliance.screening
+    displayName: Compliance Screening
+    category: compliance
+    description: Sanctions and AML screening
+    validDecisions: [allow, deny, escalate]
+    inputFields:
+      - name: entity_name
+        type: string
+        required: true
+      - name: entity_type
+        type: enum
+        enumValues: [individual, organization]
+        required: true
+      - name: jurisdiction
+        type: string
+        required: false
+      - name: sanctions_list
+        type: string[]
+        required: false
+    forbiddenOutputs: [auto_approve]
+    safeFallback: escalate
+    maxAutonomyTier: 1
+    protectedAttributeHazard: true
+    riskTier: critical
+
+  - surfaceId: compliance.review
+    displayName: Compliance Review
+    category: compliance
+    description: Regulatory compliance document review
+    validDecisions: [allow, deny, approve_required, escalate]
+    inputFields:
+      - name: document_type
+        type: string
+        required: true
+      - name: regulation
+        type: string
+        required: false
+      - name: risk_class
+        type: enum
+        enumValues: [A, B, C]
+        required: false
+    forbiddenOutputs: []
+    safeFallback: escalate
+    maxAutonomyTier: 2
+    protectedAttributeHazard: false
+    riskTier: critical
+
+  - surfaceId: data.classification
+    displayName: Data Classification
+    category: data
+    description: Data sensitivity classification
+    validDecisions: [allow, deny, approve_required]
+    inputFields:
+      - name: data_type
+        type: string
+        required: true
+      - name: contains_pii
+        type: boolean
+        required: false
+      - name: source_system
+        type: string
+        required: false
+    forbiddenOutputs: []
+    safeFallback: deny
+    maxAutonomyTier: 3
+    protectedAttributeHazard: false
+    riskTier: intermediate
+
+  - surfaceId: data.extraction
+    displayName: Data Extraction
+    category: data
+    description: Data extraction from external sources
+    validDecisions: [allow, deny, approve_required]
+    inputFields:
+      - name: source
+        type: string
+        required: true
+      - name: format
+        type: enum
+        enumValues: [csv, json, xml, parquet]
+        required: false
+      - name: row_count
+        type: number
+        required: false
+    forbiddenOutputs: []
+    safeFallback: deny
+    maxAutonomyTier: 5
+    protectedAttributeHazard: false
+    riskTier: low
+
+  - surfaceId: workflow.routing
+    displayName: Workflow Routing
+    category: workflow
+    description: Task and case routing decisions
+    validDecisions: [allow, deny]
+    inputFields:
+      - name: task_type
+        type: string
+        required: true
+      - name: priority
+        type: enum
+        enumValues: [low, medium, high, critical]
+        required: false
+      - name: assignee_role
+        type: string
+        required: false
+    forbiddenOutputs: []
+    safeFallback: deny
+    maxAutonomyTier: 5
+    protectedAttributeHazard: false
+    riskTier: low
+
+  - surfaceId: workflow.escalation
+    displayName: Workflow Escalation
+    category: workflow
+    description: Escalation and approval routing
+    validDecisions: [allow, deny, escalate, approve_required]
+    inputFields:
+      - name: escalation_reason
+        type: string
+        required: true
+      - name: severity
+        type: enum
+        enumValues: [low, medium, high, critical]
+        required: false
+      - name: original_decision
+        type: string
+        required: false
+    forbiddenOutputs: []
+    safeFallback: escalate
+    maxAutonomyTier: 3
+    protectedAttributeHazard: false
+    riskTier: intermediate

@@ -1,0 +1,10 @@
+brainId: hr-lead-brain
+agentId: hr-lead-agent
+mounted: true
+data:
+  open-positions:
+    - "Senior Backend Engineer"
+    - "Product Designer"
+  review-cycle:
+    current: "2024-H1"
+    deadline: "2024-06-30"

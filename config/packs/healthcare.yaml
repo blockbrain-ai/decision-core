@@ -1,0 +1,143 @@
+name: healthcare
+version: 1.0.0
+description: Patient data protection — HIPAA-informed controls, PHI access audit, clinical tool governance
+profile: enterprise
+
+rules:
+  - name: allow-admin-read
+    description: Allow reading administrative (non-PHI) data freely
+    action: allow
+    surfaces: ["administrative"]
+    tools: ["read_*", "search_*", "list_*", "get_*"]
+    priority: 10
+
+  - name: approve-phi-access
+    description: Patient health information access requires approval and audit
+    action: approve_required
+    surfaces: ["phi"]
+    tools: ["read_*", "get_*", "search_*", "list_*"]
+    conditions:
+      requireAuditTrail: true
+    priority: 30
+
+  - name: approve-phi-write
+    description: Writing to patient records requires approval
+    action: approve_required
+    surfaces: ["phi"]
+    tools: ["write_*", "update_*", "create_*", "modify_*"]
+    conditions:
+      requireAuditTrail: true
+    priority: 40
+
+  - name: approve-clinical-tools
+    description: Clinical decision support tools require elevated trust
+    action: approve_required
+    surfaces: ["clinical"]
+    tools: ["diagnose_*", "prescribe_*", "recommend_*", "assess_*"]
+    conditions:
+      requireAuditTrail: true
+    priority: 50
+
+  - name: deny-phi-export-default
+    description: PHI data export denied by default — requires dual authorization
+    action: deny
+    surfaces: ["phi"]
+    tools: ["export_*", "download_*", "transmit_*", "share_*"]
+    priority: 70
+
+  - name: approve-phi-export-authorized
+    description: Authorized PHI export requires dual authorization
+    action: approve_required
+    surfaces: ["phi-export"]
+    tools: ["export_*", "transmit_*"]
+    conditions:
+      requireDualAuthorization: true
+      requireAuditTrail: true
+    priority: 75
+
+  - name: block-destructive
+    description: Block deletion of any patient data
+    action: deny
+    surfaces: ["phi", "clinical"]
+    tools: ["delete_*", "purge_*", "destroy_*", "remove_*"]
+    priority: 100
+
+  - name: block-cross-patient
+    description: Block cross-patient data access without explicit authorization
+    action: deny
+    surfaces: ["phi"]
+    tools: ["bulk_*", "batch_*", "aggregate_*"]
+    conditions:
+      crossTenantAccess: false
+    priority: 90
+
+  - name: allow-scheduling
+    description: Allow scheduling and administrative operations
+    action: allow
+    surfaces: ["administrative"]
+    tools: ["schedule_*", "book_*", "cancel_*", "reschedule_*"]
+    priority: 15
+
+  - name: audit-all-decisions
+    description: All clinical decisions must be logged with evidence chain
+    action: allow
+    surfaces: ["clinical"]
+    tools: ["log_*", "record_*", "document_*"]
+    conditions:
+      requireAuditTrail: true
+    priority: 20
+
+surfaces:
+  - name: administrative
+    description: Administrative data — scheduling, billing codes, facility info
+    trustTier: standard
+    category: operations
+
+  - name: clinical
+    description: Clinical tools — decision support, assessments, recommendations
+    trustTier: elevated
+    category: clinical
+
+  - name: phi
+    description: Protected Health Information — patient records, diagnoses, treatments
+    trustTier: restricted
+    category: patient-data
+
+  - name: phi-export
+    description: PHI export operations — data transmission, reporting, sharing
+    trustTier: critical
+    category: data-transfer
+
+trustTiers:
+  - name: standard
+    description: Administrative access — no special controls
+    requiresApproval: false
+    requiresAudit: false
+    riskLevel: low
+
+  - name: elevated
+    description: Clinical access — audit trail required for all operations
+    requiresApproval: false
+    requiresAudit: true
+    riskLevel: medium
+
+  - name: restricted
+    description: PHI access — approval and full audit required
+    requiresApproval: true
+    requiresAudit: true
+    riskLevel: high
+
+  - name: critical
+    description: PHI export — dual authorization and compliance logging
+    requiresApproval: true
+    requiresAudit: true
+    riskLevel: critical
+
+exampleTools:
+  - read_patient_record
+  - get_lab_results
+  - schedule_appointment
+  - prescribe_medication
+  - diagnose_condition
+  - export_patient_data
+  - record_clinical_note

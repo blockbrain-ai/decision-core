@@ -1,0 +1,42 @@
+tenantId: default
+
+agents:
+  - agentId: ceo-agent
+    displayName: CEO Strategic Agent
+    humanOwner: CEO
+    roles: [ceo, strategic_planner, budget_viewer]
+    surfaces: [hermes, openclaw]
+    personalBrain: personal-ceo
+    enabled: true
+
+  - agentId: finance-agent
+    displayName: Finance Manager Agent
+    humanOwner: Finance Manager
+    roles: [finance_approver, budget_viewer]
+    surfaces: [hermes]
+    personalBrain: personal-finance
+    enabled: true
+
+  - agentId: ops-agent
+    displayName: Operations Manager Agent
+    humanOwner: Operations Manager
+    roles: [ops_manager, deployer]
+    surfaces: [hermes]
+    personalBrain: personal-ops
+    enabled: true
+
+  - agentId: compliance-agent
+    displayName: Compliance Officer Agent
+    humanOwner: Compliance Officer
+    roles: [compliance_officer, auditor]
+    surfaces: [hermes]
+    personalBrain: personal-compliance
+    enabled: true
+
+  - agentId: product-agent
+    displayName: Product Manager Agent
+    humanOwner: Product Manager
+    roles: [product_manager, analyst]
+    surfaces: [hermes]
+    personalBrain: personal-product
+    enabled: true

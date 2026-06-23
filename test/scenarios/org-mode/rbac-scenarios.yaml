@@ -1,0 +1,377 @@
+##
+# RBAC Scenario Suite — Role-scoped policy evaluation through HTTP API.
+#
+# Every deny scenario has a paired allow for the same action with an
+# authorised agent, proving the server differentiates by role rather
+# than blanket-denying.
+##
+
+tags: [rbac, smoke]
+
+scenarios:
+  # =====================================================================
+  # Finance: CFO (roles: finance, approver)
+  # =====================================================================
+  - name: "CFO finance report access — allow"
+    tags: [smoke, release-blocking]
+    releaseBlocking: true
+    steps:
+      - name: "CFO can read finance reports"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-report-read
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "Product agent finance report access — deny"
+    tags: [smoke, release-blocking]
+    releaseBlocking: true
+    steps:
+      - name: "Product agent is denied finance report read"
+        agentId: product-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-report-read
+        expect:
+          status: 200
+          verdict: deny
+
+  - name: "CFO finance transfer — allow"
+    steps:
+      - name: "CFO can initiate a finance transfer"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-operations
+          action: finance-transfer
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "Product agent finance transfer — deny"
+    steps:
+      - name: "Product agent is denied finance transfer"
+        agentId: product-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-operations
+          action: finance-transfer
+        expect:
+          status: 200
+          verdict: deny
+
+  - name: "CFO finance summary — allow"
+    steps:
+      - name: "CFO can read finance summaries"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-summary-read
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "CFO budget update — allow"
+    steps:
+      - name: "CFO can update budgets"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-operations
+          action: finance-budget-update
+        expect:
+          status: 200
+          verdict: allow
+
+  # =====================================================================
+  # Finance Analyst (roles: finance_analyst) — limited access
+  # =====================================================================
+  - name: "Finance analyst report read — allow"
+    steps:
+      - name: "Finance analyst can read finance reports"
+        agentId: finance-analyst-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-report-read
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "Finance analyst summary read — allow"
+    steps:
+      - name: "Finance analyst can read finance summaries"
+        agentId: finance-analyst-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-summary-read
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "Finance analyst transfer — deny"
+    steps:
+      - name: "Finance analyst is denied finance transfer (requires finance, not finance_analyst)"
+        agentId: finance-analyst-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-operations
+          action: finance-transfer
+        expect:
+          status: 200
+          verdict: deny
+
+  - name: "Finance analyst budget update — deny"
+    steps:
+      - name: "Finance analyst is denied budget update (requires finance, not finance_analyst)"
+        agentId: finance-analyst-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-operations
+          action: finance-budget-update
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # HR Lead (roles: hr, people_ops)
+  # =====================================================================
+  - name: "HR lead record read — allow"
+    steps:
+      - name: "HR lead can read personnel records"
+        agentId: hr-lead-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: hr-portal
+          action: hr-record-read
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "Product agent HR record read — deny"
+    steps:
+      - name: "Product agent is denied HR record read"
+        agentId: product-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: hr-portal
+          action: hr-record-read
+        expect:
+          status: 200
+          verdict: deny
+
+  - name: "HR lead record update — allow"
+    steps:
+      - name: "HR lead can update personnel records (has people_ops)"
+        agentId: hr-lead-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: hr-portal
+          action: hr-record-update
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "VP Eng HR record update — deny"
+    steps:
+      - name: "VP Eng is denied HR record update (lacks people_ops)"
+        agentId: vp-eng-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: hr-portal
+          action: hr-record-update
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # Engineering (VP Eng roles: engineering, deployer)
+  # =====================================================================
+  - name: "VP Eng staging deploy — allow"
+    steps:
+      - name: "VP Eng can deploy to staging"
+        agentId: vp-eng-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: deployment
+          action: deploy-staging
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "Product agent staging deploy — deny"
+    steps:
+      - name: "Product agent is denied staging deploy"
+        agentId: product-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: deployment
+          action: deploy-staging
+        expect:
+          status: 200
+          verdict: deny
+
+  - name: "VP Eng production deploy — approve_required"
+    steps:
+      - name: "VP Eng production deploy requires approval"
+        agentId: vp-eng-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: deployment
+          action: deploy-production
+        expect:
+          status: 200
+          verdict: approve_required
+
+  # =====================================================================
+  # Contractor (roles: contractor) — non-public denial
+  # =====================================================================
+  - name: "Contractor finance access — deny"
+    tags: [release-blocking]
+    releaseBlocking: true
+    steps:
+      - name: "Contractor is denied finance report read"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-report-read
+        expect:
+          status: 200
+          verdict: deny
+
+  - name: "Contractor HR access — deny"
+    steps:
+      - name: "Contractor is denied HR record read"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: hr-portal
+          action: hr-record-read
+        expect:
+          status: 200
+          verdict: deny
+
+  - name: "Contractor deploy access — deny"
+    steps:
+      - name: "Contractor is denied staging deploy"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: deployment
+          action: deploy-staging
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # Public & brain: open to all authenticated agents
+  # =====================================================================
+  - name: "Contractor public read — allow"
+    steps:
+      - name: "Contractor can read public data"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: public-dashboard
+          action: public-status-read
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "Product agent public read — allow"
+    steps:
+      - name: "Product agent can read public data"
+        agentId: product-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: public-dashboard
+          action: public-report-read
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "Contractor brain lookup — allow"
+    steps:
+      - name: "Contractor can look up brain data"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: memory
+          action: brain-lookup
+        expect:
+          status: 200
+          verdict: allow
+
+  # =====================================================================
+  # CEO restricted access (roleMatchMode: all)
+  # =====================================================================
+  - name: "CEO approve request — allow (executive+approver)"
+    tags: [release-blocking]
+    releaseBlocking: true
+    steps:
+      - name: "CEO can approve requests (has both executive and approver)"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: approval-queue
+          action: approve-request
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "CFO approve request — deny (lacks executive)"
+    steps:
+      - name: "CFO is denied approve-request (has approver but lacks executive)"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: approval-queue
+          action: approve-request
+        expect:
+          status: 200
+          verdict: deny
+
+  - name: "CEO audit review — allow (executive+audit_admin)"
+    steps:
+      - name: "CEO can review audits (has both executive and audit_admin)"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: governance
+          action: audit-review
+        expect:
+          status: 200
+          verdict: allow

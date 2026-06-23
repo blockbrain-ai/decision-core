@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "example-gbrain-001",
+  "sourceKind": "gbrain",
+  "collectedBy": "user-agent",
+  "collectedAt": "2025-01-15T10:30:00.000Z",
+  "consent": {
+    "readGranted": true,
+    "writeBackGranted": false,
+    "scope": ["decisions", "tools", "workflows"]
+  },
+  "items": [
+    {
+      "id": "ev-001",
+      "summary": "Agent uses a CI/CD deployment pipeline with mandatory staging gate before production",
+      "sourceRef": "gbrain:page/deployment-workflow",
+      "confidence": 0.9,
+      "sensitive": false,
+      "suggestedProfilePatch": {
+        "tools": [
+          {
+            "name": "deploy_staging",
+            "riskTier": 3,
+            "canDeployCode": true,
+            "defaultAction": "ask"
+          },
+          {
+            "name": "deploy_production",
+            "riskTier": 4,
+            "canDeployCode": true,
+            "defaultAction": "block"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ev-002",
+      "summary": "Organization handles customer PII and financial records with SOC2 compliance requirement",
+      "sourceRef": "gbrain:page/compliance-overview",
+      "confidence": 0.85,
+      "sensitive": false,
+      "suggestedProfilePatch": {
+        "data": {
+          "classes": ["pii", "financial"],
+          "complianceFrameworks": ["SOC2"]
+        }
+      }
+    },
+    {
+      "id": "ev-003",
+      "summary": "Team uses Slack and email for notifications — external communication requires manager approval",
+      "sourceRef": "gbrain:page/communication-policy",
+      "confidence": 0.8,
+      "sensitive": false,
+      "suggestedProfilePatch": {
+        "autonomy": {
+          "alwaysRequireApproval": ["send_email", "send_slack"]
+        }
+      }
+    },
+    {
+      "id": "ev-004",
+      "summary": "Agent primarily handles code review, test generation, and documentation tasks",
+      "sourceRef": "gbrain:page/agent-tasks",
+      "confidence": 0.75,
+      "sensitive": false,
+      "suggestedProfilePatch": {
+        "userContext": {
+          "primaryJobs": ["code review", "test generation", "documentation"]
+        }
+      }
+    },
+    {
+      "id": "ev-005",
+      "summary": "Database contains customer health records in the patients table — HIPAA-relevant",
+      "sourceRef": "gbrain:page/data-inventory",
+      "confidence": 0.7,
+      "sensitive": true,
+      "suggestedProfilePatch": {
+        "data": {
+          "classes": ["health"],
+          "complianceFrameworks": ["HIPAA"]
+        }
+      }
+    }
+  ]
+}

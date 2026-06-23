@@ -1,0 +1,68 @@
+{
+  "id": "decision-core",
+  "name": "Decision Core",
+  "description": "Deterministic policy enforcement hooks for OpenClaw tool calls.",
+  "version": "0.1.0",
+  "activation": {
+    "onStartup": true
+  },
+  "uiHints": {
+    "policyPackPath": {
+      "label": "Policy Pack Path",
+      "help": "Path to the Decision Core YAML policy pack."
+    },
+    "agentRegistryPath": {
+      "label": "Agent Registry Path",
+      "help": "Optional path to the Decision Core agent registry YAML file."
+    },
+    "tenantId": {
+      "label": "Tenant ID"
+    },
+    "surfaceId": {
+      "label": "Surface ID"
+    },
+    "failMode": {
+      "label": "Failure Mode",
+      "help": "Use closed in production so tool execution blocks if policy evaluation is unavailable."
+    },
+    "approvalTimeoutMs": {
+      "label": "Approval Timeout (ms)"
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "policyPackPath": {
+        "type": "string",
+        "description": "Path to the Decision Core YAML policy pack file."
+      },
+      "agentRegistryPath": {
+        "type": "string",
+        "description": "Optional path to the Decision Core agent registry YAML file."
+      },
+      "tenantId": {
+        "type": "string",
+        "default": "default",
+        "description": "Tenant identifier for policy evaluation."
+      },
+      "surfaceId": {
+        "type": "string",
+        "default": "openclaw",
+        "description": "Surface identifier for this OpenClaw instance."
+      },
+      "failMode": {
+        "type": "string",
+        "enum": ["closed", "open"],
+        "default": "closed",
+        "description": "Behavior when policy evaluation fails."
+      },
+      "approvalTimeoutMs": {
+        "type": "integer",
+        "minimum": 1,
+        "default": 300000,
+        "description": "Maximum wait before approval requests time out."
+      }
+    }
+  }
+}

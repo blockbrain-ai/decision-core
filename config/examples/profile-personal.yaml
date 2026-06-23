@@ -1,0 +1,30 @@
+# Decision Core Profile — Personal
+# Minimal setup for individual use with guided autonomy
+
+schemaVersion: 1
+profileId: "example-personal-001"
+mode: "personal"
+
+agent:
+  harness: "generic"
+  detectedTools: []
+
+autonomy:
+  posture: "guided"
+  defaultAction: "ask"
+  alwaysRequireApproval: []
+
+provider:
+  mode: "disabled"
+
+memory:
+  primarySource: null
+  evidenceImported: false
+
+data:
+  classes: []
+  complianceFrameworks: []
+
+tools: []
+
+surfaces: []

@@ -1,0 +1,194 @@
+{
+  "version": "1.0.0",
+  "bindings": [
+    {
+      "surfaceId": "finance.processing",
+      "pattern": "tribunal",
+      "roles": {
+        "assessor_a": {
+          "modelPolicy": "high-quality",
+          "maxTokens": 700,
+          "temperature": 0.1
+        },
+        "assessor_b": {
+          "modelPolicy": "balanced",
+          "maxTokens": 700,
+          "temperature": 0.1
+        },
+        "arbiter": {
+          "modelPolicy": "high-quality",
+          "maxTokens": 700,
+          "temperature": 0.0
+        }
+      },
+      "fallbackStrategy": "safe_block",
+      "tribunalConfig": {
+        "panelId": "high_assurance",
+        "arbiterOnDisagreementOnly": false,
+        "confidenceThreshold": 0.85
+      }
+    },
+    {
+      "surfaceId": "finance.analysis",
+      "pattern": "primary_reviewer",
+      "roles": {
+        "primary": {
+          "modelPolicy": "balanced",
+          "maxTokens": 1000,
+          "temperature": 0.2
+        },
+        "reviewer": {
+          "modelPolicy": "high-quality",
+          "maxTokens": 500,
+          "temperature": 0.0
+        }
+      },
+      "fallbackStrategy": "safe_block"
+    },
+    {
+      "surfaceId": "communication.email",
+      "pattern": "primary_reviewer",
+      "roles": {
+        "primary": {
+          "modelPolicy": "balanced",
+          "maxTokens": 1000,
+          "temperature": 0.3
+        },
+        "reviewer": {
+          "modelPolicy": "balanced",
+          "maxTokens": 500,
+          "temperature": 0.0
+        }
+      },
+      "fallbackStrategy": "accept_primary",
+      "confidenceThreshold": 0.7
+    },
+    {
+      "surfaceId": "communication.notification",
+      "pattern": "single_model",
+      "roles": {
+        "primary": {
+          "modelPolicy": "fast",
+          "maxTokens": 500,
+          "temperature": 0.2
+        }
+      },
+      "fallbackStrategy": "safe_block"
+    },
+    {
+      "surfaceId": "compliance.screening",
+      "pattern": "tribunal",
+      "roles": {
+        "assessor_a": {
+          "modelPolicy": "high-quality",
+          "maxTokens": 1000,
+          "temperature": 0.0
+        },
+        "assessor_b": {
+          "modelPolicy": "high-quality",
+          "maxTokens": 1000,
+          "temperature": 0.0
+        },
+        "arbiter": {
+          "modelPolicy": "high-quality",
+          "maxTokens": 1000,
+          "temperature": 0.0
+        }
+      },
+      "fallbackStrategy": "safe_block",
+      "tribunalConfig": {
+        "panelId": "high_assurance",
+        "arbiterOnDisagreementOnly": false,
+        "confidenceThreshold": 0.9
+      }
+    },
+    {
+      "surfaceId": "compliance.review",
+      "pattern": "primary_reviewer",
+      "roles": {
+        "primary": {
+          "modelPolicy": "high-quality",
+          "maxTokens": 1000,
+          "temperature": 0.1
+        },
+        "reviewer": {
+          "modelPolicy": "high-quality",
+          "maxTokens": 700,
+          "temperature": 0.0
+        }
+      },
+      "fallbackStrategy": "safe_block"
+    },
+    {
+      "surfaceId": "data.classification",
+      "pattern": "a5_hybrid",
+      "roles": {
+        "primary": {
+          "modelPolicy": "balanced",
+          "maxTokens": 500,
+          "temperature": 0.1
+        },
+        "challenger": {
+          "modelPolicy": "balanced",
+          "maxTokens": 500,
+          "temperature": 0.2
+        },
+        "judge": {
+          "modelPolicy": "high-quality",
+          "maxTokens": 700,
+          "temperature": 0.0
+        }
+      },
+      "fallbackStrategy": "downgrade_pattern",
+      "fallbackPattern": "single_model",
+      "confidenceThreshold": 0.75
+    },
+    {
+      "surfaceId": "data.extraction",
+      "pattern": "single_model",
+      "roles": {
+        "primary": {
+          "modelPolicy": "fast",
+          "maxTokens": 2000,
+          "temperature": 0.0
+        }
+      },
+      "fallbackStrategy": "safe_block"
+    },
+    {
+      "surfaceId": "workflow.routing",
+      "pattern": "single_model",
+      "roles": {
+        "primary": {
+          "modelPolicy": "fast",
+          "maxTokens": 300,
+          "temperature": 0.0
+        }
+      },
+      "fallbackStrategy": "safe_block"
+    },
+    {
+      "surfaceId": "workflow.escalation",
+      "pattern": "a5_hybrid",
+      "roles": {
+        "primary": {
+          "modelPolicy": "balanced",
+          "maxTokens": 700,
+          "temperature": 0.1
+        },
+        "challenger": {
+          "modelPolicy": "high-quality",
+          "maxTokens": 700,
+          "temperature": 0.1
+        },
+        "judge": {
+          "modelPolicy": "high-quality",
+          "maxTokens": 700,
+          "temperature": 0.0
+        }
+      },
+      "fallbackStrategy": "safe_block",
+      "confidenceThreshold": 0.8
+    }
+  ]
+}

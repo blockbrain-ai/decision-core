@@ -1,0 +1,9 @@
+plugins:
+  enabled:
+    - decision-core
+  settings:
+    decision-core:
+      dc_api_key: "e2e-test-token"
+      dc_base_url: "http://127.0.0.1:3147"
+      dc_fail_mode: "closed"
+      dc_surface_id: "hermes"

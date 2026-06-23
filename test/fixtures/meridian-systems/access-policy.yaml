@@ -1,0 +1,134 @@
+version: "1.0"
+lastReviewedBy: "Alex Chen"
+lastReviewedAt: "2024-01-15T00:00:00Z"
+
+classifications:
+  - name: public
+    description: "Publicly available company information"
+    brain: public-brain
+    accessibleBy:
+      - executive
+      - finance
+      - finance_analyst
+      - engineering
+      - deployer
+      - hr
+      - people_ops
+      - product
+      - contractor
+      - approver
+      - audit_admin
+    examples:
+      - company-news
+      - press-releases
+      - public-metrics
+
+  - name: internal
+    description: "Internal company information for all employees"
+    brain: internal-brain
+    accessibleBy:
+      - executive
+      - finance
+      - finance_analyst
+      - engineering
+      - deployer
+      - hr
+      - people_ops
+      - product
+      - approver
+      - audit_admin
+    neverAccessibleBy:
+      - contractor
+    examples:
+      - internal-memos
+      - team-updates
+      - project-plans
+
+  - name: confidential-finance
+    description: "Confidential financial data"
+    brain: finance-brain
+    accessibleBy:
+      - executive
+      - finance
+      - approver
+    writeAccess:
+      - finance
+    neverAccessibleBy:
+      - contractor
+      - product
+      - engineering
+      - deployer
+      - hr
+      - people_ops
+    rollupPolicy:
+      mode: redacted-aggregate-only
+      forbiddenFields:
+        - accountNumber
+        - routingNumber
+        - ssn
+    examples:
+      - quarterly-revenue
+      - budget-allocations
+      - compensation-data
+
+  - name: confidential-engineering
+    description: "Confidential engineering data"
+    brain: engineering-brain
+    accessibleBy:
+      - executive
+      - engineering
+      - deployer
+    writeAccess:
+      - engineering
+      - deployer
+    neverAccessibleBy:
+      - contractor
+      - finance_analyst
+      - hr
+      - people_ops
+    examples:
+      - source-code-reviews
+      - architecture-decisions
+      - security-vulnerabilities
+
+  - name: hr-restricted
+    description: "Restricted HR and personnel data"
+    brain: hr-brain
+    accessibleBy:
+      - executive
+      - hr
+      - people_ops
+    writeAccess:
+      - hr
+      - people_ops
+    neverAccessibleBy:
+      - contractor
+      - finance_analyst
+      - engineering
+      - deployer
+      - product
+    rollupPolicy:
+      mode: disabled
+    examples:
+      - performance-reviews
+      - disciplinary-records
+      - salary-details
+
+  - name: command-center
+    description: "Executive command center with full operational visibility"
+    brain: command-center-brain
+    accessibleBy:
+      - executive
+      - audit_admin
+    writeAccess:
+      - executive
+    neverAccessibleBy:
+      - contractor
+      - finance_analyst
+      - product
+    rollupPolicy:
+      mode: full
+    examples:
+      - strategic-plans
+      - board-materials
+      - acquisition-targets

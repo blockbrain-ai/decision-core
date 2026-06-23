@@ -1,0 +1,11 @@
+brainId: ceo-brain
+agentId: ceo-agent
+mounted: true
+data:
+  strategic-priorities:
+    - "Q3 expansion into APAC markets"
+    - "Cost reduction target: 15% operational expenses"
+  board-notes:
+    - "Board meeting 2024-01-20: approved Series C terms"
+  command-directives:
+    - "All departments freeze non-critical hiring until Q4"

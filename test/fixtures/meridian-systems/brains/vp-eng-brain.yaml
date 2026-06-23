@@ -1,0 +1,10 @@
+brainId: vp-eng-brain
+agentId: vp-eng-agent
+mounted: true
+data:
+  deployment-schedule:
+    staging: "weekly"
+    production: "bi-weekly"
+  architecture-decisions:
+    - "ADR-042: migrate to event-driven architecture"
+    - "ADR-043: adopt gRPC for inter-service communication"

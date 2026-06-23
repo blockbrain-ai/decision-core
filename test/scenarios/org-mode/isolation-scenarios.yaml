@@ -1,0 +1,280 @@
+##
+# Isolation Scenario Suite — Information classification boundary tests.
+#
+# Every scenario tests a specific agent-classification boundary from the
+# access policy matrix. Paired allow/deny cases prove the server
+# differentiates access by role-based information classification, not by
+# blanket rules.
+#
+# Classification hierarchy:
+#   public, internal, confidential-finance, confidential-engineering,
+#   hr-restricted, command-center
+##
+
+tags: [isolation, smoke]
+
+scenarios:
+  # =====================================================================
+  # 1-2. CFO — confidential-finance allowed, hr-restricted denied
+  # =====================================================================
+  - name: "CFO accesses confidential finance data — allow"
+    tags: [release-blocking]
+    releaseBlocking: true
+    steps:
+      - name: "CFO can read confidential finance reports"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-report-read
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "CFO accesses HR-restricted data — deny"
+    tags: [release-blocking]
+    releaseBlocking: true
+    steps:
+      - name: "CFO is denied HR record read (finance role in neverAccessibleBy for hr-restricted)"
+        agentId: cfo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: hr-portal
+          action: hr-record-read
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # 3-4. HR Lead — hr-restricted allowed, confidential-finance denied
+  # =====================================================================
+  - name: "HR lead accesses HR-restricted data — allow"
+    steps:
+      - name: "HR lead can read HR records"
+        agentId: hr-lead-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: hr-portal
+          action: hr-record-read
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "HR lead accesses confidential finance — deny"
+    steps:
+      - name: "HR lead is denied finance report read (hr role in neverAccessibleBy for confidential-finance)"
+        agentId: hr-lead-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-report-read
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # 5-6. Product — public allowed, confidential-finance denied
+  # =====================================================================
+  - name: "Product accesses public data — allow"
+    steps:
+      - name: "Product agent can read public data"
+        agentId: product-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: public-dashboard
+          action: public-report-read
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "Product accesses confidential finance — deny"
+    steps:
+      - name: "Product agent is denied finance report read (product role in neverAccessibleBy for confidential-finance)"
+        agentId: product-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-report-read
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # 7-9. Contractor — public allowed, internal/confidential/restricted denied
+  # =====================================================================
+  - name: "Contractor accesses public data — allow"
+    steps:
+      - name: "Contractor can read public data"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: public-dashboard
+          action: public-status-read
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "Contractor accesses confidential finance — deny"
+    steps:
+      - name: "Contractor is denied finance report read (contractor in neverAccessibleBy for confidential-finance)"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-report-read
+        expect:
+          status: 200
+          verdict: deny
+
+  - name: "Contractor accesses HR-restricted — deny"
+    steps:
+      - name: "Contractor is denied HR record read (contractor in neverAccessibleBy for hr-restricted)"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: hr-portal
+          action: hr-record-read
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # 10-11. CEO — command-center allowed, public allowed
+  # =====================================================================
+  - name: "CEO accesses command-center — allow"
+    steps:
+      - name: "CEO can review audits (command-center level access)"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: governance
+          action: audit-review
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "CEO accesses public data — allow"
+    steps:
+      - name: "CEO can read public data"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: public-dashboard
+          action: public-status-read
+        expect:
+          status: 200
+          verdict: allow
+
+  # =====================================================================
+  # 12-13. VP Eng — confidential-engineering allowed, hr-restricted denied
+  # =====================================================================
+  - name: "VP Eng accesses engineering data — allow"
+    steps:
+      - name: "VP Eng can deploy to staging (engineering-level access)"
+        agentId: vp-eng-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: deployment
+          action: deploy-staging
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "VP Eng accesses HR-restricted — deny"
+    steps:
+      - name: "VP Eng is denied HR record update (engineering role in neverAccessibleBy for hr-restricted)"
+        agentId: vp-eng-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: hr-portal
+          action: hr-record-update
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # 14-15. Finance Analyst — finance-summary allowed, confidential-finance denied
+  # =====================================================================
+  - name: "Finance analyst accesses finance summary — allow"
+    steps:
+      - name: "Finance analyst can read finance summaries"
+        agentId: finance-analyst-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-summary-read
+        expect:
+          status: 200
+          verdict: allow
+
+  - name: "Finance analyst accesses confidential finance write — deny"
+    steps:
+      - name: "Finance analyst is denied finance transfer (finance_analyst role lacks finance write access)"
+        agentId: finance-analyst-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-operations
+          action: finance-transfer
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # 16-17. Cross-boundary: contractor denied deploy, product denied HR
+  # =====================================================================
+  - name: "Contractor accesses deployment — deny"
+    steps:
+      - name: "Contractor is denied staging deploy (contractor in neverAccessibleBy for engineering)"
+        agentId: contractor-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: deployment
+          action: deploy-staging
+        expect:
+          status: 200
+          verdict: deny
+
+  - name: "Product accesses HR-restricted — deny"
+    steps:
+      - name: "Product agent is denied HR record read (product in neverAccessibleBy for hr-restricted)"
+        agentId: product-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: hr-portal
+          action: hr-record-read
+        expect:
+          status: 200
+          verdict: deny
+
+  # =====================================================================
+  # 18. CEO — RBAC action boundary (executive role lacks finance action grant)
+  # =====================================================================
+  - name: "CEO accesses finance action — deny (RBAC action boundary)"
+    steps:
+      - name: "CEO is denied finance-report-read (executive role not in finance RBAC action grant)"
+        agentId: ceo-agent
+        method: POST
+        path: /evaluate
+        body:
+          surfaceId: finance-reporting
+          action: finance-report-read
+        expect:
+          status: 200
+          verdict: deny

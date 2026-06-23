@@ -1,0 +1,187 @@
+version: "1.0.0"
+name: small-business
+description: >
+  Role-scoped policy pack for a 5-role small business org.
+  Demonstrates requiredRoles, approverRole, and denyUnknownDefault.
+denyUnknownDefault: true
+
+rules:
+  # ── Open tools (all roles) ──────────────────────────────────
+
+  - name: allow-read-operations
+    description: All agents can read, search, and list
+    actionTypePattern: "read_*"
+    riskClass: A
+    enforcementPoint: pre_decision
+    policyType: business
+    priority: 100
+    defaultVerdict: allow
+    enabled: true
+
+  - name: allow-search-operations
+    description: All agents can search
+    actionTypePattern: "search_*"
+    riskClass: A
+    enforcementPoint: pre_decision
+    policyType: business
+    priority: 100
+    defaultVerdict: allow
+    enabled: true
+
+  - name: allow-list-operations
+    description: All agents can list
+    actionTypePattern: "list_*"
+    riskClass: A
+    enforcementPoint: pre_decision
+    policyType: business
+    priority: 100
+    defaultVerdict: allow
+    enabled: true
+
+  # ── Finance-restricted tools ────────────────────────────────
+
+  - name: finance-approve-purchase
+    description: Only finance_approver can approve purchases
+    actionTypePattern: "approve_purchase"
+    riskClass: C
+    enforcementPoint: pre_decision
+    policyType: business
+    priority: 80
+    requiredRoles: [finance_approver]
+    defaultVerdict: allow
+    enabled: true
+
+  - name: finance-process-payment
+    description: Only finance_approver can process payments
+    actionTypePattern: "process_payment"
+    riskClass: C
+    enforcementPoint: pre_decision
+    policyType: business
+    priority: 80
+    requiredRoles: [finance_approver]
+    requireApproval: true
+    approverRole: ceo
+    enabled: true
+
+  - name: finance-view-budgets
+    description: Finance and CEO can view budget data
+    actionTypePattern: "view_budget*"
+    riskClass: B
+    enforcementPoint: pre_decision
+    policyType: business
+    priority: 70
+    requiredRoles: [finance_approver, budget_viewer, ceo]
+    defaultVerdict: allow
+    enabled: true
+
+  # ── Compliance-restricted tools ─────────────────────────────
+
+  - name: compliance-run-audit
+    description: Only compliance can run audits
+    actionTypePattern: "run_audit"
+    riskClass: B
+    enforcementPoint: pre_decision
+    policyType: compliance
+    priority: 80
+    requiredRoles: [compliance_officer, auditor]
+    defaultVerdict: allow
+    enabled: true
+
+  - name: compliance-submit-filing
+    description: Compliance submits regulatory filings with CEO approval
+    actionTypePattern: "submit_filing"
+    riskClass: C
+    enforcementPoint: pre_decision
+    policyType: compliance
+    priority: 80
+    requiredRoles: [compliance_officer]
+    requireApproval: true
+    approverRole: ceo
+    enabled: true
+
+  # ── Operations-restricted tools ─────────────────────────────
+
+  - name: ops-deploy-production
+    description: Ops can deploy to production with product manager approval
+    actionTypePattern: "deploy_production"
+    riskClass: C
+    enforcementPoint: pre_decision
+    policyType: business
+    priority: 80
+    requiredRoles: [ops_manager, deployer]
+    requireApproval: true
+    approverRole: product_manager
+    enabled: true
+
+  - name: ops-manage-infrastructure
+    description: Only ops can manage infrastructure
+    actionTypePattern: "infra_*"
+    riskClass: B
+    enforcementPoint: pre_decision
+    policyType: resource
+    priority: 70
+    requiredRoles: [ops_manager]
+    defaultVerdict: allow
+    enabled: true
+
+  # ── Product-restricted tools ────────────────────────────────
+
+  - name: product-manage-roadmap
+    description: Product managers manage the roadmap
+    actionTypePattern: "roadmap_*"
+    riskClass: A
+    enforcementPoint: pre_decision
+    policyType: business
+    priority: 70
+    requiredRoles: [product_manager, analyst]
+    defaultVerdict: allow
+    enabled: true
+
+  - name: product-approve-feature
+    description: Product manager approves features
+    actionTypePattern: "approve_feature"
+    riskClass: B
+    enforcementPoint: pre_decision
+    policyType: business
+    priority: 70
+    requiredRoles: [product_manager]
+    defaultVerdict: allow
+    enabled: true
+
+  # ── CEO-only tools ──────────────────────────────────────────
+
+  - name: ceo-strategic-actions
+    description: Only CEO can take strategic actions
+    actionTypePattern: "strategic_*"
+    riskClass: C
+    enforcementPoint: pre_decision
+    policyType: business
+    priority: 90
+    requiredRoles: [ceo, strategic_planner]
+    defaultVerdict: allow
+    enabled: true
+
+  - name: ceo-view-hr
+    description: Only CEO can view HR data
+    actionTypePattern: "view_hr_*"
+    riskClass: C
+    enforcementPoint: pre_decision
+    policyType: compliance
+    priority: 90
+    requiredRoles: [ceo]
+    defaultVerdict: allow
+    enabled: true
+
+  # ── Safety catch-all ────────────────────────────────────────
+
+  - name: high-value-requires-approval
+    description: Any action over $10,000 requires CEO approval
+    actionTypePattern: "*"
+    riskClass: C
+    enforcementPoint: pre_decision
+    policyType: safety
+    priority: 200
+    maxAmountUsd: 10000
+    requireApproval: true
+    approverRole: ceo
+    enabled: true
