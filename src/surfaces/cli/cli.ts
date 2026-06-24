@@ -27,6 +27,7 @@ import { addRuleCommand } from './commands/add-rule.js';
 import { rescanCommand } from './commands/rescan.js';
 import { historyCommand } from './commands/history.js';
 import { observationsCommand } from './commands/observations.js';
+import { enforceCommand } from './commands/enforce.js';
 import { rollbackCommand } from './commands/rollback.js';
 import { doctorCommand } from './commands/doctor.js';
 import { testScenariosCommand } from './commands/test-scenarios.js';
@@ -223,6 +224,8 @@ export async function runCli(argv: string[]): Promise<number> {
         return await historyCommand(ctx);
       case 'observations':
         return await observationsCommand(ctx);
+      case 'enforce':
+        return await enforceCommand(ctx);
       case 'rollback':
         return await rollbackCommand(ctx);
       case 'doctor':

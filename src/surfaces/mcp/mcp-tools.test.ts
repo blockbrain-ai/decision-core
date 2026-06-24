@@ -137,7 +137,14 @@ describe('MCP Tools', () => {
       expect(toolNames).toContain('dc_observations');
       expect(toolNames).toContain('ingest_policy');
       expect(toolNames).toContain('compile_rules');
-      expect(tools.tools).toHaveLength(8);
+      expect(toolNames).toContain('dc_enforce');
+      expect(tools.tools).toHaveLength(9);
+    });
+
+    it('dc_enforce (mutating promote) is gated off by default', async () => {
+      const { client } = await createTestClient(deps, { allowPolicyMutations: false });
+      const names = (await client.listTools()).tools.map((t) => t.name);
+      expect(names).not.toContain('dc_enforce');
     });
 
     it('does NOT expose the policy-MUTATING tools by default (allowPolicyMutations off)', async () => {

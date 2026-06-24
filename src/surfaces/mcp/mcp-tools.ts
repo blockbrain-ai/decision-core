@@ -8,7 +8,8 @@ import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { TenantId } from '../../contracts/common.contracts.js';
 import { ActionTypePatternSchema, ActionTypeSchema } from '../../contracts/policy.contracts.js';
-import { aggregateObservations } from '../../decisions/observations.js';
+import { aggregateObservations, recommendFromObservations } from '../../decisions/observations.js';
+import { inspectPromote, flipToEnforce } from '../cli/promote-enforce.js';
 import { createLogger } from '../../utils/logger.js';
 import type { McpServerDeps } from './types.js';
 
@@ -277,9 +278,42 @@ export function registerTools(
     },
   );
 
+  // --- dc_enforce (MUTATING: promote observe -> enforce) ---
+  server.tool(
+    'dc_enforce',
+    'Promote observe mode -> enforce (turn on real blocking) by flipping enforcementMode in decision-core.yaml. MUTATING + gated: pass confirmed:true to apply (backs up + validates); omit/false returns a NON-mutating preview (diff + observation summary). Review with dc_observations first.',
+    {
+      confirmed: z.boolean().optional().describe('Set true to actually flip to enforce. Omit/false = preview only.'),
+    },
+    async (params) => {
+      try {
+        const cwd = process.cwd();
+        const summary = aggregateObservations(await deps.decisionLogRepo.findAll(tenantId, { limit: 5000 }));
+        const state = inspectPromote(cwd);
+        if (!params.confirmed) {
+          return successResponse({
+            applied: false,
+            preview: true,
+            state,
+            diff: { enforcementMode: { from: 'observe', to: 'enforce' } },
+            summary,
+            recommendations: recommendFromObservations(summary),
+            note: 'Pass confirmed:true to apply.',
+          });
+        }
+        const result = flipToEnforce(cwd);
+        logger.info({ ok: result.ok }, 'dc_enforce tool called');
+        return successResponse({ ...result, observationsReviewed: summary.totalObservations });
+      } catch (err) {
+        logger.error({ err }, 'dc_enforce tool failed');
+        return errorResponse(err instanceof Error ? err.message : 'Enforce failed');
+      }
+    },
+  );
+
   } else {
     logger.info('Policy-mutating MCP tools (ingest_policy, compile_rules) disabled (allowPolicyMutations=false)');
   }
 
-  logger.info({ toolCount: allowMutations ? 8 : 6 }, 'MCP tools registered');
+  logger.info({ toolCount: allowMutations ? 9 : 6 }, 'MCP tools registered');
 }

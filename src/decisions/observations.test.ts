@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { aggregateObservations } from './observations.js';
+import { aggregateObservations, recommendFromObservations } from './observations.js';
 import type { DecisionRecord } from '../contracts/decision.contracts.js';
 
 function rec(overrides: Partial<DecisionRecord> & { output: Record<string, unknown> }): DecisionRecord {
@@ -70,5 +70,23 @@ describe('aggregateObservations', () => {
     expect(ex.reason).toBe('over the cap');
     expect(ex).not.toHaveProperty('context');
     expect(ex).not.toHaveProperty('input');
+  });
+});
+
+describe('recommendFromObservations', () => {
+  it('defaults to keep_blocking for a risky observed denial', () => {
+    const summary = aggregateObservations([observeDeny('deploy.prod', '2026-06-24T10:00:00.000Z', 'deny-deploy')]);
+    const recs = recommendFromObservations(summary);
+    expect(recs).toHaveLength(1);
+    expect(recs[0].recommendation).toBe('keep_blocking');
+  });
+
+  it('flags consider_allowing for a frequently-observed read-style tool (still requires operator rationale)', () => {
+    const records = Array.from({ length: 6 }, (_, i) =>
+      observeDeny('files.read', `2026-06-24T1${i}:00:00.000Z`, 'deny-unknown'),
+    );
+    const recs = recommendFromObservations(aggregateObservations(records));
+    expect(recs[0].recommendation).toBe('consider_allowing');
+    expect(recs[0].rationale).toMatch(/rationale/i);
   });
 });
