@@ -1,8 +1,10 @@
 # Decision Core
 
-> A portable, replayable policy decision governor for AI agents.
+> The deterministic safety layer for AI agents — govern what your agent can do, with a tamper-evident audit trail.
 
-Decision Core sits between your AI agent and its tools, enforcing policy rules before actions execute. Every decision produces a tamper-evident audit trail. No database required. No LLM required. Works in-process, as an MCP server, or via CLI.
+Your AI agent can delete data, move money, deploy, or leak secrets — and most setups have **no brakes and no record**. Decision Core sits between your agent and its tools and enforces policy **before** an action runs, in a deterministic envelope around the agent's judgment.
+
+**Adopt it without breaking anything:** install in **observe mode** to watch and record what it _would_ have blocked — blocking nothing — then review the impact and turn enforcement on with one command. No database, no LLM, no network required. Works in-process, as an MCP server, over HTTP, or via CLI.
 
 ```typescript
 import { evaluate } from '@decision-core/core';
