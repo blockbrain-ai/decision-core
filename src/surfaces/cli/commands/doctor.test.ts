@@ -91,4 +91,22 @@ describe('doctor command', () => {
     expect(configCheck.status).toBe('pass');
     expect(configCheck.message).toContain('Auto-discovered');
   });
+
+  it('reports OBSERVE mode as a visible warn with the review/enforce next steps', async () => {
+    const ctx = makeCtx({ json: true }, { enforcementMode: 'observe' });
+    await doctorCommand(ctx);
+    const mode = JSON.parse(ctx.output[0]).checks.find((c: { name: string }) => c.name === 'mode');
+    expect(mode.status).toBe('warn');
+    expect(mode.message).toContain('OBSERVE MODE');
+    expect(mode.message).toContain('decision-core observations');
+    expect(mode.message).toContain('decision-core enforce');
+  });
+
+  it('reports ENFORCE mode as a pass', async () => {
+    const ctx = makeCtx({ json: true }, { enforcementMode: 'enforce' });
+    await doctorCommand(ctx);
+    const mode = JSON.parse(ctx.output[0]).checks.find((c: { name: string }) => c.name === 'mode');
+    expect(mode.status).toBe('pass');
+    expect(mode.message).toContain('ENFORCE MODE');
+  });
 });

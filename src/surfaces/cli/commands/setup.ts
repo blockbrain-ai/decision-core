@@ -28,6 +28,7 @@ import { importMemoryEvidence } from '../../../onboarding/memory-evidence/memory
 import { inferProfileFromEvidence, applyInferenceToProfile } from '../../../onboarding/memory-evidence/memory-evidence-profile-inference.js';
 import { planInterview, applyAnswer, applyModeDefaults, type InterviewQuestion } from '../../../onboarding/interview-engine.js';
 import { generateArtifacts, generateRootConfigYaml } from '../../../onboarding/generate-artifacts.js';
+import { isBetterSqlite3Available } from '../../../persistence/sqlite/sqlite-availability.js';
 import { redactProfileForReport } from '../../../contracts/onboarding-profile.contracts.js';
 import { validateGeneratedArtifacts } from '../../../onboarding/validate-generated-artifacts.js';
 import { classifyDetectedTools, candidatesToProfileTools } from '../../../onboarding/tool-risk-classifier.js';
@@ -229,20 +230,44 @@ export async function setupCommand(ctx: CliContext): Promise<number> {
   log(`Wrote ${result.artifacts.length} artifacts to ${outputDir}/`);
 
   // Step 11b: Write root decision-core.yaml if missing
+  const observing = updatedProfile.autonomy.enforcementMode === 'observe';
+  let observationsPersisted = false;
   if (!existsSync(rootConfigPath) || forceConfig) {
     const packPath = join(outputDir, 'policy-pack.yaml');
     const relativePackPath = relative(process.cwd(), packPath);
     const policyPackConfigPath = relativePackPath.startsWith('..') ? packPath : relativePackPath;
-    const rootConfig = generateRootConfigYaml(updatedProfile, policyPackConfigPath);
+
+    // Observe mode persists the decision log so the shadowed denials survive
+    // restarts and are reviewable. Gate on SQLite availability; fall back to
+    // memory + a warning rather than silently losing observations.
+    let observationStorePath: string | undefined;
+    if (observing) {
+      if (isBetterSqlite3Available()) {
+        observationStorePath = join(outputDir, 'decisions.db');
+        mkdirSync(resolve(process.cwd(), outputDir), { recursive: true });
+        ensureGitignored(`${outputDir}/decisions.db`, log);
+        observationsPersisted = true;
+      } else {
+        log('Note: better-sqlite3 is unavailable — observe-mode observations will NOT persist across restarts.');
+        log('  Install better-sqlite3 to review them later with `decision-core observations`.');
+      }
+    }
+    const rootConfig = generateRootConfigYaml(updatedProfile, policyPackConfigPath, { observationStorePath });
     writeFileSync(rootConfigPath, rootConfig, 'utf-8');
     log(`Wrote root config to decision-core.yaml`);
   } else {
     log(`Root config decision-core.yaml already exists — skipping (use --force-config to overwrite)`);
   }
 
-  // Step 12: Activation
+  // Step 12: Activation — announce the mode explicitly (observe is non-blocking).
   updatedProfile.activatedAt = new Date().toISOString();
-  log('Setup complete — policies are active. Run `decision-core doctor` to verify.');
+  if (observing) {
+    log('Setup complete — OBSERVE MODE is ON: Decision Core is watching, not blocking.');
+    log('  Review what it would have blocked:  decision-core observations');
+    log('  Flip to real enforcement:           decision-core enforce');
+  } else {
+    log('Setup complete — ENFORCE MODE is ON: policies are active. Run `decision-core doctor` to verify.');
+  }
 
   if (isJson) {
     ctx.stdout(JSON.stringify({
@@ -251,12 +276,27 @@ export async function setupCommand(ctx: CliContext): Promise<number> {
       outputDir,
       artifactCount: result.artifacts.length,
       activated: !!updatedProfile.activatedAt,
+      enforcementMode: updatedProfile.autonomy.enforcementMode,
+      observationsPersisted,
+      nextAction: observing ? 'review_observations_then_enforce' : 'verify_with_doctor',
       profileHash: result.profileHash,
       warnings: result.warnings,
     }, null, 2));
   }
 
   return 0;
+}
+
+/** Append a pattern to ./.gitignore if not already present (so local decision logs aren't committed). */
+function ensureGitignored(pattern: string, log: (m: string) => void): void {
+  const gitignorePath = resolve(process.cwd(), '.gitignore');
+  let existing = '';
+  if (existsSync(gitignorePath)) existing = readFileSync(gitignorePath, 'utf-8');
+  const lines = existing.split('\n').map((l) => l.trim());
+  if (lines.includes(pattern)) return;
+  const prefix = existing.length > 0 && !existing.endsWith('\n') ? '\n' : '';
+  writeFileSync(gitignorePath, `${existing}${prefix}# Decision Core local decision log (observe-mode observations)\n${pattern}\n`, 'utf-8');
+  log(`Added ${pattern} to .gitignore`);
 }
 
 async function askSetupQuestion(rl: ReadlineInterface, q: InterviewQuestion): Promise<string | string[] | boolean> {

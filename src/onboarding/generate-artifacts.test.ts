@@ -84,6 +84,44 @@ describe('generate-artifacts', () => {
       expect(parseYaml(generateRootConfigYaml(profile, '.decision-core/policy-pack.yaml')).enforcementMode).toBe('enforce');
     });
 
+    it('observe mode PERSISTS observations (sqlite) when a store path is supplied; otherwise memory', () => {
+      const profile = businessProfile(); // observe
+      const persisted = generateRootConfigYaml(profile, '.decision-core/policy-pack.yaml', {
+        observationStorePath: '.decision-core/decisions.db',
+      });
+      const cfg = parseYaml(persisted);
+      expect(cfg.persistence).toBe('sqlite');
+      expect(cfg.sqlitePath).toBe('.decision-core/decisions.db');
+      // The header tells the operator how to review + flip.
+      expect(persisted).toContain('decision-core observations');
+      expect(persisted).toContain('decision-core enforce');
+
+      // No store path (e.g. sqlite unavailable) → memory, no silent sqlite path.
+      const memory = parseYaml(generateRootConfigYaml(profile, '.decision-core/policy-pack.yaml'));
+      expect(memory.persistence).toBe('memory');
+      expect(memory.sqlitePath).toBeUndefined();
+      expect(memory.enforcementMode).toBe('observe');
+    });
+
+    it('enforce mode never persists via the observe path', () => {
+      const profile = businessProfile();
+      profile.autonomy.enforcementMode = 'enforce';
+      const cfg = parseYaml(generateRootConfigYaml(profile, '.decision-core/policy-pack.yaml', {
+        observationStorePath: '.decision-core/decisions.db',
+      }));
+      expect(cfg.persistence).toBe('memory'); // observe-only persistence
+    });
+
+    it('onboarding report ANNOUNCES observe mode + the review/enforce next steps', () => {
+      const result = generateArtifacts(businessProfile()); // observe
+      const report = result.artifacts.find((a) => a.path === 'reports/onboarding-report.md');
+      expect(report).toBeDefined();
+      expect(report!.content).toContain('OBSERVE');
+      expect(report!.content).toContain('watching, not blocking');
+      expect(report!.content).toContain('decision-core observations');
+      expect(report!.content).toContain('decision-core enforce');
+    });
+
     it('generates baseline policy', () => {
       const result = generateArtifacts(businessProfile());
       const baseline = result.artifacts.find((a) => a.path === 'policies/000-baseline.md');

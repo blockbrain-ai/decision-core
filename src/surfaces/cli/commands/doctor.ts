@@ -125,6 +125,18 @@ export async function doctorCommand(ctx: CliContext): Promise<number> {
     }
   }
 
+  // Check 7: Enforcement mode — make the observe/enforce state + next action visible.
+  const mode = ctx.config?.enforcementMode ?? 'enforce';
+  if (mode === 'observe') {
+    checks.push({
+      name: 'mode',
+      status: 'warn',
+      message: 'OBSERVE MODE active — watching, not blocking. Review: `decision-core observations`; enforce: `decision-core enforce`',
+    });
+  } else {
+    checks.push({ name: 'mode', status: 'pass', message: 'ENFORCE MODE active — denied actions are blocked' });
+  }
+
   // Output
   const hasFailure = checks.some((c) => c.status === 'fail');
 

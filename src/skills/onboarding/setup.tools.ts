@@ -250,11 +250,17 @@ export function registerSetupTools(server: McpServer): void {
 
         activeProfile.activatedAt = new Date().toISOString();
 
-        logger.info({ profileId: activeProfile.profileId }, 'dc_setup_activate');
+        const observing = activeProfile.autonomy.enforcementMode === 'observe';
+        logger.info({ profileId: activeProfile.profileId, enforcementMode: activeProfile.autonomy.enforcementMode }, 'dc_setup_activate');
         return successResponse({
           activated: true,
           runtimeVerified,
-          note: 'Runtime enforcement is active when decision-core.yaml points at .decision-core/policy-pack.yaml.',
+          enforcementMode: activeProfile.autonomy.enforcementMode,
+          // Tell the agent (and through it, the user) what mode is live + what to do next.
+          note: observing
+            ? 'OBSERVE MODE is ON — Decision Core is watching, not blocking. Review what it would have blocked with the dc_observations tool, then promote with dc_enforce when ready.'
+            : 'ENFORCE MODE is ON — denied actions are blocked and every decision is recorded in the audit trail.',
+          nextAction: observing ? 'review_observations_then_enforce' : 'verify_with_doctor',
           profileId: activeProfile.profileId,
           activatedAt: activeProfile.activatedAt,
         });
