@@ -520,7 +520,7 @@ programmatic setup, use `createMcpServer(deps, config)` from
 | **Historical replay** | Replay decisions with point-in-time policies | No | No | No |
 | **Trust routing** | Surface-to-tier mapping, deterministic/model/hybrid | No | No | No |
 | **Clause versioning** | Hash-linked clause version chains | No | No | No |
-| **Multi-tenancy** | First-class tenant isolation (D2 standard) | No | No | No |
+| **Tenant isolation** | Tenant-scoped policy/data isolation via authenticated identity binding | No | No | No |
 | **LLM requirement** | Optional — core is fully deterministic | Required for some validators | Required | Required for LLM checks |
 | **Database requirement** | None — in-memory default, SQLite optional | Depends on validator | None | None |
 | **MCP server** | Built-in | No | No | No |

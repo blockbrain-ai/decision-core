@@ -4,7 +4,8 @@ The single honest source of truth for what Decision Core **actually enforces and
 is experimental or planned. When docs, README, or marketing language disagree with this ledger, the ledger
 wins — fix the other copy.
 
-- **Last verified:** `blockbrain-ai/decision-core` `main` (the seven governed PRs PR-1…PR-4d).
+- **Last verified:** `blockbrain-ai/decision-core` `main @ 974c2b6` (the eight governed launch-hardening PRs
+  PR-1…PR-5).
 - **How "proven" is established:** the full local gate (`typecheck` · `lint` · `test` 2479 pass/4 skip ·
   `build` · `npm audit` 0 vulns), the standing tarball smoke (`npm run smoke:tarball` — pack → no
   secrets/local-state → install → SDK + CLI), the Hermes drop-in driver (`test/hermes-dropin-e2e/driver.py`,
@@ -61,6 +62,7 @@ wins — fix the other copy.
 
 ## Launch posture
 
-**Public flip + `npm publish` are NO-GO** until PR-5 (this ledger + the Hermes E2E harness hardening + the
-standing tarball-smoke CI gate) lands through the governed flow. Track status in the control plane
+The launch-blocker queue is clear as of PR-5 (`974c2b6`): this ledger, the hardened Hermes E2E harness, and the
+standing tarball-smoke CI gate have landed through the governed flow. Public flip + `npm publish` remain a
+separate explicit human launch decision because both are hard to reverse. Track status in the control plane
 (`docs/03-CURRENT-STATE.md`, `DECISION-CORE-LAUNCH/`).
