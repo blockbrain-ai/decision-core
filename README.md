@@ -56,6 +56,33 @@ console.log(result.verdict);
 - **Agent adapters** — pluggable event service, model gateway, and persistence interfaces.
 - **Zero mandatory dependencies** — runs entirely in-memory with no database, no LLM, no network.
 
+## Onboarding: install without breaking anything (watch-first)
+
+Dropping a policy engine in front of an agent that already has tools is scary — what if it
+blocks something it shouldn't? Decision Core's onboarding is **observe-first**: it watches and
+records what it *would* have blocked, but blocks nothing, until you decide to turn enforcement on.
+
+```bash
+# 1. Set up — detects your tools, asks you to decide the dangerous powers, installs in OBSERVE mode.
+decision-core setup           # (or your agent runs the dc_setup_* / dc_onboard_* MCP tools)
+
+# 2. Use your agent normally. Decision Core watches, does not block.
+
+# 3. See exactly what enforcement WOULD have blocked (redacted — no tool arguments).
+decision-core observations --recommend
+
+# 4. Happy with it? Turn on real blocking (one command — backs up + validates the config).
+decision-core enforce
+```
+
+- **Executive decisions:** at setup you make an explicit `allow / ask / block` call on the dangerous
+  capability classes (delete data, move money, deploy, contact externally, credentials). Safe defaults
+  are pre-selected; your choices become top-priority rules.
+- **Agent-maintained:** the same flow is available to your agent over MCP (`dc_setup_detect`,
+  `dc_observations`, `dc_enforce`, …), so the agent can onboard and review on your behalf — you just
+  approve. (Policy-mutating MCP tools are off by default; enable explicitly.)
+- **Always visible:** `decision-core doctor` always tells you whether you're observing or enforcing.
+
 ## Quick Start: Personal (5 minutes)
 
 Install and evaluate your first decision.
@@ -370,6 +397,14 @@ console.log(result.correlationId);             // → trace ID linking all evide
 Decision Core includes a CLI for policy evaluation, explanation, and auditing:
 
 ```bash
+# Onboard (observe-first), review impact, then promote to enforcement
+decision-core setup
+decision-core observations --recommend
+decision-core enforce
+
+# Health + current mode (observe vs enforce)
+decision-core doctor
+
 # Evaluate an action against policies
 decision-core evaluate --surface api.public --action delete_user
 

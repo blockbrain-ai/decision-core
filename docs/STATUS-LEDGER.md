@@ -19,8 +19,8 @@ wins — fix the other copy.
 | Surface | Status | Notes |
 |---|---|---|
 | **SDK** (`createDecisionCore`, `createPolicyGuard`, `evaluate`) | **Proven** | In-process host is the trust boundary. Default enforcement mode is `enforce`. |
-| **CLI** (`decision-core …`, `serve`) | **Proven** | `evaluate` threads `agentRegistryPath` + `enforcementMode`; reports observe metadata. |
-| **MCP** (stdio) | **Proven (read-only)** | 5 read-only tools always available. The 2 policy-**mutating** tools (`ingest_policy`, `compile_rules`) are **off by default** — `allowPolicyMutations` opt-in only. stdio is a local trust boundary; no per-call network identity. |
+| **CLI** (`decision-core …`, `serve`) | **Proven** | Onboarding loop: `setup` (observe-first) → `observations [--recommend]` → `enforce` (promote). `doctor` reports the live mode. `evaluate` threads `agentRegistryPath` + `enforcementMode`. |
+| **MCP** (stdio) | **Proven (read-only)** | 6 read-only tools always available (incl. `dc_observations`). The policy-**mutating** tools (`ingest_policy`, `compile_rules`, `dc_enforce`) are **off by default** — `allowPolicyMutations` opt-in only. stdio is a local trust boundary; no per-call network identity. |
 | **HTTP** (`createHttpServer`) | **Proven** | Org-mode binds every request to the **authenticated identity's tenant** (not a static default). Non-org drops request-supplied roles. Localhost bind by default. |
 
 ## Core capabilities (with the governed change that proves each)
@@ -32,6 +32,10 @@ wins — fix the other copy.
 | Fail-closed config: invalid `decision-core.yaml` throws (no silent fail-open) | **Proven** | PR-2 |
 | Trusted roles: network surfaces never honor request-supplied `callerRoles` | **Proven** | PR-2 / PR-4b |
 | Observe mode (non-blocking shadow) + onboarding observe-first default | **Proven** | PR-3 |
+| Observe is **visible**: persisted by default in observe mode, announced on activation, `doctor` nudge | **Proven** | onboarding 1 |
+| Observations review (`observations` / `dc_observations`, redacted — no tool args) + recommendations | **Proven** | onboarding 2-3 |
+| Observe→enforce **promote** (`enforce` / `dc_enforce`): backup + diff + validate + rollback; `dc_enforce` mutating-gated | **Proven** | onboarding 3 |
+| **Executive decisions** at onboarding: explicit allow/ask/block per dangerous capability → top-priority rules | **Proven** | onboarding 4 |
 | Separation of Duties on approval resolution (no self-approval w/o break-glass) | **Proven** | PR-4a |
 | Org-mode tenant isolation (per-request identity tenant) | **Proven** | PR-4b |
 | MCP mutating-tool gating; glob cannot be evaded by a newline | **Proven** | PR-4c |
