@@ -7,6 +7,7 @@ export * from './policy/index.js';
 export * from './trust/index.js';
 export * from './routing/index.js';
 export * from './decisions/index.js';
+export * from './approval/index.js';
 export * from './onboarding/index.js';
 export * from './surfaces/sdk/index.js';
 export * from './integrity/index.js';
