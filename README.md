@@ -19,6 +19,9 @@ console.log(result.decision); // → 'deny'  (no allow rule matched → denied)
 > action is **allowed** — deny-unknown is opt-in (shown above) or set by a policy pack.
 > Load a pack (or enable deny-unknown) before relying on deny-wins enforcement.
 
+> **What's proven vs experimental:** see [`docs/STATUS-LEDGER.md`](./docs/STATUS-LEDGER.md) — the canonical,
+> evidence-backed status of every surface, capability, and integration. It wins over any other doc.
+
 For the full pipeline with `quickStart`:
 
 ```typescript

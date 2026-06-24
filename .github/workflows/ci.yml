@@ -19,5 +19,6 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
-      - name: Production dependency audit
-        run: npm audit --omit=dev
+      - run: npm run smoke:tarball
+      - name: Dependency audit
+        run: npm audit

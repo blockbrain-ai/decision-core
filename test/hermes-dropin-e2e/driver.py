@@ -8,12 +8,13 @@ Hermes installation. Verifies:
   1. Plugin is discovered + enabled from HERMES_HOME/plugins via plugins.enabled
   2. A policy-denied tool is BLOCKED at dispatch (deny rule)
   3. An undeclared tool is BLOCKED (deny-unknown / fail-closed)
-  4. An allowed tool passes the policy hook (registry outcome may vary)
-  5. post_tool_call audit reaches the DC server with REAL duration_ms timing
+  4. An allowed tool passes the policy hook and dispatches
+  5. post_tool_call audit reaches the DC server with numeric duration_ms timing
 """
 import json
 import os
 import sys
+import tempfile
 import urllib.request
 
 # Point HERMES_REPO at your local Hermes checkout (the repo whose PluginManager
@@ -33,10 +34,10 @@ sys.path.insert(0, HERMES_REPO)
 results = {}
 
 # --- 1. Load plugins via Hermes's own manager -----------------------------
-from hermes_cli.plugins import get_plugin_manager  # noqa: E402
+from hermes_cli.plugins import discover_plugins, get_plugin_manager  # noqa: E402
 
+discover_plugins(force=True)
 mgr = get_plugin_manager()
-loaded = {p.manifest.name: p for p in getattr(mgr, "_plugins", {}).values()} if hasattr(mgr, "_plugins") else {}
 # Fall back to public-ish accessors
 try:
     plugin_list = mgr.list_plugins()  # may not exist
@@ -45,6 +46,7 @@ except Exception:
 
 dc_loaded = False
 dc_error = None
+results["hooks_registered"] = []
 for attr in ("_plugins", "plugins"):
     store = getattr(mgr, attr, None)
     if isinstance(store, dict):
@@ -72,8 +74,12 @@ unknown = model_tools.handle_function_call(
 )
 results["deny_unknown_blocks"] = json.loads(unknown)
 
+allowed_path = os.path.join(tempfile.gettempdir(), "dc-hermes-e2e-allowed.txt")
+with open(allowed_path, "w", encoding="utf-8") as fh:
+    fh.write("decision-core-hermes-e2e\n")
+
 allowed = model_tools.handle_function_call(
-    "dc_e2e_noop", {"ping": True},
+    "read_file", {"path": allowed_path},
     task_id="e2e-task", session_id="e2e-sess", tool_call_id="e2e-call-3",
 )
 results["allowed_tool_result"] = json.loads(allowed) if allowed and allowed.startswith("{") else str(allowed)[:200]
@@ -93,10 +99,25 @@ results["audit_tool_names"] = [r.get("toolName") for r in records] if isinstance
 results["audit_latencies"] = [r.get("latency") for r in records] if isinstance(records, list) else []
 
 # --- Pass/fail summary ----------------------------------------------------
+allowed_payload = results["allowed_tool_result"]
+allowed_text = json.dumps(allowed_payload, default=str)
+audit_tool_names = results["audit_tool_names"]
+audit_latencies = results["audit_latencies"]
 ok = (
-    "denies" in str(results["deny_rule_blocks"])
+    results["plugin_loaded_and_enabled"] is True
+    and "pre_tool_call" in results.get("hooks_registered", [])
+    and "post_tool_call" in results.get("hooks_registered", [])
+    and "denies" in str(results["deny_rule_blocks"])
     and "denied by default" in str(results["deny_unknown_blocks"])
+    and isinstance(allowed_payload, dict)
+    and not allowed_payload.get("error")
+    and "decision-core-hermes-e2e" in allowed_text
+    and isinstance(results["audit_record_count"], int)
     and results["audit_record_count"] >= 3
+    and "payment_send" in audit_tool_names
+    and "exfiltrate_secrets" in audit_tool_names
+    and "read_file" in audit_tool_names
+    and all(isinstance(v, (int, float)) and v >= 0 for v in audit_latencies[:3])
 )
 results["PASS"] = ok
 

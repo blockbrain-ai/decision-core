@@ -20,7 +20,7 @@ provides_hooks:
 # NOTE: The block below is documentation for operators. Hermes does NOT
 # read plugin settings from this manifest — configure these keys in the
 # Hermes config.yaml under `plugins.settings.decision-core`.
-# Tested against Hermes 0.12.x (hook contract stable since 0.2.x).
+# Verified against Hermes 0.14.0 / git edb2d9105 on 2026-06-24.
 config:
   dc_base_url:
     type: string
