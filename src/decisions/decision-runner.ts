@@ -74,6 +74,16 @@ export interface DecisionContext {
   date?: Date;
   correlationId?: string;
   metadata?: Record<string, unknown>;
+  // Policy-evaluation context, threaded into the PDP so role-scoped and threshold
+  // rules actually fire through the full pipeline (mirrors the fields the
+  // PolicyGuard already maps). Host-supplied: the in-process caller of
+  // createDecisionCore().evaluate() is the trust boundary for these.
+  callerRoles?: string[];
+  financialImpact?: number;
+  dataQualityScore?: number;
+  confidence?: number;
+  agentId?: string;
+  autonomyLevel?: number;
 }
 
 export interface DecisionRunnerDeps {
@@ -167,6 +177,12 @@ export class DecisionRunner {
       {
         enforcementPoint: 'pre_decision',
         actionType: decision.actionType,
+        callerRoles: context.callerRoles,
+        financialImpact: context.financialImpact,
+        dataQualityScore: context.dataQualityScore,
+        confidence: context.confidence,
+        agentId: context.agentId,
+        autonomyLevel: context.autonomyLevel,
       },
       correlationId,
     );

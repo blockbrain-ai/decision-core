@@ -167,6 +167,12 @@ export async function createHttpServer(
             agentId: identity.agentId,
             callerRoles: identity.roles,
           };
+        } else if (evaluateContext && 'callerRoles' in evaluateContext) {
+          // Non-org / no identity: request-supplied roles are NOT trusted — a
+          // remote caller must not grant itself roles. Drop them so role-scoped
+          // rules don't apply (deny-unknown backstops). agentId stays (it's just
+          // an identifier; roles are the privilege).
+          evaluateContext = { ...evaluateContext, callerRoles: undefined };
         }
 
         const result = await handleEvaluate(

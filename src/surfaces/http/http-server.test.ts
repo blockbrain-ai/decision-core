@@ -263,6 +263,24 @@ describe('HTTP API Server', () => {
       });
     });
 
+    it('non-org mode DROPS request-supplied callerRoles (no role spoofing)', async () => {
+      await server.close();
+
+      const seenContexts: Array<Record<string, unknown> | undefined> = [];
+      deps = createMockDeps((context) => seenContexts.push(context));
+      server = await createHttpServer(deps, { host: '127.0.0.1', port: 0 }); // non-org: no identity resolver
+
+      const { status } = await request(server, 'POST', '/evaluate', {
+        body: { surfaceId: 'http', action: 'file.write', context: { callerRoles: ['ceo'], path: '/x' } },
+      });
+
+      expect(status).toBe(200);
+      // A remote caller's claimed roles must NOT reach policy evaluation.
+      expect(seenContexts[0]?.callerRoles).toBeUndefined();
+      // Other context fields still pass through.
+      expect(seenContexts[0]?.path).toBe('/x');
+    });
+
     it('rejects request body agentId spoofing in org mode', async () => {
       await server.close();
       server = await createHttpServer(deps, {

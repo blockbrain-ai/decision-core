@@ -48,11 +48,14 @@ export async function createPolicyGuard(config: Partial<PolicyGuardConfig> = {})
       context?: Record<string, unknown>,
     ): Promise<PolicyVerdict> {
       const agentId = context?.agentId as string | undefined;
-      let callerRoles = context?.callerRoles as string[] | undefined;
-
-      if (agentId && agentRegistry && !callerRoles) {
-        callerRoles = resolveAgentRoles(agentRegistry, agentId);
-      }
+      // Trusted-role rule: when an agent registry is configured, roles come ONLY
+      // from the authenticated identity (the registry, keyed by agentId) — a
+      // caller-supplied context.callerRoles is IGNORED, because on a network
+      // surface it is spoofable. With no registry, the in-process host's
+      // context.callerRoles is the trust boundary (the host vouches for them).
+      const callerRoles = agentRegistry
+        ? (agentId ? resolveAgentRoles(agentRegistry, agentId) : undefined)
+        : (context?.callerRoles as string[] | undefined);
 
       const result = await pdp.evaluate(
         tenantId as TenantId,

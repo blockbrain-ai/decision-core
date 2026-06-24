@@ -56,6 +56,22 @@ rules:
     expect(result.matchedPolicies.length).toBeGreaterThan(0);
   });
 
+  it('fails CLOSED on a present-but-invalid decision-core.yaml (no silent fail-open)', async () => {
+    // A corrupt/tampered config must THROW, not silently degrade to no-pack +
+    // deny-unknown-off (the old `catch { return undefined }` fail-open hole).
+    const badDir = join(tmpdir(), `dc-badconfig-${Date.now()}`);
+    mkdirSync(badDir, { recursive: true });
+    writeFileSync(join(badDir, 'decision-core.yaml'), 'persistence: not_a_real_tier\n: : :\n', 'utf-8');
+    const cwd = process.cwd();
+    try {
+      process.chdir(badDir);
+      await expect(evaluate({ action: 'read_file', surface: 'api' })).rejects.toThrow();
+    } finally {
+      process.chdir(cwd);
+      rmSync(badDir, { recursive: true, force: true });
+    }
+  });
+
   it('defaults surface to "default"', async () => {
     const result = await evaluate(
       { action: 'read_file' },

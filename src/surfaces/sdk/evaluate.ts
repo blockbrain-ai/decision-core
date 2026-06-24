@@ -33,6 +33,8 @@ export interface EvaluateOptions {
   denyUnknownDefault?: boolean;
   persistence?: 'memory' | 'sqlite';
   sqlitePath?: string;
+  /** Path to the agent registry — wires identity-derived (trusted) role resolution. */
+  agentRegistryPath?: string;
 }
 
 export async function evaluate(
@@ -40,7 +42,7 @@ export async function evaluate(
   options?: EvaluateOptions,
 ): Promise<EvaluateResult> {
   const startedAt = Date.now();
-  const config = tryLoadRuntimeConfig();
+  const config = loadRuntimeConfig();
   const tenantId = options?.tenantId ?? config?.tenantId ?? 'default';
   const surface = input.surface ?? 'default';
 
@@ -54,6 +56,7 @@ export async function evaluate(
     policyPackPath,
     tenantId,
     denyUnknownDefault: options?.denyUnknownDefault ?? config?.denyUnknownDefault,
+    agentRegistryPath: options?.agentRegistryPath ?? config?.agentRegistryPath,
   });
 
   const verdict = await guard.evaluate(tenantId, surface, input.action, input.context);
@@ -93,12 +96,13 @@ export async function evaluate(
   return result;
 }
 
-function tryLoadRuntimeConfig() {
-  try {
-    return loadCliConfig();
-  } catch {
-    return undefined;
-  }
+function loadRuntimeConfig() {
+  // Fail CLOSED on config errors. loadCliConfig() returns undefined ONLY when no
+  // config file is present (defaults apply); a present-but-invalid/corrupt
+  // decision-core.yaml (or an auto-discovered pack) THROWS. We deliberately do
+  // NOT swallow that — silently degrading a tampered config to "no pack +
+  // deny-unknown off" would be a fail-open hole.
+  return loadCliConfig();
 }
 
 async function appendDecisionRecord(args: {

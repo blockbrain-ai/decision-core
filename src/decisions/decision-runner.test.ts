@@ -150,6 +150,52 @@ describe('DecisionRunner', () => {
     });
   });
 
+  describe('PR-2: the pipeline threads policy context (role + threshold rules now enforce)', () => {
+    function ruleBase(): Omit<PolicyRule, 'id' | 'createdAt' | 'updatedAt'> {
+      return {
+        name: 'ctx-rule',
+        description: 'PR-2 context-threading proof',
+        actionTypePattern: 'workflow.*',
+        riskClass: 'B',
+        enforcementPoint: 'pre_decision',
+        policyType: 'safety',
+        priority: 10,
+        requiredConstraints: [],
+        requireApproval: false,
+        enabled: true,
+        tenantId: TENANT_ID,
+      };
+    }
+    async function runnerWith(rule: Omit<PolicyRule, 'id' | 'createdAt' | 'updatedAt'>) {
+      const repo = new InMemoryPolicyRuleRepository();
+      await repo.create(TENANT_ID, rule);
+      const eventService = new NoOpEventService();
+      const pdp = new PolicyDecisionPoint(repo, eventService);
+      return new DecisionRunner(buildDeps({ pdp, eventService }));
+    }
+
+    it('a THRESHOLD rule fires from context.financialImpact (was dropped before the fix)', async () => {
+      const r = await runnerWith({ ...ruleBase(), maxAmountUsd: 1000 });
+      // Over the cap ⇒ the rule fires and denies — only possible if financialImpact is threaded.
+      const over = await r.execute(TENANT_ID, decision, { financialImpact: 5000 });
+      expect(over.policyVerdict?.verdict).toBe('deny');
+      expect(over.verdict).toBe('blocked');
+      // Under the cap ⇒ the threshold is not exceeded, so it does not deny.
+      const under = await r.execute(TENANT_ID, decision, { financialImpact: 100 });
+      expect(under.policyVerdict?.verdict).not.toBe('deny');
+    });
+
+    it('a ROLE-SCOPED rule fires from context.callerRoles (was dropped before the fix)', async () => {
+      const r = await runnerWith({ ...ruleBase(), requiredRoles: ['admin'], defaultVerdict: 'deny' });
+      // Caller WITH the role ⇒ the role-scoped rule applies and denies — only possible if callerRoles is threaded.
+      const withRole = await r.execute(TENANT_ID, decision, { callerRoles: ['admin'] });
+      expect(withRole.policyVerdict?.verdict).toBe('deny');
+      // Caller WITHOUT the role ⇒ the rule is scoped away (not applied).
+      const without = await r.execute(TENANT_ID, decision, { callerRoles: [] });
+      expect(without.policyVerdict?.verdict).not.toBe('deny');
+    });
+  });
+
   describe('Deterministic route → completed without model', () => {
     it('completes without model call when route resolver is not loaded', async () => {
       // When route config is NOT loaded, the runner falls through to decision.evaluate()
