@@ -19,7 +19,8 @@
 import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { dirname, isAbsolute, join, normalize, resolve, relative } from 'node:path';
 import type { CliContext } from '../cli.js';
-import { detectAgentEnvironment } from '../../../onboarding/detect-agent-env.js';
+import { detectAgentEnvironment, type ToolDetection } from '../../../onboarding/detect-agent-env.js';
+import { mergeToolSources } from '../../../onboarding/tool-discovery.js';
 import {
   createEmptyProfile,
   DANGEROUS_CAPABILITIES,
@@ -55,6 +56,20 @@ export async function setupCommand(ctx: CliContext): Promise<number> {
   const scanRoot = process.cwd();
   const env = detectAgentEnvironment(scanRoot);
 
+  // B1: optionally augment the static config scan with a LIVE enumeration of the
+  // MCP tools the agent actually has (read-only, time-bounded; local stdio only
+  // unless --discover-remote). Off by default — the config scan is the safe
+  // fallback, and live discovery never executes a tool.
+  let liveTools: ToolDetection[] = [];
+  if (flags['discover-live']) {
+    const { discoverLiveTools } = await import('../../../onboarding/tool-discovery.js');
+    const { createStdioMcpLister } = await import('../../../onboarding/mcp-tool-lister.js');
+    liveTools = await discoverLiveTools(scanRoot, { lister: createStdioMcpLister(), allowRemote: !!flags['discover-remote'] });
+    if (liveTools.length > 0) log(`  Live discovery: ${liveTools.length} tool(s) enumerated from MCP servers`);
+  }
+  const discoveredTools = mergeToolSources(env.tools, liveTools);
+  const allToolNames = discoveredTools.map((d) => d.name);
+
   const harnessOverride = flags['agent'];
   const harness: HarnessType = typeof harnessOverride === 'string' && harnessOverride !== 'auto'
     ? harnessOverride as HarnessType
@@ -66,17 +81,17 @@ export async function setupCommand(ctx: CliContext): Promise<number> {
   profile.agent = {
     harness,
     harnessVersion: env.harness.version,
-    detectedTools: env.tools.map((t) => t.name),
+    detectedTools: allToolNames,
     detectedCapabilities: [],
     configPaths: env.harness.configPaths,
   };
   profile.memory.sources = filterMemorySources(env.memorySources, flags);
 
-  // Step 2b: Promote detected tools to profile tool candidates
-  if (env.tools.length > 0 && profile.tools.length === 0) {
-    const candidates = classifyDetectedTools(env.tools.map((t) => t.name));
+  // Step 2b: Promote detected tools (config + live, deduped) to profile candidates
+  if (allToolNames.length > 0 && profile.tools.length === 0) {
+    const candidates = classifyDetectedTools(allToolNames);
     profile.tools = candidatesToProfileTools(candidates);
-    log(`  Classified ${candidates.length} detected tools as policy candidates`);
+    log(`  Classified ${candidates.length} tool(s) as policy candidates (${env.tools.length} from config${liveTools.length ? ` + ${liveTools.length} live` : ''})`);
   }
 
   // Step 3: Profile mode
