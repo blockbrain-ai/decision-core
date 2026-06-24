@@ -36,6 +36,9 @@
     "node": ">=20.0.0"
   },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "decision-core": "dist/src/surfaces/cli/bin.js"
   },
