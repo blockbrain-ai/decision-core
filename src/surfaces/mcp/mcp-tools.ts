@@ -10,6 +10,7 @@ import type { TenantId } from '../../contracts/common.contracts.js';
 import { ActionTypePatternSchema, ActionTypeSchema } from '../../contracts/policy.contracts.js';
 import { aggregateObservations, recommendFromObservations } from '../../decisions/observations.js';
 import { inspectPromote, flipToEnforce } from '../cli/promote-enforce.js';
+import { proposeRuleForTool } from '../../onboarding/rule-proposal.js';
 import { createLogger } from '../../utils/logger.js';
 import type { McpServerDeps } from './types.js';
 
@@ -207,6 +208,26 @@ export function registerTools(
     },
   );
 
+  // --- dc_propose_rule (read-only: PROPOSES, does not apply) ---
+  server.tool(
+    'dc_propose_rule',
+    'When the agent gains a new tool, propose a safe-defaulted policy rule for it (block for high-risk, approval for state-changing, allow only for read-only). READ-ONLY: returns a proposal only — apply it via ingest_policy after a human confirms. This is the maintenance primitive that keeps policy from going stale.',
+    {
+      toolName: ActionTypeSchema.describe('The new tool/action name to propose a rule for (e.g. "deploy.production")'),
+      denyNew: z.boolean().optional().describe('Force a deny proposal regardless of risk tier.'),
+    },
+    async (params) => {
+      try {
+        const proposal = proposeRuleForTool(params.toolName, { denyNew: params.denyNew });
+        logger.info({ toolName: params.toolName, verdict: proposal.verdict }, 'dc_propose_rule tool called');
+        return successResponse({ ...proposal, applied: false, note: 'Proposal only — apply with ingest_policy (mutating, gated) after human confirmation.' });
+      } catch (err) {
+        logger.error({ err }, 'dc_propose_rule tool failed');
+        return errorResponse(err instanceof Error ? err.message : 'Rule proposal failed');
+      }
+    },
+  );
+
   // Policy-MUTATING tools (ingest_policy, compile_rules) — OFF by default. They
   // rewrite the policy engine and the stdio surface carries no per-call identity,
   // so they are exposed only with an explicit operator opt-in (allowPolicyMutations).
@@ -315,5 +336,5 @@ export function registerTools(
     logger.info('Policy-mutating MCP tools (ingest_policy, compile_rules) disabled (allowPolicyMutations=false)');
   }
 
-  logger.info({ toolCount: allowMutations ? 9 : 6 }, 'MCP tools registered');
+  logger.info({ toolCount: allowMutations ? 10 : 7 }, 'MCP tools registered');
 }

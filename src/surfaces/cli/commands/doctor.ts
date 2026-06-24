@@ -50,9 +50,11 @@ export async function doctorCommand(ctx: CliContext): Promise<number> {
     ? resolve(ctx.config.policyPackPath)
     : existsSync(autoPackPath) ? autoPackPath : null;
 
+  let packPatterns: string[] = [];
   if (packPath && existsSync(packPath)) {
     try {
       const result = loadPackAsRules(packPath);
+      packPatterns = result.rules.map((r) => r.actionTypePattern);
       const denyRules = result.rules.filter((r) => r.defaultVerdict === 'deny');
       const approvalRules = result.rules.filter((r) => r.requireApproval);
       checks.push({
@@ -122,6 +124,27 @@ export async function doctorCommand(ctx: CliContext): Promise<number> {
       checks.push({ name: 'sqlite', status: 'pass', message: `SQLite file writable: ${ctx.config.sqlitePath}` });
     } catch (err) {
       checks.push({ name: 'sqlite', status: 'fail', message: `SQLite not writable: ${err instanceof Error ? err.message : String(err)}` });
+    }
+  }
+
+  // Check 6b: Policy drift (E3) — detected tools that no rule governs.
+  if (packPatterns.length > 0) {
+    try {
+      const { detectAgentEnvironment } = await import('../../../onboarding/detect-agent-env.js');
+      const { findUngovernedTools } = await import('../../../onboarding/rule-proposal.js');
+      const detected = detectAgentEnvironment(cwd).tools.map((t) => t.name);
+      const ungoverned = findUngovernedTools(detected, packPatterns);
+      if (ungoverned.length > 0) {
+        checks.push({
+          name: 'drift',
+          status: 'warn',
+          message: `${ungoverned.length} detected tool(s) have no matching rule (e.g. ${ungoverned.slice(0, 3).join(', ')}). Run \`decision-core rescan\` (or your agent's dc_propose_rule).`,
+        });
+      } else {
+        checks.push({ name: 'drift', status: 'pass', message: 'All detected tools are governed by a rule' });
+      }
+    } catch {
+      // Drift detection is best-effort — never fail doctor on it.
     }
   }
 

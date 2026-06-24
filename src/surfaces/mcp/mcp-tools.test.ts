@@ -135,10 +135,11 @@ describe('MCP Tools', () => {
       expect(toolNames).toContain('explain_decision');
       expect(toolNames).toContain('audit_trail');
       expect(toolNames).toContain('dc_observations');
+      expect(toolNames).toContain('dc_propose_rule');
       expect(toolNames).toContain('ingest_policy');
       expect(toolNames).toContain('compile_rules');
       expect(toolNames).toContain('dc_enforce');
-      expect(tools.tools).toHaveLength(9);
+      expect(tools.tools).toHaveLength(10);
     });
 
     it('dc_enforce (mutating promote) is gated off by default', async () => {
@@ -157,7 +158,8 @@ describe('MCP Tools', () => {
       expect(names).toContain('evaluate');
       expect(names).toContain('audit_trail');
       expect(names).toContain('dc_observations');
-      expect(names).toHaveLength(6);
+      expect(names).toContain('dc_propose_rule');
+      expect(names).toHaveLength(7);
     });
   });
 
