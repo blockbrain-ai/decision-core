@@ -33,8 +33,13 @@ function successResponse(data: unknown): { content: Array<{ type: 'text'; text: 
 /**
  * Register all Decision Core tools on the MCP server.
  */
-export function registerTools(server: McpServer, deps: McpServerDeps, _config?: unknown): void {
+export function registerTools(
+  server: McpServer,
+  deps: McpServerDeps,
+  config?: { allowPolicyMutations?: boolean },
+): void {
   const tenantId = deps.tenantId as TenantId;
+  const allowMutations = config?.allowPolicyMutations ?? false;
 
   // --- evaluate ---
   server.tool(
@@ -175,6 +180,12 @@ export function registerTools(server: McpServer, deps: McpServerDeps, _config?: 
     },
   );
 
+  // Policy-MUTATING tools (ingest_policy, compile_rules) — OFF by default. They
+  // rewrite the policy engine and the stdio surface carries no per-call identity,
+  // so they are exposed only with an explicit operator opt-in (allowPolicyMutations).
+  if (allowMutations) {
+  logger.warn('Policy-mutating MCP tools ENABLED (ingest_policy, compile_rules) — stdio is a local trust boundary');
+
   // --- ingest_policy ---
   server.tool(
     'ingest_policy',
@@ -240,5 +251,9 @@ export function registerTools(server: McpServer, deps: McpServerDeps, _config?: 
     },
   );
 
-  logger.info({ toolCount: 7 }, 'All MCP tools registered');
+  } else {
+    logger.info('Policy-mutating MCP tools (ingest_policy, compile_rules) disabled (allowPolicyMutations=false)');
+  }
+
+  logger.info({ toolCount: allowMutations ? 7 : 5 }, 'MCP tools registered');
 }

@@ -102,9 +102,10 @@ function createMockDeps(): McpServerDeps {
   };
 }
 
-async function createTestClient(deps: McpServerDeps) {
+async function createTestClient(deps: McpServerDeps, opts?: { allowPolicyMutations?: boolean }) {
   const server = new McpServer({ name: 'test', version: '0.1.0' });
-  registerTools(server, deps);
+  // Default to mutations-enabled so the mutating-tool tests below exercise them.
+  registerTools(server, deps, { allowPolicyMutations: opts?.allowPolicyMutations ?? true });
 
   const client = new Client({ name: 'test-client', version: '0.1.0' });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
@@ -136,6 +137,18 @@ describe('MCP Tools', () => {
       expect(toolNames).toContain('ingest_policy');
       expect(toolNames).toContain('compile_rules');
       expect(tools.tools).toHaveLength(7);
+    });
+
+    it('does NOT expose the policy-MUTATING tools by default (allowPolicyMutations off)', async () => {
+      const { client } = await createTestClient(deps, { allowPolicyMutations: false });
+      const names = (await client.listTools()).tools.map((t) => t.name);
+      // Mutating tools are gated off...
+      expect(names).not.toContain('ingest_policy');
+      expect(names).not.toContain('compile_rules');
+      // ...read-only tools remain available.
+      expect(names).toContain('evaluate');
+      expect(names).toContain('audit_trail');
+      expect(names).toHaveLength(5);
     });
   });
 

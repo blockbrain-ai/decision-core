@@ -51,4 +51,14 @@ describe('globToRegex', () => {
     expect(regex.test('financexdelete')).toBe(false);
     expect(regex.test('finance.delete')).toBe(true);
   });
+
+  it('a newline in the action type cannot evade a deny pattern (no wildcard matches a newline)', () => {
+    expect(globMatches('dangerous.*', 'dangerous.delete')).toBe(true);
+    // Trailing newline does NOT slip past `$` (no `m` flag).
+    expect(globMatches('dangerous.*', 'dangerous.delete\n')).toBe(false);
+    // A `*` segment cannot span a newline to swallow a second action.
+    expect(globMatches('dangerous.*', 'dangerous.delete\nsafe.read')).toBe(false);
+    // `**` is newline-bounded too.
+    expect(globMatches('a.**', 'a.b\nc.d')).toBe(false);
+  });
 });

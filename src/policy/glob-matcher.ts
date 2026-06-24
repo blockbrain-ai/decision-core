@@ -18,8 +18,11 @@ export function globToRegex(pattern: string): RegExp {
   const regexParts = segments.map((segment) =>
     segment
       .replace(/[.+^${}()|\\[\]]/g, '\\$&')  // escape regex special chars
-      .replace(/\*/g, '[^.]*'),               // `*` -> single segment (no dots)
+      .replace(/\*/g, '[^.\\n]*'),            // `*` -> single segment (no dots, no newlines)
   );
+  // `**` joins as `.*`, which (no `m`/`s` flag) already excludes newlines. With
+  // the ^…$ anchors a newline embedded in an action type can never let it
+  // partially match or evade a deny pattern.
   return new RegExp('^' + regexParts.join('.*') + '$');
 }
 

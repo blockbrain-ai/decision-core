@@ -27,6 +27,13 @@ export interface McpServerConfig {
   bearerToken?: string;
   /** Only the stdio transport is implemented in v0.1. */
   transport?: 'stdio';
+  /**
+   * Expose the policy-MUTATING tools (`ingest_policy`, `compile_rules`). OFF by
+   * default: these rewrite the policy engine, and the stdio surface has no
+   * per-call identity, so they require an explicit operator opt-in. Read-only
+   * tools are always available.
+   */
+  allowPolicyMutations?: boolean;
 }
 
 /**
@@ -37,7 +44,7 @@ export function createMcpServer(deps: McpServerDeps, config: McpServerConfig = {
 
   const server = new McpServer({ name, version });
 
-  registerTools(server, deps);
+  registerTools(server, deps, { allowPolicyMutations: config.allowPolicyMutations ?? false });
   registerOnboardingTools(server, deps.tenantId);
   registerSetupTools(server);
   registerPolicyAuthorTools(server, deps.tenantId);
