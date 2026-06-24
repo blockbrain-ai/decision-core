@@ -28,6 +28,7 @@ import {
 import type { OnboardingProfile, HarnessType, OnboardingProfileMode, ProfileProviderMode } from '../../../contracts/onboarding-profile.contracts.js';
 import { importMemoryEvidence } from '../../../onboarding/memory-evidence/memory-evidence-importer.js';
 import { inferProfileFromEvidence, applyInferenceToProfile } from '../../../onboarding/memory-evidence/memory-evidence-profile-inference.js';
+import { writeOnboardingSummary } from '../../../onboarding/memory-writeback.js';
 import { planInterview, applyAnswer, applyModeDefaults, type InterviewQuestion } from '../../../onboarding/interview-engine.js';
 import { generateArtifacts, generateRootConfigYaml } from '../../../onboarding/generate-artifacts.js';
 import { isBetterSqlite3Available } from '../../../persistence/sqlite/sqlite-availability.js';
@@ -144,6 +145,15 @@ export async function setupCommand(ctx: CliContext): Promise<number> {
 
   // Step 6: Apply mode defaults
   updatedProfile = applyModeDefaults(updatedProfile);
+
+  // C1/C2: derive-then-confirm — show the drafted profile BEFORE asking anything,
+  // so the human confirms/edits a proposal rather than filling a blank form.
+  log('');
+  log('Drafted from your environment (confirm or adjust below):');
+  log(`  Harness: ${updatedProfile.agent.harness}${env.harness.version ? ` ${env.harness.version}` : ''}`);
+  log(`  Tools: ${updatedProfile.agent.detectedTools.length} detected`);
+  log(`  Mode: ${updatedProfile.mode}`);
+  log(`  Memory sources: ${updatedProfile.memory.sources.filter((s) => s.detected).length} detected`);
 
   // Step 7: Plan interview (report what would be asked)
   let plan = planInterview(updatedProfile);
@@ -298,6 +308,13 @@ export async function setupCommand(ctx: CliContext): Promise<number> {
 
   // Step 12: Activation — announce the mode explicitly (observe is non-blocking).
   updatedProfile.activatedAt = new Date().toISOString();
+
+  // C3: optional local write-back of the redacted onboarding summary (opt-in via
+  // memory-source write-back consent; --no-write-memory always skips).
+  if (!flags['no-write-memory']) {
+    const wb = writeOnboardingSummary(updatedProfile, resolve(process.cwd(), outputDir));
+    if (!wb.skipped) log(wb.reason);
+  }
   if (observing) {
     log('Setup complete — OBSERVE MODE is ON: Decision Core is watching, not blocking.');
     log('  Review what it would have blocked:  decision-core observations');

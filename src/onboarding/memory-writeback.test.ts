@@ -1,10 +1,41 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
+import { mkdtempSync, existsSync, readFileSync, rmSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
 import {
   generateWriteBackSummary,
   executeWriteBack,
   formatWriteBackMarkdown,
+  writeOnboardingSummary,
 } from './memory-writeback.js';
 import { createEmptyProfile } from '../contracts/onboarding-profile.contracts.js';
+
+describe('writeOnboardingSummary (C3 — real local write-back)', () => {
+  let dir: string;
+  afterEach(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
+
+  it('writes the redacted summary to a local file when consent is granted', () => {
+    dir = mkdtempSync(join(tmpdir(), 'dc-wb-'));
+    const profile = createEmptyProfile('wb-local');
+    profile.mode = 'business';
+    profile.memory.sources = [
+      { kind: 'markdown-vault', detected: true, detectionSignals: [], readConsent: true, writeBackConsent: true, scope: [] },
+    ];
+    const result = writeOnboardingSummary(profile, dir);
+    expect(result.skipped).toBe(false);
+    expect(result.success).toBe(true);
+    const path = join(dir, 'onboarding-summary.md');
+    expect(existsSync(path)).toBe(true);
+    expect(readFileSync(path, 'utf-8')).toContain('Decision Core Setup Summary');
+  });
+
+  it('skips cleanly (writes nothing) without write-back consent', () => {
+    dir = mkdtempSync(join(tmpdir(), 'dc-wb-'));
+    const result = writeOnboardingSummary(createEmptyProfile('wb-noconsent'), dir);
+    expect(result.skipped).toBe(true);
+    expect(existsSync(join(dir, 'onboarding-summary.md'))).toBe(false);
+  });
+});
 
 describe('memory-writeback', () => {
   describe('generateWriteBackSummary', () => {

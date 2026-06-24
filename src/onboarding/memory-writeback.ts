@@ -5,6 +5,8 @@
  * Write-back is always optional and requires explicit separate consent.
  */
 
+import { writeFileSync, mkdirSync } from 'fs';
+import { join } from 'path';
 import type { OnboardingProfile, MemorySourceDetection } from '../contracts/onboarding-profile.contracts.js';
 import { redactProfileForReport } from '../contracts/onboarding-profile.contracts.js';
 
@@ -114,6 +116,28 @@ function attemptWriteBack(
         skipped: true,
         reason: `Write-back not yet implemented for ${source.kind} — skipped`,
       };
+  }
+}
+
+/**
+ * C3 — a REAL, local write-back to the always-available local source: writes the
+ * redacted onboarding summary to `<dir>/onboarding-summary.md`. Opt-in (requires
+ * write-back consent on at least one memory source) and visible (returns the path
+ * it wrote). Contains only the redacted summary — never raw memory evidence,
+ * secrets, or tool arguments. If no consent, it skips cleanly and reports so.
+ */
+export function writeOnboardingSummary(profile: OnboardingProfile, dir: string): WriteBackResult {
+  const consented = profile.memory.sources.some((s) => s.writeBackConsent);
+  if (!consented) {
+    return { sourceKind: 'local-file', success: true, skipped: true, reason: 'No write-back consent — nothing written.' };
+  }
+  try {
+    mkdirSync(dir, { recursive: true });
+    const path = join(dir, 'onboarding-summary.md');
+    writeFileSync(path, formatWriteBackMarkdown(generateWriteBackSummary(profile)), 'utf-8');
+    return { sourceKind: 'local-file', success: true, skipped: false, reason: `Wrote onboarding summary to ${path}` };
+  } catch (err) {
+    return { sourceKind: 'local-file', success: false, skipped: false, reason: `Write failed: ${err instanceof Error ? err.message : String(err)}` };
   }
 }
 
