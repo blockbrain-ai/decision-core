@@ -48,6 +48,30 @@ export const AutonomyLevelSchema = z.number().int().min(0).max(5);
 export type AutonomyLevel = z.infer<typeof AutonomyLevelSchema>;
 
 // ===========================================================================
+// Action Names / Patterns
+// ===========================================================================
+
+function containsControlCharacter(value: string): boolean {
+  for (let i = 0; i < value.length; i += 1) {
+    const code = value.charCodeAt(i);
+    if (code <= 0x1F || code === 0x7F) return true;
+  }
+  return false;
+}
+
+export const ActionTypeSchema = z.string().min(1).refine(
+  (value) => !containsControlCharacter(value),
+  { message: 'Action type must not contain control characters' },
+);
+export type ActionType = z.infer<typeof ActionTypeSchema>;
+
+export const ActionTypePatternSchema = z.string().min(1).refine(
+  (value) => !containsControlCharacter(value),
+  { message: 'Action type pattern must not contain control characters' },
+);
+export type ActionTypePattern = z.infer<typeof ActionTypePatternSchema>;
+
+// ===========================================================================
 // Policy Rule
 // ===========================================================================
 
@@ -55,7 +79,7 @@ export const PolicyRuleSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string(),
-  actionTypePattern: z.string(),
+  actionTypePattern: ActionTypePatternSchema,
   riskClass: RiskClassSchema,
   enforcementPoint: EnforcementPointSchema,
   policyType: PolicyTypeSchema,
@@ -100,7 +124,7 @@ export type PolicyRuleCreateInput = z.infer<typeof PolicyRuleCreateInputSchema>;
 
 export const PolicyContextSchema = z.object({
   enforcementPoint: z.string(),
-  actionType: z.string(),
+  actionType: ActionTypeSchema,
   financialImpact: z.number().optional(),
   dataQualityScore: z.number().optional(),
   confidence: z.number().optional(),
@@ -141,7 +165,7 @@ export const PolicyAuditEntrySchema = z.object({
   id: z.string(),
   ruleId: z.string(),
   ruleName: z.string(),
-  actionType: z.string(),
+  actionType: ActionTypeSchema,
   verdict: z.string(),
   reason: z.string(),
   timestamp: z.string(),

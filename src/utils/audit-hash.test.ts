@@ -17,6 +17,27 @@ describe('audit-hash', () => {
       const result = canonicalJson({ arr: [3, 1, 2] });
       expect(result).toBe('{"arr":[3,1,2]}');
     });
+
+    it('serializes Date values as ISO strings', () => {
+      const result = canonicalJson({ at: new Date('2026-06-24T00:00:00.000Z') });
+      expect(result).toBe('{"at":"2026-06-24T00:00:00.000Z"}');
+    });
+
+    it('rejects unsupported values instead of silently coercing them', () => {
+      expect(() => canonicalJson(undefined)).toThrow('undefined');
+      expect(() => canonicalJson({ value: undefined })).toThrow('undefined');
+      expect(() => canonicalJson({ value: Number.NaN })).toThrow('non-finite');
+      expect(() => canonicalJson({ value: Infinity })).toThrow('non-finite');
+      expect(() => canonicalJson({ value: 1n })).toThrow('BigInt');
+      expect(() => canonicalJson({ value: () => undefined })).toThrow('function');
+      expect(() => canonicalJson({ value: Symbol('x') })).toThrow('symbol');
+    });
+
+    it('rejects circular structures', () => {
+      const circular: Record<string, unknown> = {};
+      circular['self'] = circular;
+      expect(() => canonicalJson(circular)).toThrow('circular');
+    });
   });
 
   describe('sha256Hex', () => {

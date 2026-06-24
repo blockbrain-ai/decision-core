@@ -108,4 +108,26 @@ describe('evaluateRule — role checks', () => {
     expect(result.applies).toBe(true);
     expect(result.verdict).toBe('allow');
   });
+
+  it('checks role scope before thresholds so scoped limits do not apply to unrelated callers', () => {
+    const rule = makeRule({
+      requiredRoles: ['finance_approver'],
+      maxAmountUsd: 1000,
+      requireApproval: true,
+    });
+
+    const unrelatedCaller = evaluateRule(rule, makeContext({
+      callerRoles: ['ops_manager'],
+      financialImpact: 5000,
+    }));
+    expect(unrelatedCaller.applies).toBe(false);
+    expect(unrelatedCaller.reason).toContain('Caller lacks required roles');
+
+    const inScopeCaller = evaluateRule(rule, makeContext({
+      callerRoles: ['finance_approver'],
+      financialImpact: 5000,
+    }));
+    expect(inScopeCaller.applies).toBe(true);
+    expect(inScopeCaller.verdict).toBe('approve_required');
+  });
 });

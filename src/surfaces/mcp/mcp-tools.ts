@@ -7,6 +7,7 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { TenantId } from '../../contracts/common.contracts.js';
+import { ActionTypePatternSchema, ActionTypeSchema } from '../../contracts/policy.contracts.js';
 import { createLogger } from '../../utils/logger.js';
 import type { McpServerDeps } from './types.js';
 
@@ -47,7 +48,7 @@ export function registerTools(
     'Evaluate policy rules against an action. Returns allow/deny/approve_required verdict.',
     {
       surfaceId: z.string().describe('The surface requesting the action (e.g., "mcp", "cli", "api")'),
-      action: z.string().describe('The action type to evaluate (e.g., "file.write", "deploy.production")'),
+      action: ActionTypeSchema.describe('The action type to evaluate (e.g., "file.write", "deploy.production")'),
       context: z.record(z.unknown()).optional().describe('Additional context for policy evaluation'),
     },
     async (params) => {
@@ -193,7 +194,7 @@ export function registerTools(
     {
       name: z.string().describe('Rule name'),
       description: z.string().optional().describe('Rule description'),
-      actionTypePattern: z.string().describe('Glob pattern for matching action types (e.g., "file.*", "deploy.production")'),
+      actionTypePattern: ActionTypePatternSchema.describe('Glob pattern for matching action types (e.g., "file.*", "deploy.production")'),
       riskClass: z.enum(['A', 'B', 'C']).optional().describe('Risk classification (A=highest, C=lowest)'),
       enforcementPoint: z.enum(['pre_decision', 'action_dispatch', 'post_execution']).optional().describe('When to enforce'),
       policyType: z.enum(['safety', 'compliance', 'business', 'resource', 'quality']).optional().describe('Policy category'),

@@ -75,6 +75,17 @@ rules:
 `;
     expect(() => parsePolicyPackYaml(yaml)).toThrow();
   });
+
+  it('rejects control characters in action type patterns', () => {
+    const yaml = `
+rules:
+  - name: "Bad Rule"
+    actionTypePattern: |-
+      delete_*
+      safe_read
+`;
+    expect(() => parsePolicyPackYaml(yaml)).toThrow();
+  });
 });
 
 describe('policyPackToRules', () => {

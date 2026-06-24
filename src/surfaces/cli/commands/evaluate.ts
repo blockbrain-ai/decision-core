@@ -27,6 +27,8 @@ export async function evaluateCommand(ctx: CliContext): Promise<number> {
       tenantId: ctx.config?.tenantId ?? 'default',
       policyPackPath: ctx.config?.policyPackPath,
       denyUnknownDefault: ctx.config?.denyUnknownDefault,
+      agentRegistryPath: ctx.config?.agentRegistryPath,
+      enforcementMode: ctx.config?.enforcementMode,
       persistence: persistenceFlag === 'sqlite' ? 'sqlite' : ctx.config?.persistence === 'sqlite' ? 'sqlite' : undefined,
       sqlitePath: typeof sqlitePathFlag === 'string' ? sqlitePathFlag : ctx.config?.sqlitePath,
     },
@@ -38,9 +40,17 @@ export async function evaluateCommand(ctx: CliContext): Promise<number> {
       matchedPolicies: result.matchedPolicies,
       rationale: result.rationale,
       correlationId: result.correlationId,
+      enforcementMode: result.enforcementMode,
+      observedDecision: result.observedDecision,
     }, null, 2));
   } else {
     ctx.stdout(`Verdict: ${result.decision}`);
+    if (result.enforcementMode) {
+      ctx.stdout(`Mode: ${result.enforcementMode}`);
+    }
+    if (result.enforcementMode === 'observe' && result.observedDecision && result.observedDecision !== result.decision) {
+      ctx.stdout(`Observed verdict: ${result.observedDecision}`);
+    }
     ctx.stdout(`Correlation ID: ${result.correlationId}`);
     if (result.matchedPolicies.length > 0) {
       ctx.stdout(`Matched policies:`);

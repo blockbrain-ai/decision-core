@@ -7,15 +7,57 @@
 
 import { createHash } from 'node:crypto';
 
-function sortedReplacer(_key: string, value: unknown): unknown {
-  if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-    const sorted: Record<string, unknown> = {};
-    for (const k of Object.keys(value as Record<string, unknown>).sort()) {
-      sorted[k] = (value as Record<string, unknown>)[k];
-    }
-    return sorted;
+function serializeValue(data: unknown, seen: WeakSet<object>): string {
+  if (data === null) return 'null';
+
+  switch (typeof data) {
+    case 'string':
+      return JSON.stringify(data);
+    case 'boolean':
+      return data ? 'true' : 'false';
+    case 'number':
+      if (!Number.isFinite(data)) {
+        throw new TypeError('Cannot canonicalize non-finite number');
+      }
+      return JSON.stringify(data);
+    case 'undefined':
+      throw new TypeError('Cannot canonicalize undefined');
+    case 'bigint':
+      throw new TypeError('Cannot canonicalize BigInt');
+    case 'function':
+      throw new TypeError('Cannot canonicalize function');
+    case 'symbol':
+      throw new TypeError('Cannot canonicalize symbol');
+    case 'object':
+      break;
   }
-  return value;
+
+  if (data instanceof Date) {
+    const time = data.getTime();
+    if (!Number.isFinite(time)) {
+      throw new TypeError('Cannot canonicalize invalid Date');
+    }
+    return JSON.stringify(data.toISOString());
+  }
+
+  if (seen.has(data)) {
+    throw new TypeError('Cannot canonicalize circular structure');
+  }
+  seen.add(data);
+
+  try {
+    if (Array.isArray(data)) {
+      return `[${data.map((item) => serializeValue(item, seen)).join(',')}]`;
+    }
+
+    const record = data as Record<string, unknown>;
+    const entries = Object.keys(record)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${serializeValue(record[key], seen)}`);
+    return `{${entries.join(',')}}`;
+  } finally {
+    seen.delete(data);
+  }
 }
 
 /**
@@ -23,8 +65,7 @@ function sortedReplacer(_key: string, value: unknown): unknown {
  * Object keys are sorted alphabetically at every depth level.
  */
 export function serializeForSnapshot(data: unknown): string {
-  if (data === undefined) return '"undefined"';
-  return JSON.stringify(data, sortedReplacer);
+  return serializeValue(data, new WeakSet<object>());
 }
 
 /**

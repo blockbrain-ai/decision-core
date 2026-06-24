@@ -105,7 +105,7 @@ export function createDeterministicEnforcer(
         blockedBy.push(rule);
       }
 
-      evidence.push({
+      const clauseEvidence: ClauseEvidence = {
         clauseId: rule.clauseId,
         clauseText: clauseTextLookup(rule.clauseId),
         controlId: rule.controlId,
@@ -113,16 +113,17 @@ export function createDeterministicEnforcer(
         ruleType: rule.ruleType,
         inputFields: evalResult.inputFields,
         result: evalResult.result,
-        conditionHash: evalResult.conditionHash,
-        sourceLineRef: rule.sourceLineRef,
-        authoringSchemaVersion: rule.authoringSchemaVersion,
-        surfaceId: rule.surfaceId,
         explanation: evalResult.result === 'error'
           ? `Rule evaluation error: ${evalResult.errorMessage}`
           : evalResult.passed
             ? `Rule passed: ${rule.description}`
             : `Rule failed: ${rule.description}`,
-      });
+      };
+      if (evalResult.conditionHash !== undefined) clauseEvidence.conditionHash = evalResult.conditionHash;
+      if (rule.sourceLineRef !== undefined) clauseEvidence.sourceLineRef = rule.sourceLineRef;
+      if (rule.authoringSchemaVersion !== undefined) clauseEvidence.authoringSchemaVersion = rule.authoringSchemaVersion;
+      if (rule.surfaceId !== undefined) clauseEvidence.surfaceId = rule.surfaceId;
+      evidence.push(clauseEvidence);
     }
 
     const passed = blockedBy.length === 0;

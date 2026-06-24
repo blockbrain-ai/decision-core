@@ -440,10 +440,11 @@ function generatePolicyPackYaml(profile: OnboardingProfile): string {
 
   for (const tool of profile.tools) {
     const verdict = runtimeVerdictForTool(tool);
+    const actionType = sanitizeActionType(tool.name);
     const entry: Record<string, unknown> = {
       name: `tool-${sanitizeId(tool.name)}`,
       description: `Policy for ${tool.name} (risk tier ${tool.riskTier})`,
-      actionTypePattern: tool.name,
+      actionTypePattern: actionType,
       riskClass: tool.riskTier >= 3 ? 'A' : tool.riskTier >= 2 ? 'B' : 'C',
       enforcementPoint: 'pre_decision',
       policyType: tool.riskTier >= 3 ? 'safety' : 'business',
@@ -565,7 +566,7 @@ function generateTestScenarios(profile: OnboardingProfile): string {
     const expected = runtimeVerdictForTool(tool);
     scenarios.push({
       name: `tool ${tool.name} — risk tier ${tool.riskTier}`,
-      input: { action: tool.name, surface: 'api' },
+      input: { action: sanitizeActionType(tool.name), surface: 'api' },
       expected,
     });
   }
@@ -596,6 +597,11 @@ function generateRollbackManifest(artifacts: GeneratedArtifact[], generatedAt: s
 
 function sanitizeId(name: string): string {
   return name.replace(/[^a-zA-Z0-9_-]/g, '-').toLowerCase();
+}
+
+function sanitizeActionType(name: string): string {
+  const sanitized = sanitizeId(name).replace(/-+/g, '-').replace(/^-|-$/g, '');
+  return sanitized.length > 0 ? sanitized : 'tool';
 }
 
 function toPolicyDecision(action: string): string {

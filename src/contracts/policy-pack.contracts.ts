@@ -6,6 +6,7 @@
  */
 
 import { z } from 'zod';
+import { ActionTypePatternSchema } from './policy.contracts.js';
 
 // ===========================================================================
 // Pack Profile
@@ -32,7 +33,7 @@ export const PolicyRuleDefinitionSchema = z.object({
   description: z.string().optional(),
   action: PackRuleActionSchema,
   surfaces: z.array(z.string()).optional(),
-  tools: z.array(z.string()).optional(),
+  tools: z.array(ActionTypePatternSchema).optional(),
   conditions: z.object({
     maxAmountUsd: z.number().optional(),
     minAmountUsd: z.number().optional(),
@@ -85,6 +86,6 @@ export const PolicyPackSchema = z.object({
   rules: z.array(PolicyRuleDefinitionSchema).min(1),
   surfaces: z.array(SurfaceDefinitionSchema).min(1),
   trustTiers: z.array(TrustTierDefinitionSchema).min(1),
-  exampleTools: z.array(z.string()).default([]),
+  exampleTools: z.array(ActionTypePatternSchema).default([]),
 });
 export type PolicyPack = z.infer<typeof PolicyPackSchema>;

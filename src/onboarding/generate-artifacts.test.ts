@@ -314,6 +314,6 @@ describe('generate-artifacts policy-pack.yaml', () => {
     expect(packArtifact).toBeDefined();
     const parsed = parseYaml(packArtifact!.content);
     const validated = SdkPolicyPackSchema.parse(parsed);
-    expect(validated.rules[0].actionTypePattern).toBe(profile.tools[0].name);
+    expect(validated.rules[0].actionTypePattern).toBe('tool-quoted-next');
   });
 });

@@ -90,6 +90,21 @@ describe('policy-pack schema validation', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects control characters in rule tool patterns', () => {
+    const invalid = {
+      name: 'test',
+      version: '1.0.0',
+      description: 'Bad tool pattern',
+      profile: 'personal',
+      rules: [{ name: 'r', action: 'allow', tools: ['read_*\nwrite_*'] }],
+      surfaces: [{ name: 's', trustTier: 't' }],
+      trustTiers: [{ name: 't', requiresApproval: false }],
+    };
+
+    const result = PolicyPackSchema.safeParse(invalid);
+    expect(result.success).toBe(false);
+  });
+
   it('rejects a pack with empty rules array', () => {
     const invalid = {
       name: 'test',

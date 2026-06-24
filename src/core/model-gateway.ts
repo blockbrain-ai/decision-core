@@ -155,7 +155,7 @@ export class ModelGateway {
     let response: ModelResponse;
 
     try {
-      response = await this.dispatch(profile, prompt, options);
+      response = await this.dispatch(profile, purpose, prompt, options);
     } catch (err) {
       const latency = Date.now() - startTime;
       this.recordAudit(profile, purpose, prompt, '', latency, false, String(err));
@@ -183,6 +183,7 @@ export class ModelGateway {
    */
   private async dispatch(
     profile: ProviderProfile,
+    purpose: ProviderPurpose,
     prompt: string,
     options: ModelCallOptions,
   ): Promise<ModelResponse> {
@@ -206,7 +207,7 @@ export class ModelGateway {
 
       case 'router':
         // Router mode delegates to the best available profile in the fallback group
-        return this.dispatchRouter(profile, prompt, options);
+        return this.dispatchRouter(profile, purpose, prompt, options);
 
       default:
         throw new ModelGatewayError('UNKNOWN_ADAPTER', `Unknown adapter: ${profile.adapter}`);
@@ -296,6 +297,7 @@ export class ModelGateway {
 
   private async dispatchRouter(
     profile: ProviderProfile,
+    purpose: ProviderPurpose,
     prompt: string,
     options: ModelCallOptions,
   ): Promise<ModelResponse> {
@@ -322,8 +324,10 @@ export class ModelGateway {
       );
     }
 
-    // Route to first candidate (could be extended with load balancing)
-    return this.dispatch(candidates[0], prompt, options);
+    // Route to first candidate (could be extended with load balancing). Go back
+    // through callWithProfile so provider allowlists, surface overrides, and
+    // cross-lab policy apply to the concrete provider, not just the router.
+    return this.callWithProfile(candidates[0], purpose, prompt, options);
   }
 
   /**

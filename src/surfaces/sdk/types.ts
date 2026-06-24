@@ -7,7 +7,7 @@
 import { z } from 'zod';
 import type { DecisionRunnerResult, DecisionContext } from '../../decisions/decision-runner.js';
 import type { BaseDecision } from '../../decisions/base-decision.js';
-import type { PolicyVerdict } from '../../contracts/policy.contracts.js';
+import { ActionTypePatternSchema, type PolicyVerdict } from '../../contracts/policy.contracts.js';
 import type { HostModelCallback, HttpAdapterFn } from '../../core/model-gateway.js';
 import { SurfaceContractSchema } from '../../knowledge/surfaces/surface-contract.types.js';
 import type { SurfaceContractRegistry } from '../../knowledge/surfaces/surface-contract-registry.service.js';
@@ -186,7 +186,7 @@ export interface DecisionExplanation {
 export const PolicyPackRuleSchema = z.object({
   name: z.string(),
   description: z.string().default(''),
-  actionTypePattern: z.string(),
+  actionTypePattern: ActionTypePatternSchema,
   riskClass: z.enum(['A', 'B', 'C']).default('B'),
   enforcementPoint: z.enum(['pre_decision', 'action_dispatch', 'post_execution']).default('pre_decision'),
   policyType: z.enum(['safety', 'compliance', 'business', 'resource', 'quality']).default('business'),

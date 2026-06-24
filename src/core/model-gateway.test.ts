@@ -232,6 +232,63 @@ describe('ModelGateway — Policy enforcement', () => {
       expect((err as ModelGatewayError).code).toBe('POLICY_BLOCKED');
     }
   });
+
+  it('enforces provider policy on router-selected concrete providers', async () => {
+    const callback = makeHostCallback();
+    const profiles: ProviderProfile[] = [
+      makeProfile({
+        providerId: 'router/main',
+        modelId: 'router',
+        adapter: 'router',
+        credentialSource: 'none',
+        fallbackGroup: 'tier1',
+      }),
+      makeProfile({
+        providerId: 'openai/gpt-5',
+        modelId: 'gpt-5',
+        adapter: 'host',
+        fallbackGroup: 'tier1',
+      }),
+    ];
+
+    const gw = new ModelGateway(makeConfig({
+      profiles,
+      policy: makePolicy({ allowedProviders: ['router/main'] }),
+      hostCallback: callback,
+    }));
+
+    await expect(gw.call('general', 'test')).rejects.toMatchObject({ code: 'POLICY_BLOCKED' });
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it('allows router dispatch when the selected concrete provider is allowed', async () => {
+    const callback = makeHostCallback();
+    const profiles: ProviderProfile[] = [
+      makeProfile({
+        providerId: 'router/main',
+        modelId: 'router',
+        adapter: 'router',
+        credentialSource: 'none',
+        fallbackGroup: 'tier1',
+      }),
+      makeProfile({
+        providerId: 'openai/gpt-5',
+        modelId: 'gpt-5',
+        adapter: 'host',
+        fallbackGroup: 'tier1',
+      }),
+    ];
+
+    const gw = new ModelGateway(makeConfig({
+      profiles,
+      policy: makePolicy({ allowedProviders: ['router/main', 'openai/gpt-5'] }),
+      hostCallback: callback,
+    }));
+
+    const response = await gw.call('general', 'test');
+    expect(response.providerId).toBe('openai/gpt-5');
+    expect(callback).toHaveBeenCalledWith('test', {});
+  });
 });
 
 describe('ModelGateway — Audit logging', () => {

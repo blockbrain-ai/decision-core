@@ -7,6 +7,7 @@
 
 import { z } from 'zod';
 import { RiskClassSchema } from './common.contracts.js';
+import { ActionTypeSchema } from './policy.contracts.js';
 
 // ===========================================================================
 // Status Enums
@@ -43,7 +44,7 @@ export type ConstraintSnapshotEntry = z.infer<typeof ConstraintSnapshotEntrySche
 
 export const ApprovalRequestSchema = z.object({
   id: z.string(),
-  actionType: z.string(),
+  actionType: ActionTypeSchema,
   riskClass: RiskClassSchema,
   status: ApprovalStatusSchema,
   priority: ApprovalPrioritySchema,

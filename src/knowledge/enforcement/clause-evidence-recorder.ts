@@ -68,12 +68,13 @@ export function createClauseEvidenceRecorder(): ClauseEvidenceRecorder {
         failedRules,
         clauseEvidence: result.evidence,
         blockedByRuleIds: result.blockedBy.map((r) => r.id),
-        compilerVersion: provenanceMetadata?.compilerVersion,
-        policyFileHash: provenanceMetadata?.policyFileHash,
-        linterStatus: provenanceMetadata?.linterStatus,
-        ruleSetHash: provenanceMetadata?.ruleSetHash ?? result.ruleSetHash,
-        sourceDocumentId: provenanceMetadata?.sourceDocumentId,
       };
+      const ruleSetHash = provenanceMetadata?.ruleSetHash ?? result.ruleSetHash;
+      if (ruleSetHash !== undefined) payload.ruleSetHash = ruleSetHash;
+      if (provenanceMetadata?.compilerVersion !== undefined) payload.compilerVersion = provenanceMetadata.compilerVersion;
+      if (provenanceMetadata?.policyFileHash !== undefined) payload.policyFileHash = provenanceMetadata.policyFileHash;
+      if (provenanceMetadata?.linterStatus !== undefined) payload.linterStatus = provenanceMetadata.linterStatus;
+      if (provenanceMetadata?.sourceDocumentId !== undefined) payload.sourceDocumentId = provenanceMetadata.sourceDocumentId;
 
       evidenceRecorder.append({
         operationType: 'clause_enforcement_evaluated',

@@ -254,13 +254,13 @@ function collectInputFields(expression: RuleExpression, context: DecisionContext
       break;
     case 'field_presence':
       for (const field of expression.fields) {
-        fields[field] = getFieldValue(context, field);
+        fields[field] = getFieldValue(context, field) ?? null;
       }
       break;
     default: {
       const expr = expression as { field?: string };
       if (expr.field) {
-        fields[expr.field] = getFieldValue(context, expr.field);
+        fields[expr.field] = getFieldValue(context, expr.field) ?? null;
       }
       break;
     }

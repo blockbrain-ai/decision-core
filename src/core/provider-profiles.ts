@@ -157,6 +157,7 @@ export function selectFallbackProfile(
     p =>
       p.providerId !== currentProfile.providerId &&
       p.adapter !== 'disabled' &&
+      p.adapter !== 'router' &&
       p.fallbackGroup === currentProfile.fallbackGroup &&
       (p.purposes.includes(purpose) || p.purposes.includes('general')),
   );
