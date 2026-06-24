@@ -19,6 +19,7 @@ export async function createPolicyGuard(config: Partial<PolicyGuardConfig> = {})
   const pdp = new PolicyDecisionPoint(policyRuleRepo, eventService);
 
   let denyUnknown = parsed.denyUnknownDefault ?? false;
+  const enforcementMode = parsed.enforcementMode ?? 'enforce';
 
   if (parsed.policyPackPath) {
     const seedResult = await loadAndSeedPolicyPack(parsed.policyPackPath, parsed.tenantId, policyRuleRepo);
@@ -71,19 +72,40 @@ export async function createPolicyGuard(config: Partial<PolicyGuardConfig> = {})
         },
       );
 
-      if (denyUnknown && result.verdict === 'allow' && result.matchedPolicies.length === 0) {
+      // Compute the real (enforced) verdict: apply deny-unknown to an unmatched allow.
+      const effective: PolicyVerdict =
+        denyUnknown && result.verdict === 'allow' && result.matchedPolicies.length === 0
+          ? {
+              verdict: 'deny',
+              matchedPolicies: [{
+                ruleId: 'deny-unknown',
+                ruleName: 'deny-unknown-default',
+                verdict: 'deny',
+                reason: 'No policy rules matched — unknown actions denied by default',
+              }],
+            }
+          : result;
+
+      // Observe mode: NEVER block. Return allow, but preserve the would-be verdict
+      // as observedVerdict so the operator can see exactly what enforce would do.
+      // Fully non-enforcing: shadows deny AND approve_required, deny-unknown and
+      // explicit rules alike.
+      if (enforcementMode === 'observe') {
+        if (effective.verdict !== 'allow') {
+          logger.info(
+            { action, observedVerdict: effective.verdict, tenantId: parsed.tenantId },
+            'observe-mode: would-be non-allow verdict shadowed (not enforced)',
+          );
+        }
         return {
-          verdict: 'deny',
-          matchedPolicies: [{
-            ruleId: 'deny-unknown',
-            ruleName: 'deny-unknown-default',
-            verdict: 'deny',
-            reason: 'No policy rules matched — unknown actions denied by default',
-          }],
+          verdict: 'allow',
+          matchedPolicies: effective.matchedPolicies,
+          observedVerdict: effective.verdict,
+          enforcementMode: 'observe',
         };
       }
 
-      return result;
+      return { ...effective, observedVerdict: effective.verdict, enforcementMode: 'enforce' };
     },
   };
 }

@@ -194,6 +194,19 @@ describe('DecisionRunner', () => {
       const without = await r.execute(TENANT_ID, decision, { callerRoles: [] });
       expect(without.policyVerdict?.verdict).not.toBe('deny');
     });
+
+    it('OBSERVE mode shadows a would-be deny — the pipeline does NOT block, records observedVerdict', async () => {
+      const r = await runnerWith({ ...ruleBase(), defaultVerdict: 'deny' });
+      // enforce (default): the matching rule denies → blocked.
+      const enforced = await r.execute(TENANT_ID, decision, {});
+      expect(enforced.verdict).toBe('blocked');
+      // observe: never blocks; the would-be deny is preserved as observedVerdict.
+      const observed = await r.execute(TENANT_ID, decision, { enforcementMode: 'observe' });
+      expect(observed.verdict).not.toBe('blocked');
+      expect(observed.policyVerdict?.verdict).toBe('allow');
+      expect(observed.policyVerdict?.observedVerdict).toBe('deny');
+      expect(observed.policyVerdict?.enforcementMode).toBe('observe');
+    });
   });
 
   describe('Deterministic route → completed without model', () => {

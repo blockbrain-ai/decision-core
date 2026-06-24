@@ -23,6 +23,9 @@ export const CliConfigSchema = z.object({
   tenantMode: z.enum(['single', 'multi']).default('single'),
   policyPackPath: z.string().optional(),
   denyUnknownDefault: z.boolean().optional(),
+  // Master enforce/observe lever. 'observe' never blocks (records would-be verdict);
+  // the non-breaking onboarding default. Omitted ⇒ enforce.
+  enforcementMode: z.enum(['enforce', 'observe']).optional(),
   sqlitePath: z.string().optional(),
   routeConfigPath: z.string().optional(),
   agentRegistryPath: z.string().optional(),

@@ -116,6 +116,10 @@ export const ProfileAutonomyConfigSchema = z.object({
   defaultAction: DefaultActionSchema,
   alwaysRequireApproval: z.array(z.string()).default([]),
   neverAllow: z.array(z.string()).default([]),
+  // Non-breaking onboarding posture: a fresh install runs in 'observe' (records
+  // would-be denials, blocks nothing) so existing tools keep working; the
+  // operator reviews impact, then flips to 'enforce'. Enterprise defaults enforce.
+  enforcementMode: z.enum(['enforce', 'observe']).default('observe'),
 });
 export type ProfileAutonomyConfig = z.infer<typeof ProfileAutonomyConfigSchema>;
 
@@ -271,6 +275,7 @@ export function createEmptyProfile(profileId: string): OnboardingProfile {
     autonomy: {
       posture: 'guided',
       defaultAction: 'ask',
+      enforcementMode: 'observe',
       alwaysRequireApproval: [],
       neverAllow: [],
     },
@@ -436,6 +441,8 @@ export function convertAllAnswersToProfile(
     autonomy: {
       posture: postureMap[answers.phase3.approvalWorkflow] ?? 'guided',
       defaultAction: answers.phase3.approvalWorkflow === 'block' ? 'block' : 'ask',
+      // Observe-first by default; applyModeDefaults() upgrades enterprise to enforce.
+      enforcementMode: 'observe',
       alwaysRequireApproval: answers.phase2.highRiskTools,
       neverAllow: [],
     },

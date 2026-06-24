@@ -84,6 +84,9 @@ export interface DecisionContext {
   confidence?: number;
   agentId?: string;
   autonomyLevel?: number;
+  // Master enforce/observe lever. 'observe' never blocks the pipeline — a would-be
+  // deny/approve_required is shadowed to allow and recorded as observedVerdict.
+  enforcementMode?: 'enforce' | 'observe';
 }
 
 export interface DecisionRunnerDeps {
@@ -172,7 +175,7 @@ export class DecisionRunner {
     // Step 2: Policy Evaluation
     // -----------------------------------------------------------------------
     const policyStart = Date.now();
-    const policyVerdict = await this.pdp.evaluate(
+    const rawPolicyVerdict = await this.pdp.evaluate(
       tenantId,
       {
         enforcementPoint: 'pre_decision',
@@ -188,10 +191,29 @@ export class DecisionRunner {
     );
     policyMs = Date.now() - policyStart;
 
+    // Observe mode never blocks: shadow any non-allow verdict to allow, preserving
+    // the would-be verdict as observedVerdict for the audit trail. All downstream
+    // block/approval logic then runs against the shadowed (effective) verdict.
+    const enforcementMode = context.enforcementMode ?? 'enforce';
+    const observedVerdict = rawPolicyVerdict.verdict;
+    const policyVerdict =
+      enforcementMode === 'observe' && observedVerdict !== 'allow'
+        ? { ...rawPolicyVerdict, verdict: 'allow' as const, observedVerdict, enforcementMode }
+        : { ...rawPolicyVerdict, observedVerdict, enforcementMode };
+
+    if (enforcementMode === 'observe' && observedVerdict !== 'allow') {
+      logger.info(
+        { tenantId, correlationId, actionType: decision.actionType, observedVerdict },
+        'observe-mode: would-be non-allow policy verdict shadowed (not enforced)',
+      );
+    }
+
     evidenceRecorder.append({
       operationType: 'policy_evaluated',
       payload: {
         verdict: policyVerdict.verdict,
+        observedVerdict,
+        enforcementMode,
         matchedPolicies: policyVerdict.matchedPolicies,
       },
     });

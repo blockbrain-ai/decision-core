@@ -142,13 +142,16 @@ export interface ModeDefaults {
   posture: AutonomyPosture;
   defaultAction: DefaultAction;
   providerMode: ProfileProviderMode;
+  enforcementMode: 'enforce' | 'observe';
 }
 
+// Observe-first for everyone except enterprise: a fresh install must not break an
+// operator's existing tools on day one. Enterprise (locked_down) opts into enforce.
 const MODE_DEFAULTS: Record<OnboardingProfileMode, ModeDefaults> = {
-  personal: { posture: 'guided', defaultAction: 'ask', providerMode: 'disabled' },
-  team: { posture: 'balanced', defaultAction: 'ask', providerMode: 'host' },
-  business: { posture: 'guided', defaultAction: 'ask', providerMode: 'host' },
-  enterprise: { posture: 'locked_down', defaultAction: 'block', providerMode: 'host' },
+  personal: { posture: 'guided', defaultAction: 'ask', providerMode: 'disabled', enforcementMode: 'observe' },
+  team: { posture: 'balanced', defaultAction: 'ask', providerMode: 'host', enforcementMode: 'observe' },
+  business: { posture: 'guided', defaultAction: 'ask', providerMode: 'host', enforcementMode: 'observe' },
+  enterprise: { posture: 'locked_down', defaultAction: 'block', providerMode: 'host', enforcementMode: 'enforce' },
 };
 
 export function getModeDefaults(mode: OnboardingProfileMode): ModeDefaults {
@@ -299,6 +302,9 @@ export function applyModeDefaults(profile: OnboardingProfile): OnboardingProfile
       ...profile.autonomy,
       posture: profile.autonomy.posture === 'guided' ? defaults.posture : profile.autonomy.posture,
       defaultAction: profile.autonomy.defaultAction === 'ask' ? defaults.defaultAction : profile.autonomy.defaultAction,
+      // At the observe default, defer to the mode (enterprise → enforce); an
+      // explicit 'enforce' the operator chose is preserved.
+      enforcementMode: profile.autonomy.enforcementMode === 'observe' ? defaults.enforcementMode : profile.autonomy.enforcementMode,
     },
     provider: {
       ...profile.provider,

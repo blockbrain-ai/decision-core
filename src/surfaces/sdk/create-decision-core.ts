@@ -207,7 +207,12 @@ export async function createDecisionCore(config: Partial<DecisionCoreConfig> = {
       decision: BaseDecision<TInput, TOutput>,
       context?: DecisionContext,
     ): Promise<DecisionRunnerResult<TOutput>> {
-      return runner.execute(tenantId, decision, context);
+      // Inject the DecisionCore-level enforcement mode as the default; a per-call
+      // context.enforcementMode still wins (host is the trust boundary).
+      return runner.execute(tenantId, decision, {
+        ...context,
+        enforcementMode: context?.enforcementMode ?? parsed.enforcementMode,
+      });
     },
 
     async explain(correlationId: string): Promise<Explanation> {

@@ -32,7 +32,11 @@ export const VERDICT_RESULTS = ['allow', 'deny', 'approve_required'] as const;
 export const VerdictResultSchema = z.enum(VERDICT_RESULTS);
 export type VerdictResult = z.infer<typeof VerdictResultSchema>;
 
-export const ENFORCEMENT_MODES = ['strict', 'advisory'] as const;
+// Enforcement mode is the master enforce/observe lever. In `observe` the policy
+// engine computes the real verdict but never blocks: it returns `allow` and
+// surfaces the would-be verdict as `observedVerdict` (shadow / dry-run). This is
+// the non-breaking onboarding posture — see PolicyVerdict.observedVerdict.
+export const ENFORCEMENT_MODES = ['enforce', 'observe'] as const;
 export const EnforcementModeSchema = z.enum(ENFORCEMENT_MODES);
 export type EnforcementMode = z.infer<typeof EnforcementModeSchema>;
 
@@ -121,6 +125,11 @@ export type PolicyVerdictResult = z.infer<typeof PolicyVerdictResultSchema>;
 export const PolicyVerdictSchema = z.object({
   verdict: VerdictResultSchema,
   matchedPolicies: z.array(PolicyVerdictResultSchema),
+  // Observe-mode shadow: when enforcementMode is 'observe', `verdict` is forced
+  // to 'allow' (non-blocking) and `observedVerdict` carries the verdict that
+  // WOULD have been enforced. Absent/equal to `verdict` in enforce mode.
+  observedVerdict: VerdictResultSchema.optional(),
+  enforcementMode: EnforcementModeSchema.optional(),
 });
 export type PolicyVerdict = z.infer<typeof PolicyVerdictSchema>;
 

@@ -50,6 +50,9 @@ export const DecisionCoreConfigSchema = z.object({
   policyPackPath: z.string().optional(),
   sqlitePath: z.string().optional(),
   denyUnknownDefault: z.boolean().optional(),
+  // Master enforce/observe lever for this DecisionCore. 'observe' never blocks the
+  // pipeline (records would-be verdicts); omitted ⇒ enforce.
+  enforcementMode: z.enum(['enforce', 'observe']).optional(),
   trustConfig: TrustConfigSchema,
   tenantMode: TenantModeSchema.default('single'),
   tenantId: z.string().default('default'),
@@ -68,6 +71,9 @@ export const PolicyGuardConfigSchema = z.object({
   tenantId: z.string().default('default'),
   denyUnknownDefault: z.boolean().optional(),
   agentRegistryPath: z.string().optional(),
+  // Master enforce/observe lever. 'observe' never blocks — it returns allow and
+  // records the would-be verdict as observedVerdict (non-breaking onboarding).
+  enforcementMode: z.enum(['enforce', 'observe']).default('enforce'),
 });
 export type PolicyGuardConfig = z.infer<typeof PolicyGuardConfigSchema>;
 

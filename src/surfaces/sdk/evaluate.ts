@@ -25,6 +25,10 @@ export interface EvaluateResult {
   matchedPolicies: Array<{ ruleId: string; ruleName: string; verdict: string; reason: string }>;
   rationale: string;
   correlationId: string;
+  /** Active enforcement mode for this evaluation. */
+  enforcementMode?: 'enforce' | 'observe';
+  /** In observe mode, the verdict that WOULD have been enforced (decision is forced to allow). */
+  observedDecision?: 'allow' | 'deny' | 'approve_required';
 }
 
 export interface EvaluateOptions {
@@ -35,6 +39,8 @@ export interface EvaluateOptions {
   sqlitePath?: string;
   /** Path to the agent registry — wires identity-derived (trusted) role resolution. */
   agentRegistryPath?: string;
+  /** 'observe' never blocks (returns allow, reports observedDecision); 'enforce' (default) blocks. */
+  enforcementMode?: 'enforce' | 'observe';
 }
 
 export async function evaluate(
@@ -57,10 +63,12 @@ export async function evaluate(
     tenantId,
     denyUnknownDefault: options?.denyUnknownDefault ?? config?.denyUnknownDefault,
     agentRegistryPath: options?.agentRegistryPath ?? config?.agentRegistryPath,
+    enforcementMode: options?.enforcementMode ?? config?.enforcementMode,
   });
 
   const verdict = await guard.evaluate(tenantId, surface, input.action, input.context);
 
+  const observing = verdict.enforcementMode === 'observe';
   const result: EvaluateResult = {
     decision: verdict.verdict,
     matchedPolicies: verdict.matchedPolicies.map((mp) => ({
@@ -69,12 +77,16 @@ export async function evaluate(
       verdict: mp.verdict,
       reason: mp.reason,
     })),
-    rationale: verdict.matchedPolicies.length > 0
+    rationale: observing && verdict.observedVerdict && verdict.observedVerdict !== 'allow'
+      ? `Observe mode — allowed (would be ${verdict.observedVerdict} under enforce)`
+      : verdict.matchedPolicies.length > 0
       ? verdict.matchedPolicies.map((mp) => `[${mp.verdict}] ${mp.ruleName}: ${mp.reason}`).join('; ')
       : verdict.verdict === 'deny'
       ? 'No matching rules — denied by denyUnknownDefault'
       : 'No matching rules — allowed by default',
     correlationId: generateUuidV7(),
+    enforcementMode: verdict.enforcementMode,
+    observedDecision: verdict.observedVerdict,
   };
 
   const persistence = options?.persistence ?? config?.persistence;

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parse as parseYaml } from 'yaml';
-import { generateArtifacts } from './generate-artifacts.js';
+import { generateArtifacts, generateRootConfigYaml } from './generate-artifacts.js';
 import { createEmptyProfile } from '../contracts/onboarding-profile.contracts.js';
 import type { OnboardingProfile } from '../contracts/onboarding-profile.contracts.js';
 import { parseStructuredDocument } from '../knowledge/authoring/frontmatter-parser.js';
@@ -66,6 +66,22 @@ describe('generate-artifacts', () => {
       expect(categories).toContain('surface');
       expect(categories).toContain('test');
       expect(categories).toContain('report');
+    });
+
+    it('root runtime config runs in OBSERVE for a non-enterprise profile (non-breaking install), rules still real', () => {
+      // generateRootConfigYaml is the runtime decision-core.yaml the CLI setup writes.
+      const cfg = parseYaml(generateRootConfigYaml(businessProfile(), '.decision-core/policy-pack.yaml'));
+      // Observe = the install does not block existing tools on day one...
+      expect(cfg.enforcementMode).toBe('observe');
+      // ...but the rules are REAL — deny-unknown stays on; the mode just shadows them.
+      expect(cfg.denyUnknownDefault).toBe(true);
+    });
+
+    it('root runtime config runs in ENFORCE for an enterprise profile', () => {
+      const profile = businessProfile();
+      profile.mode = 'enterprise';
+      profile.autonomy.enforcementMode = 'enforce';
+      expect(parseYaml(generateRootConfigYaml(profile, '.decision-core/policy-pack.yaml')).enforcementMode).toBe('enforce');
     });
 
     it('generates baseline policy', () => {

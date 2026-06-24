@@ -175,6 +175,22 @@ describe('interview-engine', () => {
       expect(updated.autonomy.defaultAction).toBe('block');
     });
 
+    it('defaults non-enterprise modes to OBSERVE (non-breaking install) and enterprise to ENFORCE', () => {
+      for (const mode of ['personal', 'team', 'business'] as const) {
+        const updated = applyModeDefaults(Object.assign(createEmptyProfile('m'), { mode }));
+        expect(updated.autonomy.enforcementMode, `${mode} should be observe`).toBe('observe');
+      }
+      const ent = applyModeDefaults(Object.assign(createEmptyProfile('m'), { mode: 'enterprise' as const }));
+      expect(ent.autonomy.enforcementMode).toBe('enforce');
+    });
+
+    it('preserves an operator-chosen enforce even for a non-enterprise mode', () => {
+      const profile = createEmptyProfile('def-enf');
+      profile.mode = 'business';
+      profile.autonomy.enforcementMode = 'enforce';
+      expect(applyModeDefaults(profile).autonomy.enforcementMode).toBe('enforce');
+    });
+
     it('does not override non-default posture', () => {
       const profile = createEmptyProfile('def-2');
       profile.mode = 'enterprise';

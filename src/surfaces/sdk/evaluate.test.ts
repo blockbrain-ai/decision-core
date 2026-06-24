@@ -72,6 +72,36 @@ rules:
     }
   });
 
+  it('observe mode NEVER blocks — returns allow + observedDecision for a would-be deny rule', async () => {
+    const result = await evaluate(
+      { action: 'delete_database', surface: 'api' },
+      { policyPackPath: packPath, enforcementMode: 'observe' },
+    );
+    expect(result.decision).toBe('allow');          // non-blocking
+    expect(result.observedDecision).toBe('deny');   // would-be verdict preserved
+    expect(result.enforcementMode).toBe('observe');
+    expect(result.rationale).toContain('Observe mode');
+  });
+
+  it('observe mode shadows deny-unknown too — unknown action allowed, would-be deny recorded', async () => {
+    const result = await evaluate(
+      { action: 'totally_unknown_tool', surface: 'api' },
+      { policyPackPath: packPath, enforcementMode: 'observe' },
+    );
+    expect(result.decision).toBe('allow');
+    expect(result.observedDecision).toBe('deny');
+  });
+
+  it('enforce mode (default) still blocks — observedDecision mirrors the enforced verdict', async () => {
+    const result = await evaluate(
+      { action: 'delete_database', surface: 'api' },
+      { policyPackPath: packPath },
+    );
+    expect(result.decision).toBe('deny');
+    expect(result.observedDecision).toBe('deny');
+    expect(result.enforcementMode).toBe('enforce');
+  });
+
   it('defaults surface to "default"', async () => {
     const result = await evaluate(
       { action: 'read_file' },
