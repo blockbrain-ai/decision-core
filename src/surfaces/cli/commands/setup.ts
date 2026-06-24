@@ -22,6 +22,7 @@ import type { CliContext } from '../cli.js';
 import { detectAgentEnvironment } from '../../../onboarding/detect-agent-env.js';
 import {
   createEmptyProfile,
+  DANGEROUS_CAPABILITIES,
 } from '../../../contracts/onboarding-profile.contracts.js';
 import type { OnboardingProfile, HarnessType, OnboardingProfileMode, ProfileProviderMode } from '../../../contracts/onboarding-profile.contracts.js';
 import { importMemoryEvidence } from '../../../onboarding/memory-evidence/memory-evidence-importer.js';
@@ -141,6 +142,17 @@ export async function setupCommand(ctx: CliContext): Promise<number> {
         const value = await askSetupQuestion(rl, question);
         updatedProfile = applyAnswer(updatedProfile, { questionId: question.id, value });
       }
+      // Executive decisions (B2): make the dangerous-power calls explicitly now —
+      // if they aren't decided at setup, they never will be. Safe defaults shown.
+      log('');
+      log('Executive decisions — the dangerous powers. For each, type allow / ask / block (Enter = keep default):');
+      const decisions = { ...updatedProfile.autonomy.executiveDecisions };
+      for (const cap of DANGEROUS_CAPABILITIES) {
+        const current = decisions[cap];
+        const ans = (await prompt(rl, `  ${cap.replace(/_/g, ' ')} [${current}]: `)).trim().toLowerCase();
+        if (ans === 'allow' || ans === 'ask' || ans === 'block') decisions[cap] = ans;
+      }
+      updatedProfile = { ...updatedProfile, autonomy: { ...updatedProfile.autonomy, executiveDecisions: decisions } };
       updatedProfile = applyModeDefaults(updatedProfile);
       plan = planInterview(updatedProfile);
     } finally {
@@ -259,6 +271,16 @@ export async function setupCommand(ctx: CliContext): Promise<number> {
     log(`Root config decision-core.yaml already exists — skipping (use --force-config to overwrite)`);
   }
 
+  // B3: "here's everything I found" — tool inventory + the owned executive decisions.
+  if (!isJson) {
+    log('');
+    log(`Tools: ${updatedProfile.agent.detectedTools.length} detected, ${updatedProfile.tools.length} tiered.`);
+    log('Executive decisions (your call):');
+    for (const [cap, dec] of Object.entries(updatedProfile.autonomy.executiveDecisions)) {
+      log(`  ${cap.replace(/_/g, ' ')}: ${dec.toUpperCase()}`);
+    }
+  }
+
   // Step 12: Activation — announce the mode explicitly (observe is non-blocking).
   updatedProfile.activatedAt = new Date().toISOString();
   if (observing) {
@@ -278,6 +300,9 @@ export async function setupCommand(ctx: CliContext): Promise<number> {
       activated: !!updatedProfile.activatedAt,
       enforcementMode: updatedProfile.autonomy.enforcementMode,
       observationsPersisted,
+      executiveDecisions: updatedProfile.autonomy.executiveDecisions,
+      toolsDetected: updatedProfile.agent.detectedTools.length,
+      toolsTiered: updatedProfile.tools.length,
       nextAction: observing ? 'review_observations_then_enforce' : 'verify_with_doctor',
       profileHash: result.profileHash,
       warnings: result.warnings,

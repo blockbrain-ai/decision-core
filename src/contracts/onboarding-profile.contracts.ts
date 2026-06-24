@@ -111,6 +111,29 @@ export type UserContext = z.infer<typeof UserContextSchema>;
 // Autonomy Config
 // ===========================================================================
 
+// The high-risk capability classes the operator must make an explicit call on at
+// setup (because if they don't decide here, they never will). Each gets an owned
+// allow / ask (human approval) / block decision, with safe defaults pre-selected.
+export const DANGEROUS_CAPABILITIES = ['delete_data', 'move_money', 'deploy', 'external_contact', 'credentials'] as const;
+export type DangerousCapability = (typeof DANGEROUS_CAPABILITIES)[number];
+export const ExecutiveDecisionSchema = z.enum(['allow', 'ask', 'block']);
+export type ExecutiveDecision = z.infer<typeof ExecutiveDecisionSchema>;
+
+/** Safe defaults: destructive/financial/credential powers BLOCK; deploy + external contact ASK. */
+export function defaultExecutiveDecisions(): Record<DangerousCapability, ExecutiveDecision> {
+  return { delete_data: 'block', move_money: 'block', credentials: 'block', deploy: 'ask', external_contact: 'ask' };
+}
+
+export const ExecutiveDecisionsSchema = z
+  .object({
+    delete_data: ExecutiveDecisionSchema,
+    move_money: ExecutiveDecisionSchema,
+    deploy: ExecutiveDecisionSchema,
+    external_contact: ExecutiveDecisionSchema,
+    credentials: ExecutiveDecisionSchema,
+  })
+  .default(() => defaultExecutiveDecisions());
+
 export const ProfileAutonomyConfigSchema = z.object({
   posture: AutonomyPostureSchema,
   defaultAction: DefaultActionSchema,
@@ -120,6 +143,8 @@ export const ProfileAutonomyConfigSchema = z.object({
   // would-be denials, blocks nothing) so existing tools keep working; the
   // operator reviews impact, then flips to 'enforce'. Enterprise defaults enforce.
   enforcementMode: z.enum(['enforce', 'observe']).default('observe'),
+  // The explicit, owned decisions for the dangerous capability classes (B2).
+  executiveDecisions: ExecutiveDecisionsSchema,
 });
 export type ProfileAutonomyConfig = z.infer<typeof ProfileAutonomyConfigSchema>;
 
@@ -276,6 +301,7 @@ export function createEmptyProfile(profileId: string): OnboardingProfile {
       posture: 'guided',
       defaultAction: 'ask',
       enforcementMode: 'observe',
+      executiveDecisions: defaultExecutiveDecisions(),
       alwaysRequireApproval: [],
       neverAllow: [],
     },
@@ -443,6 +469,7 @@ export function convertAllAnswersToProfile(
       defaultAction: answers.phase3.approvalWorkflow === 'block' ? 'block' : 'ask',
       // Observe-first by default; applyModeDefaults() upgrades enterprise to enforce.
       enforcementMode: 'observe',
+      executiveDecisions: defaultExecutiveDecisions(),
       alwaysRequireApproval: answers.phase2.highRiskTools,
       neverAllow: [],
     },

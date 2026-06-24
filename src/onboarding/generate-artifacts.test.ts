@@ -53,6 +53,11 @@ function businessProfile(): OnboardingProfile {
   return p;
 }
 
+function result_pack(profile: OnboardingProfile): Record<string, unknown> {
+  const art = generateArtifacts(profile).artifacts.find((a) => a.path === 'policy-pack.yaml');
+  return parseYaml(art!.content) as Record<string, unknown>;
+}
+
 describe('generate-artifacts', () => {
   describe('generateArtifacts', () => {
     it('generates all expected artifact categories for business profile', () => {
@@ -120,6 +125,34 @@ describe('generate-artifacts', () => {
       expect(report!.content).toContain('watching, not blocking');
       expect(report!.content).toContain('decision-core observations');
       expect(report!.content).toContain('decision-core enforce');
+    });
+
+    it('executive decisions become TOP-priority pack rules (B2): delete_data BLOCK, deploy ASK', () => {
+      const profile = businessProfile(); // default executiveDecisions
+      const pack = result_pack(profile);
+      const execRules = (pack.rules as Array<Record<string, unknown>>).filter((r) => String(r.name).startsWith('exec-'));
+      expect(execRules.length).toBeGreaterThan(0);
+      const del = execRules.find((r) => r.actionTypePattern === 'delete_*')!;
+      expect(del.defaultVerdict).toBe('deny');
+      expect(del.priority).toBe(95);
+      const deploy = execRules.find((r) => r.actionTypePattern === 'deploy_*')!;
+      expect(deploy.requireApproval).toBe(true);
+    });
+
+    it('an explicit ALLOW executive decision emits an allow rule', () => {
+      const profile = businessProfile();
+      profile.autonomy.executiveDecisions.delete_data = 'allow';
+      const pack = result_pack(profile);
+      const del = (pack.rules as Array<Record<string, unknown>>).find(
+        (r) => String(r.name).startsWith('exec-delete_data') && r.actionTypePattern === 'delete_*',
+      );
+      expect(del?.defaultVerdict).toBe('allow');
+    });
+
+    it('onboarding report surfaces the executive decisions (B3)', () => {
+      const report = generateArtifacts(businessProfile()).artifacts.find((a) => a.path === 'reports/onboarding-report.md');
+      expect(report!.content).toContain('Executive decisions');
+      expect(report!.content).toContain('delete data');
     });
 
     it('generates baseline policy', () => {

@@ -6,7 +6,7 @@
  */
 
 import type { OnboardingProfile, ProfileTool } from '../contracts/onboarding-profile.contracts.js';
-import { OnboardingProfileSchema } from '../contracts/onboarding-profile.contracts.js';
+import { OnboardingProfileSchema, defaultExecutiveDecisions } from '../contracts/onboarding-profile.contracts.js';
 import { stringify as stringifyYaml } from 'yaml';
 
 // ===========================================================================
@@ -324,6 +324,14 @@ function generateOnboardingReport(profile: OnboardingProfile, warnings: string[]
 - **Default action:** ${profile.autonomy.defaultAction}
 - **Always require approval:** ${profile.autonomy.alwaysRequireApproval.join(', ') || 'none'}
 
+## Executive decisions (your call — the dangerous powers)
+These are the high-risk capability classes you decided on at setup. They are
+top-priority policy rules. Change them anytime in your policy pack.
+
+${Object.entries(profile.autonomy.executiveDecisions ?? defaultExecutiveDecisions())
+    .map(([cap, dec]) => `- **${cap.replace(/_/g, ' ')}:** ${dec === 'block' ? 'BLOCK' : dec === 'ask' ? 'ASK a human' : 'ALLOW'}`)
+    .join('\n')}
+
 ## Governance mode — ${profile.autonomy.enforcementMode === 'observe' ? 'OBSERVE (watching, not blocking)' : 'ENFORCE (active)'}
 ${profile.autonomy.enforcementMode === 'observe'
     ? `
@@ -527,6 +535,34 @@ function generatePolicyPackYaml(profile: OnboardingProfile): string {
       requireApproval: false,
       enabled: true,
     });
+  }
+
+  // Executive decisions (B2): the operator's owned high-risk capability calls
+  // become TOP-priority rules so a deliberate allow/ask/block wins over tool tiers.
+  const execPatterns: Record<string, string[]> = {
+    delete_data: ['delete_*', 'drop_*', 'destroy_*', 'purge_*'],
+    move_money: ['payment_*', 'transfer_*', 'refund_*', 'charge_*'],
+    deploy: ['deploy_*', 'release_*', 'rollout_*'],
+    external_contact: ['send_*', 'email_*', 'contact_*', 'publish_*'],
+    credentials: ['credential_*', 'secret_*', 'token_*'],
+  };
+  for (const [cap, decision] of Object.entries(profile.autonomy.executiveDecisions ?? defaultExecutiveDecisions())) {
+    for (const pattern of execPatterns[cap] ?? []) {
+      const entry: Record<string, unknown> = {
+        name: `exec-${cap}-${sanitizeId(pattern)}`,
+        description: `Executive decision: ${cap} -> ${decision}`,
+        actionTypePattern: pattern,
+        riskClass: 'A',
+        enforcementPoint: 'pre_decision',
+        policyType: 'safety',
+        priority: 95,
+        requireApproval: decision === 'ask',
+        enabled: true,
+      };
+      if (decision === 'block') entry['defaultVerdict'] = 'deny';
+      if (decision === 'allow') entry['defaultVerdict'] = 'allow';
+      rules.push(entry);
+    }
   }
 
   return stringifyYaml({
