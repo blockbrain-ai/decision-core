@@ -281,6 +281,44 @@ describe('HTTP API Server', () => {
       expect(seenContexts[0]?.path).toBe('/x');
     });
 
+    it('org mode binds repo operations to the IDENTITY tenant, not the static deps.tenantId', async () => {
+      await server.close();
+
+      let seenTenant: string | undefined;
+      deps = {
+        ...createMockDeps(),
+        tenantId: 'server-default-tenant', // the static server default
+        policyEvaluator: {
+          async evaluate(tenantId: string) {
+            seenTenant = tenantId;
+            return { verdict: 'allow' as const, matchedPolicies: [] };
+          },
+        },
+      };
+      server = await createHttpServer(deps, {
+        host: '127.0.0.1',
+        port: 0,
+        orgMode: true,
+        identityResolver: {
+          resolve(token: string) {
+            if (token !== 'tenant-a-token') return { error: 'unknown', code: 'unknown_token' };
+            return { agentId: 'agent-a', tenantId: 'tenant-A', roles: ['operator'] };
+          },
+        },
+      });
+
+      const { status } = await request(server, 'POST', '/evaluate', {
+        token: 'tenant-a-token',
+        body: { surfaceId: 'http', action: 'file.read' },
+      });
+
+      expect(status).toBe(200);
+      // The evaluation runs against the authenticated identity's tenant...
+      expect(seenTenant).toBe('tenant-A');
+      // ...NOT the server's static default (the cross-tenant hole this fixes).
+      expect(seenTenant).not.toBe('server-default-tenant');
+    });
+
     it('rejects request body agentId spoofing in org mode', async () => {
       await server.close();
       server = await createHttpServer(deps, {

@@ -147,6 +147,15 @@ export async function createHttpServer(
       return;
     }
 
+    // Tenant isolation: in org mode, every tenant-scoped operation runs against the
+    // AUTHENTICATED identity's tenant (resolved server-side from the token), never
+    // the static server-default deps.tenantId. Without this, an identity bound to
+    // tenant A would read/write whatever tenant deps.tenantId names — a cross-tenant
+    // hole. Non-org keeps the single configured tenant.
+    const requestDeps = orgMode && orgIdentity
+      ? { ...deps, tenantId: orgIdentity.tenantId }
+      : deps;
+
     try {
       if (pathname === '/evaluate' && method === 'POST') {
         const body = await parseBody(req) as Record<string, unknown>;
@@ -177,7 +186,7 @@ export async function createHttpServer(
 
         const result = await handleEvaluate(
           { surfaceId: body.surfaceId as string, action: body.action as string, context: evaluateContext },
-          deps,
+          requestDeps,
         );
         sendJson(res, result.status, result.data);
         return;
@@ -244,7 +253,7 @@ export async function createHttpServer(
           return;
         }
         const body = await parseBody(req) as Record<string, unknown>;
-        const result = await handleRecord(body as Parameters<typeof handleRecord>[0], deps);
+        const result = await handleRecord(body as Parameters<typeof handleRecord>[0], requestDeps);
         sendJson(res, result.status, result.data);
         return;
       }
@@ -253,7 +262,7 @@ export async function createHttpServer(
         const body = await parseBody(req) as Record<string, unknown>;
         const result = await handleRecordExecution(
           body as unknown as Parameters<typeof handleRecordExecution>[0],
-          deps,
+          requestDeps,
           orgIdentity?.agentId,
         );
         sendJson(res, result.status, result.data);
@@ -266,7 +275,7 @@ export async function createHttpServer(
           return;
         }
         const query = parseQuery(req.url ?? '');
-        const result = await handlePolicy(query, deps);
+        const result = await handlePolicy(query, requestDeps);
         sendJson(res, result.status, result.data);
         return;
       }
@@ -277,7 +286,7 @@ export async function createHttpServer(
           return;
         }
         const query = parseQuery(req.url ?? '');
-        const result = await handleClauses(query, deps);
+        const result = await handleClauses(query, requestDeps);
         sendJson(res, result.status, result.data);
         return;
       }
@@ -288,7 +297,7 @@ export async function createHttpServer(
           return;
         }
         const query = parseQuery(req.url ?? '');
-        const result = await handleAudit(query, deps);
+        const result = await handleAudit(query, requestDeps);
         sendJson(res, result.status, result.data);
         return;
       }

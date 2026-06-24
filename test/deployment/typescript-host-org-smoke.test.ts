@@ -341,9 +341,13 @@ classifications:
     server = await createRbacTestServer();
     baseUrl = server.baseUrl();
 
-    // Inject provisioned agent bindings into the running server's auth store
+    // Inject provisioned agent bindings into the running server's auth store —
+    // bound to the SERVER's tenant so they are co-tenant with its policy rules.
+    // (Org-mode now isolates by the identity's tenant — PR-4b — so a token whose
+    // tenant differs from the server's rules would correctly see no rules.)
+    const serverTenant = server.fixtures.agents.tenantId;
     for (const binding of authBindings) {
-      server.fixtures.tokens.bindings.push(binding);
+      server.fixtures.tokens.bindings.push({ ...binding, tenantId: serverTenant });
     }
 
     // Register provisioned agents in the registry
