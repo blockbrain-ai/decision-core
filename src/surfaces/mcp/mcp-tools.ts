@@ -8,6 +8,7 @@ import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { TenantId } from '../../contracts/common.contracts.js';
 import { ActionTypePatternSchema, ActionTypeSchema } from '../../contracts/policy.contracts.js';
+import { aggregateObservations } from '../../decisions/observations.js';
 import { createLogger } from '../../utils/logger.js';
 import type { McpServerDeps } from './types.js';
 
@@ -181,6 +182,30 @@ export function registerTools(
     },
   );
 
+  // --- dc_observations (read-only) ---
+  server.tool(
+    'dc_observations',
+    'Review what OBSERVE MODE would have blocked (non-blocking shadow). Aggregates the would-be denials Decision Core recorded — redacted (no tool arguments) — so an agent can decide whether to promote to enforcement. Use dc_enforce to promote.',
+    {
+      limit: z.number().optional().describe('Max decision records to scan (default 1000)'),
+      since: z.string().optional().describe('ISO timestamp — only observations at/after this time'),
+    },
+    async (params) => {
+      try {
+        const records = await deps.decisionLogRepo.findAll(tenantId, {
+          from: params.since,
+          limit: params.limit ?? 1000,
+        });
+        const summary = aggregateObservations(records);
+        logger.info({ totalObservations: summary.totalObservations }, 'dc_observations tool called');
+        return successResponse(summary);
+      } catch (err) {
+        logger.error({ err }, 'dc_observations tool failed');
+        return errorResponse(err instanceof Error ? err.message : 'Observations query failed');
+      }
+    },
+  );
+
   // Policy-MUTATING tools (ingest_policy, compile_rules) — OFF by default. They
   // rewrite the policy engine and the stdio surface carries no per-call identity,
   // so they are exposed only with an explicit operator opt-in (allowPolicyMutations).
@@ -256,5 +281,5 @@ export function registerTools(
     logger.info('Policy-mutating MCP tools (ingest_policy, compile_rules) disabled (allowPolicyMutations=false)');
   }
 
-  logger.info({ toolCount: allowMutations ? 7 : 5 }, 'MCP tools registered');
+  logger.info({ toolCount: allowMutations ? 8 : 6 }, 'MCP tools registered');
 }

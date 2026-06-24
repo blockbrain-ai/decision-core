@@ -26,6 +26,7 @@ import { rulesCommand } from './commands/rules.js';
 import { addRuleCommand } from './commands/add-rule.js';
 import { rescanCommand } from './commands/rescan.js';
 import { historyCommand } from './commands/history.js';
+import { observationsCommand } from './commands/observations.js';
 import { rollbackCommand } from './commands/rollback.js';
 import { doctorCommand } from './commands/doctor.js';
 import { testScenariosCommand } from './commands/test-scenarios.js';
@@ -220,6 +221,8 @@ export async function runCli(argv: string[]): Promise<number> {
         return await rescanCommand(ctx);
       case 'history':
         return await historyCommand(ctx);
+      case 'observations':
+        return await observationsCommand(ctx);
       case 'rollback':
         return await rollbackCommand(ctx);
       case 'doctor':

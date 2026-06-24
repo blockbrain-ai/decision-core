@@ -134,9 +134,10 @@ describe('MCP Tools', () => {
       expect(toolNames).toContain('list_policy_rules');
       expect(toolNames).toContain('explain_decision');
       expect(toolNames).toContain('audit_trail');
+      expect(toolNames).toContain('dc_observations');
       expect(toolNames).toContain('ingest_policy');
       expect(toolNames).toContain('compile_rules');
-      expect(tools.tools).toHaveLength(7);
+      expect(tools.tools).toHaveLength(8);
     });
 
     it('does NOT expose the policy-MUTATING tools by default (allowPolicyMutations off)', async () => {
@@ -145,10 +146,11 @@ describe('MCP Tools', () => {
       // Mutating tools are gated off...
       expect(names).not.toContain('ingest_policy');
       expect(names).not.toContain('compile_rules');
-      // ...read-only tools remain available.
+      // ...read-only tools remain available (incl. the new observations review tool).
       expect(names).toContain('evaluate');
       expect(names).toContain('audit_trail');
-      expect(names).toHaveLength(5);
+      expect(names).toContain('dc_observations');
+      expect(names).toHaveLength(6);
     });
   });
 

@@ -150,6 +150,10 @@ async function appendDecisionRecord(args: {
       },
       output: {
         decision: args.result.decision,
+        // Persist the observe-mode shadow structurally so `decision-core
+        // observations` can aggregate would-be denials (not just parse rationale).
+        observedDecision: args.result.observedDecision,
+        enforcementMode: args.result.enforcementMode,
         matchedPolicies: args.result.matchedPolicies,
         rationale: args.result.rationale,
       },
