@@ -45,8 +45,8 @@ export async function enforceCommand(ctx: CliContext): Promise<number> {
       const records = await repo.findAll((ctx.config.tenantId ?? 'default') as TenantId, { limit: 5000 });
       db.close();
       summary = aggregateObservations(records);
-    } catch {
-      // Non-fatal — flip can proceed without a usable log.
+    } catch (err) {
+      return fail(`Unable to read observe-mode decision log before enforcing: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
   const recommendations = recommendFromObservations(summary);

@@ -333,7 +333,7 @@ export function registerTools(
   );
 
   } else {
-    logger.info('Policy-mutating MCP tools (ingest_policy, compile_rules) disabled (allowPolicyMutations=false)');
+    logger.info('Policy-mutating MCP tools (ingest_policy, compile_rules, dc_enforce) disabled (allowPolicyMutations=false)');
   }
 
   logger.info({ toolCount: allowMutations ? 10 : 7 }, 'MCP tools registered');

@@ -540,11 +540,34 @@ function generatePolicyPackYaml(profile: OnboardingProfile): string {
   // Executive decisions (B2): the operator's owned high-risk capability calls
   // become TOP-priority rules so a deliberate allow/ask/block wins over tool tiers.
   const execPatterns: Record<string, string[]> = {
-    delete_data: ['delete_*', 'drop_*', 'destroy_*', 'purge_*'],
-    move_money: ['payment_*', 'transfer_*', 'refund_*', 'charge_*'],
-    deploy: ['deploy_*', 'release_*', 'rollout_*'],
-    external_contact: ['send_*', 'email_*', 'contact_*', 'publish_*'],
-    credentials: ['credential_*', 'secret_*', 'token_*'],
+    delete_data: [
+      'delete_*', 'delete-*', 'delete.*',
+      'drop_*', 'drop-*', 'drop.*',
+      'destroy_*', 'destroy-*', 'destroy.*',
+      'purge_*', 'purge-*', 'purge.*',
+    ],
+    move_money: [
+      'payment_*', 'payment-*', 'payment.*',
+      'transfer_*', 'transfer-*', 'transfer.*',
+      'refund_*', 'refund-*', 'refund.*',
+      'charge_*', 'charge-*', 'charge.*',
+    ],
+    deploy: [
+      'deploy_*', 'deploy-*', 'deploy.*',
+      'release_*', 'release-*', 'release.*',
+      'rollout_*', 'rollout-*', 'rollout.*',
+    ],
+    external_contact: [
+      'send_*', 'send-*', 'send.*',
+      'email_*', 'email-*', 'email.*',
+      'contact_*', 'contact-*', 'contact.*',
+      'publish_*', 'publish-*', 'publish.*',
+    ],
+    credentials: [
+      'credential_*', 'credential-*', 'credential.*',
+      'secret_*', 'secret-*', 'secret.*',
+      'token_*', 'token-*', 'token.*',
+    ],
   };
   for (const [cap, decision] of Object.entries(profile.autonomy.executiveDecisions ?? defaultExecutiveDecisions())) {
     for (const pattern of execPatterns[cap] ?? []) {
@@ -675,8 +698,21 @@ function sanitizeId(name: string): string {
 }
 
 function sanitizeActionType(name: string): string {
-  const sanitized = sanitizeId(name).replace(/-+/g, '-').replace(/^-|-$/g, '');
+  const sanitized = stripControlCharacters(name)
+    .trim()
+    .replace(/[^a-zA-Z0-9._-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
   return sanitized.length > 0 ? sanitized : 'tool';
+}
+
+function stripControlCharacters(value: string): string {
+  let out = '';
+  for (let i = 0; i < value.length; i += 1) {
+    const code = value.charCodeAt(i);
+    if (code > 0x1F && code !== 0x7F) out += value[i];
+  }
+  return out;
 }
 
 function toPolicyDecision(action: string): string {

@@ -17,6 +17,14 @@ function writeConfig(dir: string, enforcementMode: 'observe' | 'enforce', withPa
   );
 }
 
+function writeRawConfig(dir: string, raw: string, withPack = true): void {
+  mkdirSync(join(dir, '.decision-core'), { recursive: true });
+  if (withPack) {
+    writeFileSync(join(dir, '.decision-core', 'policy-pack.yaml'), 'version: "1.0.0"\nname: t\nrules: []\n', 'utf-8');
+  }
+  writeFileSync(join(dir, 'decision-core.yaml'), raw, 'utf-8');
+}
+
 describe('promote-enforce', () => {
   let dir: string;
   beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'dc-enforce-')); });
@@ -47,6 +55,28 @@ describe('promote-enforce', () => {
     writeConfig(dir, 'enforce');
     const result = flipToEnforce(dir);
     expect(result).toEqual({ ok: true, alreadyEnforcing: true });
+  });
+
+  it('treats omitted enforcementMode as enforce, matching the documented default', () => {
+    writeRawConfig(
+      dir,
+      '# no explicit mode\ntenantId: default\npolicyPackPath: .decision-core/policy-pack.yaml\ndenyUnknownDefault: true\n',
+    );
+    expect(inspectPromote(dir).alreadyEnforcing).toBe(true);
+    expect(flipToEnforce(dir)).toEqual({ ok: true, alreadyEnforcing: true });
+    expect(readFileSync(join(dir, 'decision-core.yaml'), 'utf-8')).not.toContain('enforcementMode: enforce');
+  });
+
+  it('flips the root mode line, not comments that mention observe mode', () => {
+    writeRawConfig(
+      dir,
+      '# leave this comment alone: enforcementMode: observe\ntenantId: default\npolicyPackPath: .decision-core/policy-pack.yaml\ndenyUnknownDefault: true\nenforcementMode: observe\n',
+    );
+    const result = flipToEnforce(dir);
+    expect(result.ok).toBe(true);
+    const after = readFileSync(join(dir, 'decision-core.yaml'), 'utf-8');
+    expect(after).toContain('# leave this comment alone: enforcementMode: observe');
+    expect(after).toContain('enforcementMode: enforce');
   });
 
   it('refuses to enforce an empty policy (no pack)', () => {

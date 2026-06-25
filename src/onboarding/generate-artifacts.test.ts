@@ -137,6 +137,40 @@ describe('generate-artifacts', () => {
       expect(del.priority).toBe(95);
       const deploy = execRules.find((r) => r.actionTypePattern === 'deploy_*')!;
       expect(deploy.requireApproval).toBe(true);
+      expect(execRules.some((r) => r.actionTypePattern === 'deploy.*')).toBe(true);
+      expect(execRules.some((r) => r.actionTypePattern === 'deploy-*')).toBe(true);
+    });
+
+    it('runtime pack preserves dotted and hyphenated tool action names', () => {
+      const profile = businessProfile();
+      profile.tools = [
+        {
+          name: 'deploy.production',
+          riskTier: 4,
+          canSpendMoney: false,
+          canDeleteData: false,
+          canContactPeople: false,
+          canPublishContent: false,
+          canDeployCode: true,
+          accessesSensitiveData: false,
+          defaultAction: 'block',
+        },
+        {
+          name: 'file-read',
+          riskTier: 1,
+          canSpendMoney: false,
+          canDeleteData: false,
+          canContactPeople: false,
+          canPublishContent: false,
+          canDeployCode: false,
+          accessesSensitiveData: false,
+          defaultAction: 'allow',
+        },
+      ];
+      const pack = result_pack(profile);
+      const patterns = (pack.rules as Array<Record<string, unknown>>).map((r) => r.actionTypePattern);
+      expect(patterns).toContain('deploy.production');
+      expect(patterns).toContain('file-read');
     });
 
     it('an explicit ALLOW executive decision emits an allow rule', () => {

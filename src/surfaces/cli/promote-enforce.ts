@@ -29,7 +29,8 @@ export function inspectPromote(cwd: string): {
   const parsed = CliConfigSchema.safeParse(parseYaml(readFileSync(configPath, 'utf-8')));
   if (!parsed.success) return { exists: true, valid: false, alreadyEnforcing: false, hasPack: false };
   const hasPack = !!parsed.data.policyPackPath || existsSync(resolve(cwd, '.decision-core', 'policy-pack.yaml'));
-  return { exists: true, valid: true, alreadyEnforcing: parsed.data.enforcementMode === 'enforce', hasPack };
+  const mode = parsed.data.enforcementMode ?? 'enforce';
+  return { exists: true, valid: true, alreadyEnforcing: mode === 'enforce', hasPack };
 }
 
 /** Flip observe→enforce with backup + validation. Mutates decision-core.yaml. */
@@ -43,7 +44,8 @@ export function flipToEnforce(cwd: string): PromoteResult {
   if (!parsed.success) {
     return { ok: false, code: 'invalid_config', error: `decision-core.yaml is invalid: ${parsed.error.message}` };
   }
-  if (parsed.data.enforcementMode === 'enforce') {
+  const mode = parsed.data.enforcementMode ?? 'enforce';
+  if (mode === 'enforce') {
     return { ok: true, alreadyEnforcing: true };
   }
   const hasPack = !!parsed.data.policyPackPath || existsSync(resolve(cwd, '.decision-core', 'policy-pack.yaml'));
@@ -52,8 +54,8 @@ export function flipToEnforce(cwd: string): PromoteResult {
   }
 
   createBackup([configPath], 'enforce', resolve(cwd, '.decision-core'));
-  const updated = /enforcementMode:\s*['"]?observe['"]?/.test(raw)
-    ? raw.replace(/enforcementMode:\s*['"]?observe['"]?/, 'enforcementMode: enforce')
+  const updated = /^(\s*enforcementMode:\s*)['"]?observe['"]?\s*$/m.test(raw)
+    ? raw.replace(/^(\s*enforcementMode:\s*)['"]?observe['"]?\s*$/m, '$1enforce')
     : `${raw}${raw.endsWith('\n') ? '' : '\n'}enforcementMode: enforce\n`;
 
   const revalidate = CliConfigSchema.safeParse(parseYaml(updated));

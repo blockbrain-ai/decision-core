@@ -4,10 +4,10 @@ The single honest source of truth for what Decision Core **actually enforces and
 is experimental or planned. When docs, README, or marketing language disagree with this ledger, the ledger
 wins — fix the other copy.
 
-- **Last verified:** `blockbrain-ai/decision-core` `main @ a925d8b` (ten governed launch-hardening PRs,
-  PR-1…PR-5 trust-core + doc-accuracy + scoped publish-access). Onboarding-UX hardening is in progress on top
-  of this head; see the onboarding gap-closure programme.
-- **How "proven" is established:** the full local gate (`typecheck` · `lint` · `test` 2479 pass/4 skip ·
+- **Last verified:** `blockbrain-ai/decision-core` `main @ 18e714e` (19 governed PRs: trust-core launch
+  hardening, doc/publish safety, and the full onboarding gap-closure programme). A post-onboarding residual
+  hardening branch also passed the same gate; replace this line with the merged SHA before public flip.
+- **How "proven" is established:** the full local gate (`typecheck` · `lint` · `test` 2520 pass/4 skip ·
   `build` · `npm audit` 0 vulns), the standing tarball smoke (`npm run smoke:tarball` — pack → no
   secrets/local-state → install → SDK + CLI), the Hermes drop-in driver (`test/hermes-dropin-e2e/driver.py`,
   which fails unless the plugin loads, both hooks register, a deny rule and deny-unknown block, an allowed
@@ -67,7 +67,9 @@ wins — fix the other copy.
 
 ## Launch posture
 
-The trust-core launch-blocker queue is clear as of PR-5 (`974c2b6`, later staging `a925d8b`): this ledger, the hardened Hermes E2E harness, and the
-standing tarball-smoke CI gate have landed through the governed flow. Public flip + `npm publish` remain a
-separate explicit human launch decision because both are hard to reverse. Track status in the control plane
+The trust-core launch-blocker queue and onboarding-UX gap-closure queue are clear through `18e714e`: this
+ledger, the hardened Hermes E2E harness, standing tarball-smoke CI gate, observe-first onboarding loop,
+observations/recommend/promote flow, executive decisions, live discovery, profile write-back, maintenance loop,
+and full onboarding E2E have landed through the governed flow. Public flip + `npm publish` remain a separate
+explicit human launch decision because both are hard to reverse. Track status in the control plane
 (`docs/03-CURRENT-STATE.md`, `DECISION-CORE-LAUNCH/`).
