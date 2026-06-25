@@ -4,15 +4,21 @@ The single honest source of truth for what Decision Core **actually enforces and
 is experimental or planned. When docs, README, or marketing language disagree with this ledger, the ledger
 wins — fix the other copy.
 
-- **Last verified:** `blockbrain-ai/decision-core` `main @ 18e714e` (19 governed PRs: trust-core launch
-  hardening, doc/publish safety, and the full onboarding gap-closure programme). A post-onboarding residual
-  hardening branch also passed the same gate; replace this line with the merged SHA before public flip.
+- **Last verified:** `blockbrain-ai/decision-core` `main @ ac546d5` (20 governed PRs: trust-core launch
+  hardening, doc/publish safety, the full onboarding gap-closure programme, and **PR #20 post-onboarding
+  residual UX/correctness hardening** — NUL removal, observe→enforce promotion semantics, dotted/hyphenated
+  tool + executive-decision coverage, control-char sanitisation, and MCP log accuracy). The real Hermes
+  drop-in E2E (below) was re-run against this head and passed.
 - **How "proven" is established:** the full local gate (`typecheck` · `lint` · `test` 2520 pass/4 skip ·
   `build` · `npm audit` 0 vulns), the standing tarball smoke (`npm run smoke:tarball` — pack → no
   secrets/local-state → install → SDK + CLI), the Hermes drop-in driver (`test/hermes-dropin-e2e/driver.py`,
   which fails unless the plugin loads, both hooks register, a deny rule and deny-unknown block, an allowed
   tool really dispatches, and concrete audit records land), and the governed-merge evidence in the control
   plane (`DECISION-CORE-LAUNCH/13`).
+- **Last real Hermes E2E:** at `ac546d5`, the drop-in driver ran through real Hermes `0.14.0` / git
+  `edb2d9105` (`model_tools.handle_function_call`) against a live server — plugin loaded, both hooks
+  registered, `payment_send` denied by rule, `exfiltrate_secrets` denied by deny-unknown (fail-closed),
+  `read_file` allowed + dispatched, 4 audit records with numeric timing. `PASS=true`.
 
 ## Surfaces
 
@@ -67,9 +73,10 @@ wins — fix the other copy.
 
 ## Launch posture
 
-The trust-core launch-blocker queue and onboarding-UX gap-closure queue are clear through `18e714e`: this
-ledger, the hardened Hermes E2E harness, standing tarball-smoke CI gate, observe-first onboarding loop,
-observations/recommend/promote flow, executive decisions, live discovery, profile write-back, maintenance loop,
-and full onboarding E2E have landed through the governed flow. Public flip + `npm publish` remain a separate
-explicit human launch decision because both are hard to reverse. Track status in the control plane
+The trust-core launch-blocker queue and onboarding-UX gap-closure queue are clear through `ac546d5`: this
+ledger, the hardened Hermes E2E harness (re-proven live at `ac546d5`), standing tarball-smoke CI gate,
+observe-first onboarding loop, observations/recommend/promote flow, executive decisions, live discovery,
+profile write-back, maintenance loop, full onboarding E2E, and the PR #20 residual hardening have landed
+through the governed flow. Public flip + `npm publish` remain a separate explicit human launch decision
+because both are hard to reverse. Track status in the control plane
 (`docs/03-CURRENT-STATE.md`, `DECISION-CORE-LAUNCH/`).
