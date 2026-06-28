@@ -4,6 +4,8 @@ The single honest source of truth for what Decision Core **actually enforces and
 is experimental or planned. When docs, README, or marketing language disagree with this ledger, the ledger
 wins — fix the other copy.
 
+- **License:** Apache-2.0 (`LICENSE` + `NOTICE`). Contributions are accepted under the Developer Certificate of
+  Origin (DCO) — every commit must be signed off (`git commit -s`).
 - **Last verified:** `blockbrain-ai/decision-core` `main @ ac546d5` (20 governed PRs: trust-core launch
   hardening, doc/publish safety, the full onboarding gap-closure programme, and **PR #20 post-onboarding
   residual UX/correctness hardening** — NUL removal, observe→enforce promotion semantics, dotted/hyphenated

@@ -47,7 +47,21 @@ be merged.
 1. Fork and branch from `main`.
 2. Keep changes focused; add or update tests for behaviour you change.
 3. Describe the user-facing effect and call out anything touching a security chokepoint.
-4. By contributing you agree your work is licensed under the project's MIT license.
+4. By contributing you agree your work is licensed under the project's Apache-2.0 license.
+
+## Developer Certificate of Origin (DCO)
+
+Contributions are accepted under the [Developer Certificate of Origin](https://developercertificate.org/).
+You certify the DCO by **signing off every commit**:
+
+```bash
+git commit -s -m "your message"     # adds a "Signed-off-by: Your Name <you@example.com>" trailer
+git commit --amend -s               # add the sign-off to your most recent commit
+```
+
+The sign-off must use your real name and an email you can be reached at. A CI check
+(`.github/workflows/dco.yml`) verifies every commit in a PR carries a `Signed-off-by` line; PRs
+without it cannot be merged. We use the DCO rather than a CLA to keep contributing low-friction.
 
 ## Reporting bugs
 

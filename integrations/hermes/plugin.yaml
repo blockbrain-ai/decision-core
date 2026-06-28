@@ -7,7 +7,7 @@ description: >
   outcomes for audit.
 
 author: Decision Core
-license: MIT
+license: Apache-2.0
 
 # Hermes manifest fields (see hermes_cli/plugins.py PluginManifest).
 # `kind: standalone` plugins must be opted in via `plugins.enabled` in

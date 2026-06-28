@@ -35,7 +35,7 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"
   },
@@ -59,6 +59,7 @@
     "skills",
     "README.md",
     "LICENSE",
+    "NOTICE",
     "SECURITY.md",
     "CONTRIBUTING.md",
     "CODE_OF_CONDUCT.md",
