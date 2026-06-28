@@ -93,5 +93,9 @@
     "url": "https://github.com/blockbrain-ai/decision-core/issues"
   },
   "homepage": "https://github.com/blockbrain-ai/decision-core#readme",
-  "author": "Blockbrain Labs"
+  "author": "Blockbrain Labs <admin@blockbrain.au>",
+  "contributors": [
+    "Chris Walker <admin@blockbrain.au>",
+    "Dustin Henning"
+  ]
 }

@@ -235,6 +235,16 @@ evidence record carries `correlationId`, `timestamp`, `tenantId`, and `auditHash
 (`git commit -s`) — contributions are accepted under the [DCO](https://developercertificate.org/). See
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Maintainers
+
+Built and maintained by **Blockbrain Labs**.
+
+- **Chris Walker** — <admin@blockbrain.au>
+- **Dustin Henning**
+
+Follow [**@blockbrain_labs**](https://x.com/blockbrain_labs) on X. Questions: <admin@blockbrain.au>. For
+security issues, see [SECURITY.md](SECURITY.md) — please don't open a public issue.
+
 ## License
 
 [Apache-2.0](LICENSE) © Blockbrain Labs — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
