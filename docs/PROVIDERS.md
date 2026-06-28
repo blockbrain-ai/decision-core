@@ -9,7 +9,7 @@ Decision Core supports multiple provider modes for model-assisted routing. The p
 The host application provides the model gateway. Decision Core delegates all LLM calls to the adapter supplied by the integrating system.
 
 ```typescript
-import { quickStart } from '@decision-core/core';
+import { quickStart } from '@blockbrainlabs/decision-core';
 
 const dc = await quickStart({
   providerMode: 'host',

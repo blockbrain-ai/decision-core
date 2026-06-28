@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - OpenClaw workspace with `openclaw.config.ts` or `.openclaw/` directory
-- Decision Core installed: `npm install @decision-core/core`
+- Decision Core installed: `npm install @blockbrainlabs/decision-core`
 
 ## Setup
 
@@ -72,4 +72,4 @@ Other options:
    - packaged runtime code: `dist/integrations/openclaw/`
 
 This is currently a manual host integration path, not a native
-`openclaw plugins install @decision-core/core` package install.
+`openclaw plugins install @blockbrainlabs/decision-core` package install.

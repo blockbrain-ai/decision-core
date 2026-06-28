@@ -24,7 +24,7 @@ decision-core serve --mcp
 ### On-demand with `npx`
 
 ```bash
-npx -y @decision-core/core serve --mcp
+npx -y @blockbrainlabs/decision-core serve --mcp
 ```
 
 ## Claude Desktop or any MCP-capable client
@@ -34,7 +34,7 @@ npx -y @decision-core/core serve --mcp
   "mcpServers": {
     "decision-core": {
       "command": "npx",
-      "args": ["-y", "@decision-core/core", "serve", "--mcp"]
+      "args": ["-y", "@blockbrainlabs/decision-core", "serve", "--mcp"]
     }
   }
 }
@@ -43,7 +43,7 @@ npx -y @decision-core/core serve --mcp
 Then point the client at:
 
 ```text
-node_modules/@decision-core/core/skills/onboard/SKILL.md
+node_modules/@blockbrainlabs/decision-core/skills/onboard/SKILL.md
 ```
 
 ## Hermes and OpenClaw users

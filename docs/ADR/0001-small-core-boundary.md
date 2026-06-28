@@ -12,7 +12,7 @@ However, extracting all of it produces a platform, not a focused governor. The p
 
 ## Decision
 
-### Core package (`@decision-core/core`)
+### Core package (`@blockbrainlabs/decision-core`)
 
 These components ship in the core package and must work with zero external dependencies:
 
@@ -57,4 +57,4 @@ If the MVP production code grows past ~18K lines before the adapters work end-to
 - The trust framework ships in Phase 1 (it's too valuable to defer) but connects to the ModelGatewayAdapter interface — model-dependent patterns fail closed when no adapter is provided.
 - The clause graph is Phase 2 — significant new code, not extraction.
 - Agent adapters are Phase 4 — they depend on stable SDK contracts from Phase 3.
-- Users can install `@decision-core/core` and get a working policy governor with zero config. Additional features are opt-in.
+- Users can install `@blockbrainlabs/decision-core` and get a working policy governor with zero config. Additional features are opt-in.

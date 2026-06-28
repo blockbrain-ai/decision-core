@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Any Node.js project or standalone setup
-- Decision Core installed: `npm install @decision-core/core`
+- Decision Core installed: `npm install @blockbrainlabs/decision-core`
 
 ## Setup
 
@@ -33,7 +33,7 @@ than exporting everything into a new store first.
 After setup, integrate Decision Core's policy evaluation point (PEP) before tool execution:
 
 ```typescript
-import { evaluate } from '@decision-core/core';
+import { evaluate } from '@blockbrainlabs/decision-core';
 
 async function beforeToolExecution(toolName: string, surface = 'api') {
   const result = await evaluate({

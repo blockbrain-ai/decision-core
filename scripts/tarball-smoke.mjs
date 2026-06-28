@@ -77,7 +77,7 @@ try {
 
   const sdkSmokePath = join(installDir, 'sdk-smoke.mjs');
   writeFileSync(sdkSmokePath, `
-    import { ActionApprovalDecision, evaluate, quickStart } from '@decision-core/core';
+    import { ActionApprovalDecision, evaluate, quickStart } from '@blockbrainlabs/decision-core';
 
     const denied = await evaluate(
       { action: 'delete_file', surface: 'api' },
@@ -115,7 +115,7 @@ try {
   run(process.execPath, [sdkSmokePath], { cwd: installDir });
 
   const cliHelp = run(process.execPath, [
-    'node_modules/@decision-core/core/dist/src/surfaces/cli/bin.js',
+    'node_modules/@blockbrainlabs/decision-core/dist/src/surfaces/cli/bin.js',
     '--help',
   ], { cwd: installDir });
   assert(cliHelp.includes('decision-core') && cliHelp.includes('Commands:'), 'Packaged CLI help did not render');

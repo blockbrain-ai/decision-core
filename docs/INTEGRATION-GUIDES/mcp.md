@@ -41,7 +41,7 @@ If you need the REST API for Hermes or other localhost bridges, run
   "mcpServers": {
     "decision-core": {
       "command": "npx",
-      "args": ["-y", "@decision-core/core", "serve", "--mcp"]
+      "args": ["-y", "@blockbrainlabs/decision-core", "serve", "--mcp"]
     }
   }
 }
@@ -92,7 +92,7 @@ If you need the REST API for Hermes or other localhost bridges, run
 Decision Core also exports the MCP helpers:
 
 ```typescript
-import { createMcpServer, startStdioServer } from '@decision-core/core';
+import { createMcpServer, startStdioServer } from '@blockbrainlabs/decision-core';
 ```
 
 `createMcpServer()` creates the MCP server instance with all bundled tools

@@ -20,7 +20,7 @@ Decision Core
 ## Install
 
 ```bash
-npm install @decision-core/core
+npm install @blockbrainlabs/decision-core
 ```
 
 ## Transport Layer
@@ -34,7 +34,7 @@ The HTTP transport is the recommended path when G-Brain HTTP is running. It uses
 MCP-over-HTTP plus OAuth 2.1 client credentials.
 
 ```typescript
-import { GBrainClient, GBrainHttpTransport } from '@decision-core/core';
+import { GBrainClient, GBrainHttpTransport } from '@blockbrainlabs/decision-core';
 
 const transport = new GBrainHttpTransport({
   baseUrl: 'http://127.0.0.1:3131',
@@ -111,7 +111,7 @@ explicit and the service environment includes Bun on `PATH`.
 The CLI transport shells out to the `gbrain` CLI for each operation.
 
 ```typescript
-import { GBrainCliTransport, GBrainClient } from '@decision-core/core';
+import { GBrainCliTransport, GBrainClient } from '@blockbrainlabs/decision-core';
 
 const transport = new GBrainCliTransport({
   binPath: '/srv/gbrain/.bun/bin/gbrain',
@@ -178,7 +178,7 @@ import {
   GBrainContextAdapter,
   GBrainHttpTransport,
   GBrainStoreAdapter,
-} from '@decision-core/core';
+} from '@blockbrainlabs/decision-core';
 
 const transport = new GBrainHttpTransport({
   baseUrl: 'http://127.0.0.1:3131',

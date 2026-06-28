@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Hermes agent configured at `~/.hermes/` or `HERMES_HOME`
-- Decision Core installed: `npm install @decision-core/core`
+- Decision Core installed: `npm install @blockbrainlabs/decision-core`
 
 ## Setup
 

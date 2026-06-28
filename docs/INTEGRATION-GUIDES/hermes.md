@@ -55,7 +55,7 @@ integrations/hermes/
 ### 1. Copy the plugin into your Hermes plugins directory
 
 ```bash
-cp -r node_modules/@decision-core/core/integrations/hermes \
+cp -r node_modules/@blockbrainlabs/decision-core/integrations/hermes \
       /path/to/hermes/plugins/decision-core
 ```
 

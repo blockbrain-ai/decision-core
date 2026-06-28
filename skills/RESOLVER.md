@@ -59,6 +59,6 @@ Reviews decision history, detects governance gaps (missing policies, broken evid
 
 ## Prerequisites
 
-- Decision Core package installed (`npm install @decision-core/core`)
+- Decision Core package installed (`npm install @blockbrainlabs/decision-core`)
 - For MCP skills: MCP server running (`decision-core serve --mcp`)
 - For CLI skills: `decision-core` binary available in PATH

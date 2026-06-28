@@ -7,7 +7,7 @@ Your AI agent can delete data, move money, deploy, or leak secrets — and most 
 **Adopt it without breaking anything:** install in **observe mode** to watch and record what it _would_ have blocked — blocking nothing — then review the impact and turn enforcement on with one command. No database, no LLM, no network required. Works in-process, as an MCP server, over HTTP, or via CLI.
 
 ```typescript
-import { evaluate } from '@decision-core/core';
+import { evaluate } from '@blockbrainlabs/decision-core';
 
 // deny-unknown ON: any action without a matching allow rule is denied.
 const result = await evaluate(
@@ -27,7 +27,7 @@ console.log(result.decision); // → 'deny'  (no allow rule matched → denied)
 For the full pipeline with `quickStart`:
 
 ```typescript
-import { quickStart, ActionApprovalDecision } from '@decision-core/core';
+import { quickStart, ActionApprovalDecision } from '@blockbrainlabs/decision-core';
 
 const dc = await quickStart({
   tools: ['read_*', 'write_*', 'search_*'],
@@ -92,13 +92,13 @@ Install and evaluate your first decision.
 ### 1. Install
 
 ```bash
-npm install @decision-core/core
+npm install @blockbrainlabs/decision-core
 ```
 
 ### 2. Set up Decision Core
 
 ```typescript
-import { quickStart } from '@decision-core/core';
+import { quickStart } from '@blockbrainlabs/decision-core';
 
 // Declare which tools your agent can use.
 // Anything not listed is denied by default (deny-unknown).
@@ -113,7 +113,7 @@ const dc = await quickStart({
 Decision Core uses the `BaseDecision` interface for structured evaluation. The built-in `ActionApprovalDecision` template handles tool approval. Pass the action name to the constructor — that is what your policy rules (e.g. the `tools` patterns above) match against:
 
 ```typescript
-import { ActionApprovalDecision } from '@decision-core/core';
+import { ActionApprovalDecision } from '@blockbrainlabs/decision-core';
 
 // An allowed action
 const readDecision = new ActionApprovalDecision('read_file')
@@ -167,7 +167,7 @@ Configure Decision Core for a team with custom rules, surfaces, and approval wor
 Policy packs are YAML files that define rules, surfaces, and trust tiers. Start with a built-in pack and customize:
 
 ```typescript
-import { fromPolicyPack } from '@decision-core/core';
+import { fromPolicyPack } from '@blockbrainlabs/decision-core';
 
 // Built-in packs: 'personal', 'team', 'fintech', 'healthcare', 'saas'
 const dc = await fromPolicyPack('team');
@@ -240,7 +240,7 @@ trustTiers:
 ### 3. Load your custom pack
 
 ```typescript
-import { quickStart, loadPolicyPack } from '@decision-core/core';
+import { quickStart, loadPolicyPack } from '@blockbrainlabs/decision-core';
 
 const dc = await quickStart({
   profile: 'team',
@@ -248,7 +248,7 @@ const dc = await quickStart({
 });
 
 // Or load from a YAML file path using createDecisionCore:
-import { createDecisionCore } from '@decision-core/core';
+import { createDecisionCore } from '@blockbrainlabs/decision-core';
 
 const dcFull = await createDecisionCore({
   policyPackPath: './config/policy-pack.yaml',
@@ -261,7 +261,7 @@ const dcFull = await createDecisionCore({
 If you only need allow/deny/approve_required verdicts without the full decision pipeline:
 
 ```typescript
-import { createPolicyGuard } from '@decision-core/core';
+import { createPolicyGuard } from '@blockbrainlabs/decision-core';
 
 const guard = await createPolicyGuard({
   policyPackPath: './config/policy-pack.yaml',
@@ -288,7 +288,7 @@ npm install better-sqlite3
 ```
 
 ```typescript
-import { quickStart } from '@decision-core/core';
+import { quickStart } from '@blockbrainlabs/decision-core';
 
 const dc = await quickStart({
   profile: 'enterprise',
@@ -301,7 +301,7 @@ const dc = await quickStart({
 Or use the full configuration API:
 
 ```typescript
-import { createDecisionCore } from '@decision-core/core';
+import { createDecisionCore } from '@blockbrainlabs/decision-core';
 
 const dc = await createDecisionCore({
   persistence: 'sqlite',
@@ -342,7 +342,7 @@ Decision Core ships with enterprise-grade policy packs:
 | `saas` | enterprise | Multi-tenant SaaS — isolation checks, API rate limiting |
 
 ```typescript
-import { fromPolicyPack } from '@decision-core/core';
+import { fromPolicyPack } from '@blockbrainlabs/decision-core';
 
 const dc = await fromPolicyPack('fintech', {
   tenantId: 'trading-desk-1',
@@ -474,7 +474,7 @@ The MCP server exposes the core tools `evaluate`, `query_policy`, `list_policy_r
 `explain_decision`, `audit_trail`, `ingest_policy`, and `compile_rules`, plus
 the bundled onboarding, setup, policy-author, and audit workflow tools. For
 programmatic setup, use `createMcpServer(deps, config)` from
-`@decision-core/core`.
+`@blockbrainlabs/decision-core`.
 
 ## Architecture
 

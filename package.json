@@ -1,5 +1,5 @@
 {
-  "name": "@decision-core/core",
+  "name": "@blockbrainlabs/decision-core",
   "version": "0.1.0",
   "description": "Portable, replayable policy decision governor for AI agents",
   "type": "module",
@@ -45,7 +45,7 @@
   "files": [
     "dist",
     "config",
-    "docs",
+    "docs/**/*.md",
     "integrations/gbrain/SKILL.md",
     "integrations/hermes/__init__.py",
     "integrations/hermes/decision_core_bridge.py",

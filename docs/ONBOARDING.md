@@ -3,7 +3,7 @@
 ## Quick Start
 
 ```bash
-npm install @decision-core/core
+npm install @blockbrainlabs/decision-core
 decision-core setup
 ```
 

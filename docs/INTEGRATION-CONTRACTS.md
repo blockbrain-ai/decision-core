@@ -14,7 +14,7 @@ through a thin transport layer.
 ### `evaluate(input, options?)`
 
 ```typescript
-import { evaluate } from '@decision-core/core';
+import { evaluate } from '@blockbrainlabs/decision-core';
 
 const result = await evaluate({
   action: 'finance.read_ledger',
@@ -177,7 +177,7 @@ Decision Core OpenClaw hook module:
 - packaged runtime: `dist/integrations/openclaw/`
 
 This is not yet documented as a native `openclaw plugins install
-@decision-core/core` package root.
+@blockbrainlabs/decision-core` package root.
 
 ### Config
 

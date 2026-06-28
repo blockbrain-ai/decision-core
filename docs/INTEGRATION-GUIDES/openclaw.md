@@ -22,7 +22,7 @@ function (the real loader shape) that wires the hooks via
 exports `definePluginEntry(config)` returning a hook bundle for tests and for
 hosts that wire the hooks themselves. Decision Core does **not** yet publish a
 standalone native OpenClaw package layout for
-`openclaw plugins install @decision-core/core`.
+`openclaw plugins install @blockbrainlabs/decision-core`.
 
 ```
 OpenClaw before_tool_call -> Decision Core PolicyGuard -> pass | block | requireApproval
@@ -189,7 +189,7 @@ For an existing OpenClaw workspace:
 4. if you already have G-Brain, reuse it as the evidence sink instead of
    creating a second memory system
 
-Do not document this path as `openclaw plugins install @decision-core/core`
+Do not document this path as `openclaw plugins install @blockbrainlabs/decision-core`
 until Decision Core ships a native OpenClaw package root with the required
 `package.json openclaw.extensions` metadata and compiled runtime layout.
 

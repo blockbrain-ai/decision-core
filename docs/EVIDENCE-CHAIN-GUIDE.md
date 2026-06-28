@@ -119,7 +119,7 @@ For each record in sequence order:
 ### Using Verification
 
 ```typescript
-import { EvidenceChainService } from '@decision-core/core';
+import { EvidenceChainService } from '@blockbrainlabs/decision-core';
 
 const verification = await evidenceChainService.verify(tenantId, correlationId);
 
@@ -164,7 +164,7 @@ interface HistoricalReplayResult {
 ### Performing Replay
 
 ```typescript
-import { HistoricalReplayService } from '@decision-core/core';
+import { HistoricalReplayService } from '@blockbrainlabs/decision-core';
 
 const replay = await replayService.replay(tenantId, correlationId);
 

@@ -439,7 +439,7 @@ memory:
 Call Decision Core before tool execution:
 
 \`\`\`ts
-import { evaluate } from '@decision-core/core';
+import { evaluate } from '@blockbrainlabs/decision-core';
 
 const decision = await evaluate({
   surface: 'workflow.routing',

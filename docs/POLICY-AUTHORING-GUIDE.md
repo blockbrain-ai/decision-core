@@ -204,7 +204,7 @@ Pre-built rule sets for common scenarios:
 Load a pack:
 
 ```typescript
-import { fromPolicyPack } from '@decision-core/core';
+import { fromPolicyPack } from '@blockbrainlabs/decision-core';
 
 const dc = await fromPolicyPack('fintech', {
   tenantId: 'acme-corp',
@@ -267,7 +267,7 @@ const dc = await quickStart({
 Rules can be created via the SDK:
 
 ```typescript
-import { TenantId } from '@decision-core/core';
+import { TenantId } from '@blockbrainlabs/decision-core';
 
 await policyRuleRepo.create('tenant-1' as TenantId, {
   name: 'block-deploy-friday',
@@ -318,7 +318,7 @@ decision-core evaluate --surface finance --action transfer.execute --context '{"
 Or use the policy rule test harness programmatically:
 
 ```typescript
-import { createPolicyRuleTestHarness } from '@decision-core/core';
+import { createPolicyRuleTestHarness } from '@blockbrainlabs/decision-core';
 
 const harness = createPolicyRuleTestHarness();
 const result = harness.runAgainstContext(compiledRuleSet, {
