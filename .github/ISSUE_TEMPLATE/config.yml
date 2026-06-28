@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability (private)
+    url: https://github.com/blockbrain-ai/decision-core/security/advisories/new
+    about: Decision Core is a security tool — please report vulnerabilities privately per SECURITY.md. Do not open a public issue.
+  - name: Questions / general discussion
+    url: mailto:admin@blockbrain.au
+    about: Not a bug or feature request? Email us.

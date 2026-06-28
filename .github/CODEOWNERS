@@ -1,0 +1,9 @@
+# Code owners for Decision Core.
+#
+# Listed owners are AUTO-REQUESTED as reviewers on matching pull requests. This is a
+# convenience for visibility — it is NOT the merge gate. Every PR is governed and
+# human-approved before it lands (opening a PR does not grant merge rights).
+#
+# GitHub requires code owners to have write access to the repository.
+
+*       @nood-co1 @DustysHub
