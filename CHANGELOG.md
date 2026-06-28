@@ -4,7 +4,9 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] — initial public release
+## [0.1.0] — 2026-06-28 — initial public release
+
+Published to npm as [`@blockbrainlabs/decision-core`](https://www.npmjs.com/package/@blockbrainlabs/decision-core).
 
 First open-source release of Decision Core: a portable, deterministic, deny-wins policy
 decision governor for AI agents with a tamper-evident audit trail. No database, no LLM, and
