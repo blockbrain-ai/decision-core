@@ -6,11 +6,11 @@ wins — fix the other copy.
 
 - **License:** Apache-2.0 (`LICENSE` + `NOTICE`). Contributions are accepted under the Developer Certificate of
   Origin (DCO) — every commit must be signed off (`git commit -s`).
-- **Last verified:** `blockbrain-ai/decision-core` `main @ ac546d5` (20 governed PRs: trust-core launch
-  hardening, doc/publish safety, the full onboarding gap-closure programme, and **PR #20 post-onboarding
-  residual UX/correctness hardening** — NUL removal, observe→enforce promotion semantics, dotted/hyphenated
-  tool + executive-decision coverage, control-char sanitisation, and MCP log accuracy). The real Hermes
-  drop-in E2E (below) was re-run against this head and passed.
+- **Last verified:** `blockbrain-ai/decision-core` **public** `main` (verified code head `ac546d5`; launch-prep
+  PRs #23–#28 added Apache-2.0 + DCO, the `@blockbrainlabs/decision-core` rename, showcase README, maintainers,
+  and contributor scaffolding). **Published: `@blockbrainlabs/decision-core@0.1.0` on npm** (see Launch posture
+  below). The real Hermes drop-in E2E (below) was proven on `ac546d5` and the package was install-smoke-tested
+  from the registry after publish.
 - **How "proven" is established:** the full local gate (`typecheck` · `lint` · `test` 2520 pass/4 skip ·
   `build` · `npm audit` 0 vulns), the standing tarball smoke (`npm run smoke:tarball` — pack → no
   secrets/local-state → install → SDK + CLI), the Hermes drop-in driver (`test/hermes-dropin-e2e/driver.py`,
@@ -75,10 +75,18 @@ wins — fix the other copy.
 
 ## Launch posture
 
-The trust-core launch-blocker queue and onboarding-UX gap-closure queue are clear through `ac546d5`: this
-ledger, the hardened Hermes E2E harness (re-proven live at `ac546d5`), standing tarball-smoke CI gate,
-observe-first onboarding loop, observations/recommend/promote flow, executive decisions, live discovery,
-profile write-back, maintenance loop, full onboarding E2E, and the PR #20 residual hardening have landed
-through the governed flow. Public flip + `npm publish` remain a separate explicit human launch decision
-because both are hard to reverse. Track status in the control plane
+**LAUNCHED — 2026-06-28.** Decision Core is **public** (`github.com/blockbrain-ai/decision-core`) and
+**published to npm** as **`@blockbrainlabs/decision-core@0.1.0`** under **Apache-2.0**
+(shasum `f8d48aeeee2c0e2d2ce6af8ba75b9105786a2122`, integrity
+`sha512-wCBAkfC5YmbYy3p9Vkw2pLIpjYs6WsZCFiFZNAYQfIcSZFN5I9VauHd3B8YtU4/fylqOKNBvUA595PiXPDNTWQ==`).
+Post-publish install-from-registry smoke passed (SDK deny-unknown → `deny`; CLI `--help`).
+
+Contribution is open, merge authority is not: anyone can fork, open issues, and submit PRs; **`main` is
+branch-protected** (only `nood-co1` + the `blockbrain-scanner` merge identity can push; force-push/deletion
+blocked) and every PR is governed (DCO sign-off + CI `gate` + MADE: external forks run `runsc`
+validation-only → human approval → trusted-merge; no auto-merge). Contributor scaffolding (PR/issue
+templates, CODEOWNERS) is in place.
+
+The trust-core + onboarding-UX + launch-IP queues all landed through the governed flow (Apache-2.0 relicense,
+npm rename, showcase README, maintainers, contributor scaffolding). Track status in the control plane
 (`docs/03-CURRENT-STATE.md`, `DECISION-CORE-LAUNCH/`).
